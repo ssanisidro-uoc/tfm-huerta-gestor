@@ -1,0 +1,31 @@
+services:
+  Backend.Shared.DatabasePool:
+    factory:
+      class: ../../../Contexts/Shared/infrastructure/DatabasePoolFactory
+      method: createPool
+
+  Backend.Shared.PasswordHasher:
+    factory:
+      class: ../../../Contexts/Shared/infrastructure/PasswordHasherFactory
+      method: create
+
+  Backend.Shared.JwtHandler:
+    factory:
+      class: ../../../Contexts/Shared/infrastructure/JwtHandlerFactory
+      method: create
+
+  Backend.Shared.CommandHandlers:
+    class: ../../../Contexts/Shared/infrastructure/CommandBus/CommandHandlers
+    arguments: ['!tagged commandHandler']
+
+  Backend.Shared.domain.CommandBus:
+    class: ../../../Contexts/Shared/infrastructure/CommandBus/InMemoryCommandBus
+    arguments: ['@Backend.Shared.CommandHandlers']
+
+  Backend.Shared.QueryHandlers:
+    class: ../../../Contexts/Shared/infrastructure/QueryBus/QueryHandlers
+    arguments: ['!tagged queryHandler']
+
+  Backend.Shared.domain.QueryBus:
+    class: ../../../Contexts/Shared/infrastructure/QueryBus/InMemoryQueryBus
+    arguments: ['@Backend.Shared.QueryHandlers']

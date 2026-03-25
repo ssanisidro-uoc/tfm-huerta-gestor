@@ -1,0 +1,3 @@
+services:
+  Backend.apps.TaskRecurrenceCronjob:
+    class: ../../cronjobs/TaskRecurrenceCronjob

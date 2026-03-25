@@ -1,0 +1,64 @@
+services:
+  Backend.Plot.domain.PlotRepository:
+    class: ../../../Contexts/Plot/infrastructure/persistence/PostgresPlotRepository
+    arguments: ['@Backend.Shared.DatabasePool']
+
+  Backend.Plot.application.PlotCreator:
+    class: ../../../Contexts/Plot/application/CreatePlot/PlotCreator
+    arguments: ['@Backend.Plot.domain.PlotRepository']
+
+  Backend.Plot.application.AllPlotsFinder:
+    class: ../../../Contexts/Plot/application/FindAllPlots/AllPlotsFinder
+    arguments: ['@Backend.Plot.domain.PlotRepository']
+
+  Backend.Plot.application.PlotByIdFinder:
+    class: ../../../Contexts/Plot/application/FindPlotById/PlotByIdFinder
+    arguments: ['@Backend.Plot.domain.PlotRepository']
+
+  Backend.Plot.application.CreatePlotCommandHandler:
+    class: ../../../Contexts/Plot/application/CreatePlot/CreatePlotCommandHandler
+    arguments: ['@Backend.Plot.application.PlotCreator']
+    tags:
+      - { name: 'commandHandler' }
+
+  Backend.Plot.application.FindAllPlotsQueryHandler:
+    class: ../../../Contexts/Plot/application/FindAllPlots/FindAllPlotsQueryHandler
+    arguments: ['@Backend.Plot.application.AllPlotsFinder']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Plot.application.FindPlotByIdQueryHandler:
+    class: ../../../Contexts/Plot/application/FindPlotById/FindPlotByIdQueryHandler
+    arguments: ['@Backend.Plot.application.PlotByIdFinder']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Plot.application.UpdatePlotCommandHandler:
+    class: ../../../Contexts/Plot/application/UpdatePlot/UpdatePlotCommandHandler
+    tags:
+      - { name: 'commandHandler' }
+
+  Backend.Plot.application.DeletePlotCommandHandler:
+    class: ../../../Contexts/Plot/application/DeletePlot/DeletePlotCommandHandler
+    tags:
+      - { name: 'commandHandler' }
+
+  Backend.Plot.controllers.CreatePlotController:
+    class: ../../controllers/plot/CreatePlotController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Plot.controllers.FindPlotsController:
+    class: ../../controllers/plot/FindPlotsController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Plot.controllers.FindPlotByIdController:
+    class: ../../controllers/plot/FindPlotByIdController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Plot.controllers.UpdatePlotController:
+    class: ../../controllers/plot/UpdatePlotController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Plot.controllers.DeletePlotController:
+    class: ../../controllers/plot/DeletePlotController
+    arguments: ['@Backend.Shared.domain.CommandBus']

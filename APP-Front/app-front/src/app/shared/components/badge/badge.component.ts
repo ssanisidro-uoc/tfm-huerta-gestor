@@ -1,0 +1,62 @@
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-badge',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <span class="badge" [class]="'badge-' + variant">
+      <span class="badge-dot" *ngIf="showDot"></span>
+      <ng-content></ng-content>
+    </span>
+  `,
+  styles: [`
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.625rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: capitalize;
+
+      &.badge-success {
+        background: rgba(46, 125, 50, 0.15);
+        color: #2e7d32;
+      }
+
+      &.badge-warning {
+        background: rgba(245, 124, 0, 0.15);
+        color: #f57c00;
+      }
+
+      &.badge-error {
+        background: rgba(198, 40, 40, 0.15);
+        color: #c62828;
+      }
+
+      &.badge-info {
+        background: rgba(33, 150, 243, 0.15);
+        color: #1976d2;
+      }
+
+      &.badge-neutral {
+        background: rgba(96, 125, 139, 0.15);
+        color: #607d8b;
+      }
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+  `]
+})
+export class BadgeComponent {
+  @Input() variant: 'success' | 'warning' | 'error' | 'info' | 'neutral' = 'info';
+  @Input() showDot = false;
+}

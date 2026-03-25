@@ -1,0 +1,46 @@
+services:
+  Backend.Planting.domain.PlantingRepository:
+    class: ../../../Contexts/Planting/infrastructure/persistence/PostgresPlantingRepository
+    arguments: ['@Backend.Shared.DatabasePool']
+
+  Backend.Planting.application.PlantingCreator:
+    class: ../../../Contexts/Planting/application/Create/PlantingCreator
+    arguments: ['@Backend.Planting.domain.PlantingRepository']
+
+  Backend.Planting.application.CreatePlantingCommandHandler:
+    class: ../../../Contexts/Planting/application/Create/CreatePlantingCommandHandler
+    arguments: ['@Backend.Planting.application.PlantingCreator']
+    tags:
+      - { name: 'commandHandler' }
+
+  Backend.Planting.controllers.CreatePlantingController:
+    class: ../../controllers/planting/CreatePlantingController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Planting.application.PlantingByIdFinder:
+    class: ../../../Contexts/Planting/application/FindPlantingById/PlantingByIdFinder
+    arguments: ['@Backend.Planting.domain.PlantingRepository']
+
+  Backend.Planting.application.GetPlantingStatusQueryHandler:
+    class: ../../../Contexts/Planting/application/GetPlantingStatus/GetPlantingStatusQueryHandler
+    arguments: ['@Backend.Planting.application.PlantingByIdFinder', '@Backend.Crop.domain.CropRepository', '@Backend.Garden.domain.UserGardenRepository']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Planting.controllers.GetPlantingStatusController:
+    class: ../../controllers/planting/GetPlantingStatusController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Planting.application.CropHarvester:
+    class: ../../../Contexts/Planting/application/Harvest/CropHarvester
+    arguments: ['@Backend.Planting.domain.PlantingRepository']
+
+  Backend.Planting.application.HarvestCropCommandHandler:
+    class: ../../../Contexts/Planting/application/Harvest/HarvestCropCommandHandler
+    arguments: ['@Backend.Planting.application.CropHarvester']
+    tags:
+      - { name: 'commandHandler' }
+
+  Backend.Planting.controllers.HarvestCropController:
+    class: ../../controllers/planting/HarvestCropController
+    arguments: ['@Backend.Shared.domain.CommandBus', '@Backend.Garden.domain.UserGardenRepository']

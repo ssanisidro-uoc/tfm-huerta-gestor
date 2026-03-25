@@ -1,0 +1,9 @@
+imports:
+  - { resource: ./Shared/application.yaml }
+  - { resource: ./apps/application.yaml }
+  - { resource: ./User/application.yaml }
+  - { resource: ./Garden/application.yaml }
+  - { resource: ./Plot/application.yaml }
+  - { resource: ./Crop/application.yaml }
+  - { resource: ./Planting/application.yaml }
+  - { resource: ./Task/application.yaml }

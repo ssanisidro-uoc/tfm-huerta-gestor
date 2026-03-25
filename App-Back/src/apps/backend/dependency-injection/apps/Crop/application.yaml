@@ -1,0 +1,12 @@
+services:
+  Backend.Crop.controllers.FindCropsController:
+    class: ../../controllers/crop/FindCropsController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Crop.controllers.FindCropByIdController:
+    class: ../../controllers/crop/FindCropByIdController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Crop.controllers.AdminCropController:
+    class: ../../controllers/crop/AdminCropController
+    arguments: ['@Backend.Shared.domain.CommandBus']

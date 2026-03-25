@@ -1,0 +1,66 @@
+services:
+  Backend.Crop.domain.CropRepository:
+    class: ../../../Contexts/Crop/infrastructure/persistence/PostgresCropRepository
+    arguments: ['@Backend.Shared.DatabasePool']
+
+  Backend.Crop.application.AllCropsFinder:
+    class: ../../../Contexts/Crop/application/FindAllCrops/AllCropsFinder
+    arguments: ['@Backend.Crop.domain.CropRepository']
+
+  Backend.Crop.application.CropByIdFinder:
+    class: ../../../Contexts/Crop/application/FindCropById/CropByIdFinder
+    arguments: ['@Backend.Crop.domain.CropRepository']
+
+  Backend.Crop.application.CropsByFamilyFinder:
+    class: ../../../Contexts/Crop/application/FindCropsByFamily/CropsByFamilyFinder
+    arguments: ['@Backend.Crop.domain.CropRepository']
+
+  Backend.Crop.application.FindAllCropsQueryHandler:
+    class: ../../../Contexts/Crop/application/FindAllCrops/FindAllCropsQueryHandler
+    arguments: ['@Backend.Crop.application.AllCropsFinder']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Crop.application.FindCropByIdQueryHandler:
+    class: ../../../Contexts/Crop/application/FindCropById/FindCropByIdQueryHandler
+    arguments: ['@Backend.Crop.application.CropByIdFinder']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Crop.application.FindCropsByFamilyQueryHandler:
+    class: ../../../Contexts/Crop/application/FindCropsByFamily/FindCropsByFamilyQueryHandler
+    arguments: ['@Backend.Crop.application.CropsByFamilyFinder']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Crop.controllers.FindCropsController:
+    class: ../../controllers/crop/FindCropsController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Crop.controllers.FindCropByIdController:
+    class: ../../controllers/crop/FindCropByIdController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Crop.application.CropManager:
+    class: ../../../Contexts/Crop/application/Manage/CropManager
+    arguments: ['@Backend.Crop.domain.CropRepository']
+
+  Backend.Crop.application.ManageCropCommandHandler:
+    class: ../../../Contexts/Crop/application/Manage/ManageCropCommandHandler
+    arguments: ['@Backend.Crop.application.CropManager']
+    tags:
+      - { name: 'commandHandler' }
+
+  Backend.Crop.application.CropDeleter:
+    class: ../../../Contexts/Crop/application/Delete/CropDeleter
+    arguments: ['@Backend.Crop.domain.CropRepository']
+
+  Backend.Crop.application.DeleteCropCommandHandler:
+    class: ../../../Contexts/Crop/application/Delete/DeleteCropCommandHandler
+    arguments: ['@Backend.Crop.application.CropDeleter']
+    tags:
+      - { name: 'commandHandler' }
+
+  Backend.Crop.controllers.AdminCropController:
+    class: ../../controllers/crop/AdminCropController
+    arguments: ['@Backend.Shared.domain.CommandBus']
