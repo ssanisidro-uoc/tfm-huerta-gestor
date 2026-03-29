@@ -10,5 +10,4 @@ logs/
 pids/
 tmp/
 build/
-.opencode/
 *.log
