@@ -1,0 +1,348 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-03-29T19:30:00.000Z",
+  "__export_source": "thunder-client-vscode",
+  "resources": [
+    {
+      "_id": "auth-register",
+      "colId": "history",
+      "containerId": "history",
+      "name": "Register",
+      "url": "http://localhost:3000/api/auth/register",
+      "method": "POST",
+      "sortNum": 10000,
+      "created": "2026-03-29T19:00:00.000Z",
+      "modified": "2026-03-29T19:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"Test User\"\n}",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "auth-login",
+      "colId": "history",
+      "containerId": "history",
+      "name": "Login",
+      "url": "http://localhost:3000/api/auth/login",
+      "method": "POST",
+      "sortNum": 20000,
+      "created": "2026-03-29T19:00:00.000Z",
+      "modified": "2026-03-29T19:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "auth-me",
+      "colId": "history",
+      "containerId": "history",
+      "name": "Get Current User",
+      "url": "http://localhost:3000/api/auth/me",
+      "method": "GET",
+      "sortNum": 30000,
+      "created": "2026-03-29T19:00:00.000Z",
+      "modified": "2026-03-29T19:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "gardens-list",
+      "colId": "history",
+      "containerId": "history",
+      "name": "List Gardens",
+      "url": "http://localhost:3000/api/gardens",
+      "method": "GET",
+      "sortNum": 40000,
+      "created": "2026-03-29T19:00:00.000Z",
+      "modified": "2026-03-29T19:00:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "gardens-create",
+      "colId": "history",
+      "containerId": "history",
+      "name": "Create Garden",
+      "url": "http://localhost:3000/api/gardens",
+      "method": "POST",
+      "sortNum": 50000,
+      "created": "2026-03-29T19:00:00.000Z",
+      "modified": "2026-03-29T19:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Mi Huerta\",\n  \"location\": \"Madrid\",\n  \"latitude\": 40.4168,\n  \"longitude\": -3.7038,\n  \"climate_zone\": \"Csa\"\n}",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "gardens-get",
+      "colId": "history",
+      "containerId": "history",
+      "name": "Get Garden by ID",
+      "url": "http://localhost:3000/api/gardens/{{gardenId}}",
+      "method": "GET",
+      "sortNum": 60000,
+      "created": "2026-03-29T19:00:00.000Z",
+      "modified": "2026-03-29T19:00:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "plots-list",
+      "colId": "history",
+      "containerId": "history",
+      "name": "List Plots",
+      "url": "http://localhost:3000/api/plots?garden_id={{gardenId}}",
+      "method": "GET",
+      "sortNum": 70000,
+      "created": "2026-03-29T19:00:00.000Z",
+      "modified": "2026-03-29T19:00:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "plots-create",
+      "colId": "history",
+      "containerId": "history",
+      "name": "Create Plot",
+      "url": "http://localhost:3000/api/plots",
+      "method": "POST",
+      "sortNum": 80000,
+      "created": "2026-03-29T19:00:00.000Z",
+      "modified": "2026-03-29T19:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"garden_id\": \"{{gardenId}}\",\n  \"name\": \"Parcela 1\",\n  \"area_m2\": 50,\n  \"soil_type\": \"franco\",\n  \"sun_exposure\": \"full_sun\"\n}",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "crops-list",
+      "colId": "history",
+      "containerId": "history",
+      "name": "List Crops",
+      "url": "http://localhost:3000/api/crops",
+      "method": "GET",
+      "sortNum": 90000,
+      "created": "2026-03-29T19:00:00.000Z",
+      "modified": "2026-03-29T19:00:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "plantings-create",
+      "colId": "history",
+      "containerId": "history",
+      "name": "Create Planting",
+      "url": "http://localhost:3000/api/plantings",
+      "method": "POST",
+      "sortNum": 100000,
+      "created": "2026-03-29T19:00:00.000Z",
+      "modified": "2026-03-29T19:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"plot_id\": \"{{plotId}}\",\n  \"crop_id\": \"{{cropId}}\",\n  \"sowing_date\": \"2026-03-15\",\n  \"expected_harvest_date\": \"2026-06-15\",\n  \"spacing_cm\": 30,\n  \"plants_count\": 10,\n  \"notes\": \"Primera sembrada de la temporada\"\n}",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "plantings-list",
+      "colId": "history",
+      "containerId": "history",
+      "name": "List Plantings",
+      "url": "http://localhost:3000/api/plantings?plot_id={{plotId}}",
+      "method": "GET",
+      "sortNum": 110000,
+      "created": "2026-03-29T19:00:00.000Z",
+      "modified": "2026-03-29T19:00:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "plantings-harvest",
+      "colId": "history",
+      "containerId": "history",
+      "name": "Harvest Planting",
+      "url": "http://localhost:3000/api/plantings/{{plantingId}}/harvest",
+      "method": "POST",
+      "sortNum": 120000,
+      "created": "2026-03-29T19:00:00.000Z",
+      "modified": "2026-03-29T19:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"harvest_date\": \"2026-06-20\",\n  \"quantity_kg\": 5.5,\n  \"quality\": \"good\",\n  \"notes\": \"Cosecha de prueba\"\n}",
+        "form": []
+      },
+      "tests": []
+    }
+  ],
+  "environments": [
+    {
+      "_id": "default",
+      "name": "Development",
+      "variables": [
+        {
+          "name": "baseUrl",
+          "value": "http://localhost:3000"
+        },
+        {
+          "name": "token",
+          "value": ""
+        },
+        {
+          "name": "gardenId",
+          "value": ""
+        },
+        {
+          "name": "plotId",
+          "value": ""
+        },
+        {
+          "name": "cropId",
+          "value": ""
+        },
+        {
+          "name": "plantingId",
+          "value": ""
+        }
+      ]
+    }
+  ]
+}
