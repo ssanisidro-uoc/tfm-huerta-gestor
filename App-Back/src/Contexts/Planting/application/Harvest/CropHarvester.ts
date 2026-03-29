@@ -39,11 +39,13 @@ export class CropHarvester {
       planting.planted_at,
       planting.expected_harvest_at,
       data.harvest_date,
-      'archived' as PlantingStatus,
+      'harvested' as PlantingStatus,
       planting.health_status,
       planting.quantity,
-      planting.unit,
       false,
+      data.total_harvest_kg ?? null,
+      data.harvest_quality ?? null,
+      data.harvest_notes ?? null,
       now,
       now
     );

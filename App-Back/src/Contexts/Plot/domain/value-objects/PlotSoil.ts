@@ -1,6 +1,6 @@
 import { ValueObject } from '../../../Shared/domain/value-object/ValueObject';
-import { PlotSoilType } from './PlotSoilType';
 import { PlotSoilQuality } from './PlotSoilQuality';
+import { PlotSoilType } from './PlotSoilType';
 
 interface PlotSoilProps {
   type: PlotSoilType | null;
@@ -11,6 +11,10 @@ interface PlotSoilProps {
 }
 
 export class PlotSoil extends ValueObject<PlotSoilProps> {
+  type: string | null | undefined;
+  ph: number | null | undefined;
+  quality: string | null | undefined;
+  notes: string | null | undefined;
   constructor(props: PlotSoilProps) {
     super(props);
     this.validate(props);

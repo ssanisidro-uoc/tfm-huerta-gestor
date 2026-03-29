@@ -1,98 +1,99 @@
 services:
   Backend.Garden.domain.GardenRepository:
-    class: ../../../Contexts/Garden/infrastructure/persistence/PostgresGardenRepository
-    arguments: ['@Backend.Shared.DatabasePool']
+    class: ../../../../Contexts/Garden/infrastructure/persistence/PostgresGardenRepository
+    arguments: ['@Backend.Shared.PostgresConnection', '@Backend.Shared.PostgresGarderingConfig']
 
   Backend.Garden.application.GardenCreator:
-    class: ../../../Contexts/Garden/application/Create/GardenCreator
-    arguments: ['@Backend.Garden.domain.GardenRepository']
+    class: ../../../../Contexts/Garden/application/Create/GardenCreator
+    arguments:
+      ['@Backend.Garden.domain.GardenRepository', '@Backend.Garden.domain.UserGardenRepository']
 
   Backend.Garden.application.GardenUpdater:
-    class: ../../../Contexts/Garden/application/Update/GardenUpdater
+    class: ../../../../Contexts/Garden/application/Update/GardenUpdater
     arguments: ['@Backend.Garden.domain.GardenRepository']
 
   Backend.Garden.application.GardenDeleter:
-    class: ../../../Contexts/Garden/application/Delete/GardenDeleter
+    class: ../../../../Contexts/Garden/application/Delete/GardenDeleter
     arguments: ['@Backend.Garden.domain.GardenRepository']
 
   Backend.Garden.application.AllGardensFinder:
-    class: ../../../Contexts/Garden/application/FindAllGardens/AllGardensFinder
+    class: ../../../../Contexts/Garden/application/FindAllGardens/AllGardensFinder
     arguments: ['@Backend.Garden.domain.GardenRepository']
 
   Backend.Garden.application.GardenByIdFinder:
-    class: ../../../Contexts/Garden/application/FindGardenById/GardenByIdFinder
+    class: ../../../../Contexts/Garden/application/FindGardenById/GardenByIdFinder
     arguments: ['@Backend.Garden.domain.GardenRepository']
 
   Backend.Garden.application.CreateGardenCommandHandler:
-    class: ../../../Contexts/Garden/application/Create/CreateGardenCommandHandler
+    class: ../../../../Contexts/Garden/application/Create/CreateGardenCommandHandler
     arguments: ['@Backend.Garden.application.GardenCreator']
     tags:
       - { name: 'commandHandler' }
 
   Backend.Garden.application.UpdateGardenCommandHandler:
-    class: ../../../Contexts/Garden/application/Update/UpdateGardenCommandHandler
+    class: ../../../../Contexts/Garden/application/Update/UpdateGardenCommandHandler
     arguments: ['@Backend.Garden.application.GardenUpdater']
     tags:
       - { name: 'commandHandler' }
 
   Backend.Garden.application.DeleteGardenCommandHandler:
-    class: ../../../Contexts/Garden/application/Delete/DeleteGardenCommandHandler
+    class: ../../../../Contexts/Garden/application/Delete/DeleteGardenCommandHandler
     arguments: ['@Backend.Garden.application.GardenDeleter']
     tags:
       - { name: 'commandHandler' }
 
   Backend.Garden.application.FindAllGardensQueryHandler:
-    class: ../../../Contexts/Garden/application/FindAllGardens/FindAllGardensQueryHandler
+    class: ../../../../Contexts/Garden/application/FindAllGardens/FindAllGardensQueryHandler
     arguments: ['@Backend.Garden.application.AllGardensFinder']
     tags:
       - { name: 'queryHandler' }
 
   Backend.Garden.application.FindGardenByIdQueryHandler:
-    class: ../../../Contexts/Garden/application/FindGardenById/FindGardenByIdQueryHandler
+    class: ../../../../Contexts/Garden/application/FindGardenById/FindGardenByIdQueryHandler
     arguments: ['@Backend.Garden.application.GardenByIdFinder']
     tags:
       - { name: 'queryHandler' }
 
-  Backend.Garden.controllers.CreateGardenController:
-    class: ../../controllers/garden/CreateGardenController
-    arguments: ['@Backend.Shared.domain.CommandBus']
-
-  Backend.Garden.controllers.FindGardensController:
-    class: ../../controllers/garden/FindGardensController
-    arguments: ['@Backend.Shared.domain.QueryBus']
-
-  Backend.Garden.controllers.FindGardenByIdController:
-    class: ../../controllers/garden/FindGardenByIdController
-    arguments: ['@Backend.Shared.domain.QueryBus']
-
-  Backend.Garden.controllers.UpdateGardenController:
-    class: ../../controllers/garden/UpdateGardenController
-    arguments: ['@Backend.Shared.domain.CommandBus']
-
-  Backend.Garden.controllers.DeleteGardenController:
-    class: ../../controllers/garden/DeleteGardenController
-    arguments: ['@Backend.Shared.domain.CommandBus']
-
   Backend.Garden.domain.UserGardenRepository:
-    class: ../../../Contexts/Garden/infrastructure/persistence/UserGardenRepository
-    arguments: ['@Backend.Shared.DatabasePool']
+    class: ../../../../Contexts/UserGarden/infrastructure/persistence/PostgresUserGardenRepository
+    arguments: ['@Backend.Shared.PostgresConnection', '@Backend.Shared.PostgresGarderingConfig']
 
   Backend.Garden.application.CollaboratorInviter:
-    class: ../../../Contexts/Garden/application/InviteCollaborator/CollaboratorInviter
-    arguments: ['@Backend.Garden.domain.UserGardenRepository', '@Backend.User.domain.UserRepository']
+    class: ../../../../Contexts/Garden/application/InviteCollaborator/CollaboratorInviter
+    arguments:
+      ['@Backend.Garden.domain.UserGardenRepository', '@Backend.User.domain.UserRepository']
 
-  Backend.Garden.controllers.InviteCollaboratorController:
-    class: ../../controllers/garden/InviteCollaboratorController
+  Backend.Garden.application.InviteCollaboratorCommandHandler:
+    class: ../../../../Contexts/Garden/application/InviteCollaborator/InviteCollaboratorCommandHandler
+    arguments: ['@Backend.Garden.application.CollaboratorInviter']
+    tags:
+      - { name: 'commandHandler' }
 
-  Backend.Garden.controllers.AcceptInvitationController:
-    class: ../../controllers/garden/AcceptInvitationController
+  Backend.Garden.application.InvitationAcceptor:
+    class: ../../../../Contexts/Garden/application/AcceptInvitation/InvitationAcceptor
+    arguments:
+      ['@Backend.Garden.domain.UserGardenRepository']
+
+  Backend.Garden.application.AcceptInvitationCommandHandler:
+    class: ../../../../Contexts/Garden/application/AcceptInvitation/AcceptInvitationCommandHandler
+    arguments: ['@Backend.Garden.application.InvitationAcceptor']
+    tags:
+      - { name: 'commandHandler' }
+
+  Backend.Garden.application.InvitationRejector:
+    class: ../../../../Contexts/Garden/application/RejectInvitation/InvitationRejector
+    arguments:
+      ['@Backend.Garden.domain.UserGardenRepository']
+
+  Backend.Garden.application.RejectInvitationCommandHandler:
+    class: ../../../../Contexts/Garden/application/RejectInvitation/RejectInvitationCommandHandler
+    arguments: ['@Backend.Garden.application.InvitationRejector']
+    tags:
+      - { name: 'commandHandler' }
 
   Backend.Garden.application.ListSharedGardensQueryHandler:
-    class: ../../../Contexts/Garden/application/ListSharedGardens/ListSharedGardensQueryHandler
-    arguments: ['@Backend.Garden.domain.UserGardenRepository', '@Backend.Garden.domain.GardenRepository']
+    class: ../../../../Contexts/Garden/application/ListSharedGardens/ListSharedGardensQueryHandler
+    arguments:
+      ['@Backend.Garden.domain.UserGardenRepository', '@Backend.Garden.domain.GardenRepository']
     tags:
       - { name: 'queryHandler' }
-
-  Backend.Garden.controllers.ListSharedGardensController:
-    class: ../../controllers/garden/ListSharedGardensController
-    arguments: ['@Backend.Shared.domain.QueryBus']

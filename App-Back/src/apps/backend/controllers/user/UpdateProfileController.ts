@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { AppError } from '../../../../Contexts/Shared/domain/AppError';
-import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
 import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
+import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
 import { UpdateProfileCommand } from '../../../../Contexts/User/application/UpdateProfile/UpdateProfileCommand';
 
 export class UpdateProfileController {
@@ -9,24 +9,18 @@ export class UpdateProfileController {
 
   async execute(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.body.user?.userId;
+      const { userid } = req.headers as { userid?: string };
       const { name, email, currentPassword, newPassword } = req.body;
 
-      if (!userId) {
+      if (!userid) {
         throw new AppError(401, 'AUTH_UNAUTHORIZED', 'User not authenticated');
       }
 
-      const command = new UpdateProfileCommand(
-        userId,
-        name,
-        email,
-        currentPassword,
-        newPassword
-      );
+      const command = new UpdateProfileCommand(userid, name, email, currentPassword, newPassword);
 
       await this.commandBus.dispatch(command);
 
-      logger.info(`User ${userId} profile updated successfully`, 'UpdateProfileController');
+      logger.info(`User ${userid} profile updated successfully`, 'UpdateProfileController');
 
       res.status(200).json({
         success: true,

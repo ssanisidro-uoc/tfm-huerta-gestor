@@ -1,0 +1,133 @@
+<div class="plot-detail">
+  @if (plotService.loading()) {
+    <div class="loading" role="status">
+      <span class="spinner"></span>
+      <span>Cargando...</span>
+    </div>
+  }
+
+  @if (plotService.error()) {
+    <div class="error-message" role="alert">{{ plotService.error() }}</div>
+  }
+
+  @if (plot()) {
+    <header class="plot-header">
+      <div>
+        <a [routerLink]="['/gardens', plot()!.garden_id]" class="back-link">← Volver a la huerta</a>
+        <h1 id="title">{{ plot()!.name }}</h1>
+        @if (plot()!.code) {
+          <span class="plot-code">{{ plot()!.code }}</span>
+        }
+      </div>
+      <button class="btn-add-planting" (click)="addPlanting()">
+        + Añadir Cultivo
+      </button>
+    </header>
+
+    <section class="plot-info" aria-labelledby="info-title">
+      <h2 id="info-title">Información</h2>
+      <dl class="info-grid">
+        <div class="info-item">
+          <dt>Superficie</dt>
+          <dd>{{ plot()!.surface_m2 }} m²</dd>
+        </div>
+        <div class="info-item">
+          <dt>Tipo de Riego</dt>
+          <dd>{{ getIrrigationLabel(plot()!.irrigation_type) }}</dd>
+        </div>
+        <div class="info-item">
+          <dt>Acceso a Agua</dt>
+          <dd>{{ plot()!.has_water_access ? 'Sí' : 'No' }}</dd>
+        </div>
+        <div class="info-item">
+          <dt>Estado</dt>
+          <dd>{{ plot()!.is_active ? 'Activa' : 'Inactiva' }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="plot-features" aria-labelledby="features-title">
+      <h2 id="features-title">Características</h2>
+      <ul class="features-list">
+        @if (plot()!.has_greenhouse) {
+          <li class="feature-badge greenhouse">Invernadero</li>
+        }
+        @if (plot()!.has_raised_bed) {
+          <li class="feature-badge raised-bed">Bancal Elevado</li>
+        }
+        @if (plot()!.has_mulch) {
+          <li class="feature-badge mulch">Acolchado</li>
+        }
+        @if (!plot()!.has_greenhouse && !plot()!.has_raised_bed && !plot()!.has_mulch) {
+          <li class="feature-badge none">Sin características especiales</li>
+        }
+      </ul>
+    </section>
+
+    <section class="plot-plantings" aria-labelledby="plantings-title">
+      <h2 id="plantings-title">Cultivos en esta parcela</h2>
+      
+      @if (loadingPlantings()) {
+        <div class="loading-plantings">
+          <span class="spinner-small"></span>
+          <span>Cargando cultivos...</span>
+        </div>
+      }
+
+      @if (!loadingPlantings() && plantings().length === 0) {
+        <div class="empty-plantings">
+          <p>No hay cultivos plantados en esta parcela</p>
+          <button class="btn-add-first" (click)="addPlanting()">
+            + Añadir el primer cultivo
+          </button>
+        </div>
+      }
+
+      @if (plantings().length > 0) {
+        <div class="plantings-list">
+          @for (planting of plantings(); track planting.id) {
+            <div class="planting-card" (click)="viewPlanting(planting.id)">
+              <div class="planting-header">
+                <h3>{{ planting.crop_name || 'Cultivo #' + planting.crop_id.slice(0, 6) }}</h3>
+                <span class="planting-status" [class]="planting.status">
+                  {{ getStatusLabel(planting.status) }}
+                </span>
+              </div>
+              
+              <div class="planting-dates">
+                <span class="date-item">
+                  <span class="label">Siembra:</span> {{ formatDate(planting.planted_at) }}
+                </span>
+                <span class="date-item">
+                  <span class="label">Cosecha prevista:</span> {{ formatDate(planting.expected_harvest_at) }}
+                </span>
+              </div>
+
+              @if (planting.status === 'growing' && planting.days_elapsed) {
+                <div class="planting-progress">
+                  <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="getProgressPercent(planting)"></div>
+                  </div>
+                  <span class="progress-text">
+                    {{ planting.days_elapsed }} días · {{ planting.days_to_harvest || 0 }} días hasta cosecha
+                  </span>
+                </div>
+              }
+
+              <div class="planting-quantity">
+                <span class="label">Cantidad:</span> {{ planting.quantity }} plantas
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    @if (plot()!.description) {
+      <section class="plot-description">
+        <h2>Descripción</h2>
+        <p>{{ plot()!.description }}</p>
+      </section>
+    }
+  }
+</div>

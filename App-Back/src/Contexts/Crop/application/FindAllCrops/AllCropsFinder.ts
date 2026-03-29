@@ -7,7 +7,7 @@ export class AllCropsFinder {
   async run(
     page: number = 1,
     limit: number = 20,
-    filters?: { category?: string; family?: string }
+    filters?: { category?: string; family?: string; search?: string }
   ): Promise<{ crops: Crop[]; total: number }> {
     const offset = (page - 1) * limit;
     const crops = await this.repository.search_all({ page, limit, offset, filters });

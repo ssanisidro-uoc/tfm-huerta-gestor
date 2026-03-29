@@ -1,5 +1,4 @@
 import convict from 'convict';
-import path from 'path';
 
 const config = convict({
   env: {
@@ -37,7 +36,7 @@ const config = convict({
       doc: 'The database name',
       format: String,
       env: 'DB_NAME',
-      default: 'huerta'
+      default: 'tfm'
     }
   },
   jwt: {

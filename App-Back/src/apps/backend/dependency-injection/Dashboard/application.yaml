@@ -1,0 +1,61 @@
+services:
+  Backend.Dashboard.application.DashboardStatsFinder:
+    class: ../../../../Contexts/Dashboard/application/Stats/DashboardStatsFinder
+    arguments:
+      [
+        '@Backend.Garden.domain.UserGardenRepository',
+        '@Backend.Planting.domain.PlantingRepository',
+        '@Backend.Plot.domain.PlotRepository'
+      ]
+
+  Backend.Dashboard.application.GetDashboardStatsQueryHandler:
+    class: ../../../../Contexts/Dashboard/application/Stats/GetDashboardStatsQueryHandler
+    arguments: ['@Backend.Dashboard.application.DashboardStatsFinder']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Dashboard.application.DashboardPlotsSummaryFinder:
+    class: ../../../../Contexts/Dashboard/application/PlotsSummary/DashboardPlotsSummaryFinder
+    arguments:
+      [
+        '@Backend.Garden.domain.UserGardenRepository',
+        '@Backend.Plot.domain.PlotRepository',
+        '@Backend.Garden.domain.GardenRepository'
+      ]
+
+  Backend.Dashboard.application.GetDashboardPlotsSummaryQueryHandler:
+    class: ../../../../Contexts/Dashboard/application/PlotsSummary/GetDashboardPlotsSummaryQueryHandler
+    arguments: ['@Backend.Dashboard.application.DashboardPlotsSummaryFinder']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Dashboard.application.DashboardCropsSummaryFinder:
+    class: ../../../../Contexts/Dashboard/application/CropsSummary/DashboardCropsSummaryFinder
+    arguments:
+      [
+        '@Backend.Garden.domain.UserGardenRepository',
+        '@Backend.Planting.domain.PlantingRepository',
+        '@Backend.Crop.domain.CropRepository',
+        '@Backend.Plot.domain.PlotRepository'
+      ]
+
+  Backend.Dashboard.application.GetDashboardCropsSummaryQueryHandler:
+    class: ../../../../Contexts/Dashboard/application/CropsSummary/GetDashboardCropsSummaryQueryHandler
+    arguments: ['@Backend.Dashboard.application.DashboardCropsSummaryFinder']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Dashboard.application.DashboardRecentActivityFinder:
+    class: ../../../../Contexts/Dashboard/application/RecentActivity/DashboardRecentActivityFinder
+    arguments:
+      [
+        '@Backend.Garden.domain.UserGardenRepository',
+        '@Backend.Planting.domain.PlantingRepository',
+        '@Backend.Garden.domain.GardenRepository'
+      ]
+
+  Backend.Dashboard.application.GetDashboardRecentActivityQueryHandler:
+    class: ../../../../Contexts/Dashboard/application/RecentActivity/GetDashboardRecentActivityQueryHandler
+    arguments: ['@Backend.Dashboard.application.DashboardRecentActivityFinder']
+    tags:
+      - { name: 'queryHandler' }

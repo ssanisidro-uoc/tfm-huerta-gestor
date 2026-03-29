@@ -1,0 +1,140 @@
+<div class="crop-detail">
+  @if (cropService.loading()) {
+    <div class="loading" role="status"><span class="spinner"></span>Cargando...</div>
+  }
+  @if (cropService.error()) {
+    <div class="error-message" role="alert">{{ cropService.error() }}</div>
+  }
+  @if (crop()) {
+    <header class="crop-header">
+      <a routerLink="/crops" class="back-link">← Volver al catálogo</a>
+      <h1 id="title">{{ crop()!.name }}</h1>
+      @if (crop()!.scientific_name) {
+        <p class="scientific">{{ crop()!.scientific_name }}</p>
+      }
+    </header>
+
+    @if (crop()!.description) {
+      <section class="crop-section">
+        <h2>Descripción</h2>
+        <p>{{ crop()!.description }}</p>
+      </section>
+    }
+
+    <section class="crop-section">
+      <h2>Información General</h2>
+      <dl class="info-grid">
+        <div class="info-item"><dt>Familia</dt><dd>{{ crop()!.family }}</dd></div>
+        <div class="info-item"><dt>Categoría</dt><dd>{{ crop()!.category }}</dd></div>
+        <div class="info-item"><dt>Ciclo de vida</dt><dd>{{ crop()!.lifecycle }}</dd></div>
+        <div class="info-item"><dt>Hábito de crecimiento</dt><dd>{{ crop()!.growth_habit }}</dd></div>
+        <div class="info-item"><dt>Días hasta cosecha</dt><dd>{{ crop()!.days_to_harvest_min }} - {{ crop()!.days_to_harvest_max }} días</dd></div>
+        <div class="info-item"><dt>Días hasta germinación</dt><dd>{{ crop()!.days_to_germination }} días</dd></div>
+      </dl>
+    </section>
+
+    <section class="crop-section">
+      <h2>Requisitos de Clima</h2>
+      <dl class="info-grid">
+        <div class="info-item"><dt>Temperatura mínima</dt><dd>{{ crop()!.min_temperature_c }}°C</dd></div>
+        <div class="info-item"><dt>Temperatura máxima</dt><dd>{{ crop()!.max_temperature_c }}°C</dd></div>
+        <div class="info-item"><dt>Temperatura óptima</dt><dd>{{ crop()!.optimal_temperature_min_c }}°C - {{ crop()!.optimal_temperature_max_c }}°C</dd></div>
+        <div class="info-item"><dt>Resistente a heladas</dt><dd>{{ crop()!.frost_tolerant ? 'Sí' : 'No' }}</dd></div>
+        <div class="info-item"><dt>Resistente al calor</dt><dd>{{ crop()!.heat_tolerant ? 'Sí' : 'No' }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="crop-section">
+      <h2>Requisitos de Luz</h2>
+      <dl class="info-grid">
+        <div class="info-item"><dt>Necesidad de sol</dt><dd>{{ crop()!.sun_requirement }}</dd></div>
+        <div class="info-item"><dt>Horas mínimas de sol</dt><dd>{{ crop()!.min_sun_hours }} horas</dd></div>
+        <div class="info-item"><dt>Tolerancia a sombra</dt><dd>{{ crop()!.shade_tolerance || 'N/A' }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="crop-section">
+      <h2>Requisitos de Suelo</h2>
+      <dl class="info-grid">
+        <div class="info-item"><dt>Tipos de suelo preferidos</dt><dd>{{ crop()!.preferred_soil_types?.join(', ') || 'N/A' }}</dd></div>
+        <div class="info-item"><dt>pH del suelo</dt><dd>{{ crop()!.min_soil_ph }} - {{ crop()!.max_soil_ph }}</dd></div>
+        <div class="info-item"><dt>Profundidad del suelo</dt><dd>{{ crop()!.soil_depth_requirement || 'N/A' }}</dd></div>
+        <div class="info-item"><dt>Fertilidad del suelo</dt><dd>{{ crop()!.soil_fertility_requirement || 'N/A' }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="crop-section">
+      <h2>Necesidades de Agua</h2>
+      <dl class="info-grid">
+        <div class="info-item"><dt>Necesidad de agua</dt><dd>{{ crop()!.water_requirement }}</dd></div>
+        <div class="info-item"><dt>Resistente a sequía</dt><dd>{{ crop()!.drought_tolerant ? 'Sí' : 'No' }}</dd></div>
+        <div class="info-item"><dt>Resistente a encharcamiento</dt><dd>{{ crop()!.waterlogging_tolerant ? 'Sí' : 'No' }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="crop-section">
+      <h2>Espaciamiento y Siembra</h2>
+      <dl class="info-grid">
+        <div class="info-item"><dt>Espaciamiento recomendado</dt><dd>{{ crop()!.recommended_spacing_cm }} cm</dd></div>
+        <div class="info-item"><dt>Espaciamiento entre hileras</dt><dd>{{ crop()!.recommended_row_spacing_cm }} cm</dd></div>
+        <div class="info-item"><dt>Profundidad de semilla</dt><dd>{{ crop()!.seed_depth_cm }} cm</dd></div>
+      </dl>
+    </section>
+
+    <section class="crop-section">
+      <h2>Calendario de Siembra y Cosecha</h2>
+      <dl class="info-grid">
+        <div class="info-item"><dt>Épocas de siembra</dt><dd>Mes {{ crop()!.sowing_start_month }} - Mes {{ crop()!.sowing_end_month }}</dd></div>
+        <div class="info-item"><dt>Épocas de cosecha</dt><dd>Mes {{ crop()!.harvest_start_month }} - Mes {{ crop()!.harvest_end_month }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="crop-section">
+      <h2>Producción</h2>
+      <dl class="info-grid">
+        <div class="info-item"><dt>Rendimiento promedio</dt><dd>{{ crop()!.average_yield_kg_per_m2 }} kg/m²</dd></div>
+        <div class="info-item"><dt>Tipo de cosecha</dt><dd>{{ crop()!.harvest_type || 'N/A' }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="crop-section">
+      <h2>Información Adicional</h2>
+      <dl class="info-grid">
+        <div class="info-item"><dt>Grupo de rotación</dt><dd>{{ crop()!.rotation_group || 'N/A' }}</dd></div>
+        <div class="info-item"><dt>Años antes de replantar</dt><dd>{{ crop()!.years_before_replant || 'N/A' }}</dd></div>
+        <div class="info-item"><dt>Fixador de nitrógeno</dt><dd>{{ crop()!.nitrogen_fixer ? 'Sí' : 'No' }}</dd></div>
+        <div class="info-item"><dt>Atrae polinizadores</dt><dd>{{ crop()!.attracts_pollinators ? 'Sí' : 'No' }}</dd></div>
+        <div class="info-item"><dt>Atrae insectos beneficiosos</dt><dd>{{ crop()!.attracts_beneficial_insects ? 'Sí' : 'No' }}</dd></div>
+        <div class="info-item"><dt>Nivel de resistencia a plagas</dt><dd>{{ crop()!.pest_resistance_level || 'N/A' }}</dd></div>
+      </dl>
+    </section>
+
+    @if (crop()!.growing_tips) {
+      <section class="crop-section">
+        <h2>Consejos de Cultivo</h2>
+        <p>{{ crop()!.growing_tips }}</p>
+      </section>
+    }
+
+    @if (crop()!.culinary_uses) {
+      <section class="crop-section">
+        <h2>Usos Culinarios</h2>
+        <p>{{ crop()!.culinary_uses }}</p>
+      </section>
+    }
+
+    @if (crop()!.preferred_moon_phase || crop()!.biodynamic_type) {
+      <section class="crop-section">
+        <h2>Calendario Biodinámico</h2>
+        <dl class="info-grid">
+          @if (crop()!.preferred_moon_phase) {
+            <div class="info-item"><dt>Fase lunar preferida</dt><dd>{{ crop()!.preferred_moon_phase }}</dd></div>
+          }
+          @if (crop()!.biodynamic_type) {
+            <div class="info-item"><dt>Tipo biodinámico</dt><dd>{{ crop()!.biodynamic_type }}</dd></div>
+          }
+        </dl>
+      </section>
+    }
+  }
+</div>

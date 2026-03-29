@@ -11,15 +11,28 @@ export interface Planting {
   planted_at: Date;
   expected_harvest_at: Date;
   quantity: number;
-  unit: string;
   status: string;
 }
 
-export interface PlantingDetail extends Planting {
+export interface PlantingDetail {
+  id: string;
+  crop_id: string;
+  garden_id: string;
+  plot_id: string;
+  planted_at: Date;
+  expected_harvest_at: Date;
+  harvested_at: Date | null;
+  quantity: number;
+  status: string;
   crop?: {
     id: string;
     name: string;
     days_to_maturity: number;
+  };
+  harvest_info?: {
+    total_harvest_kg?: number;
+    harvest_quality?: string;
+    harvest_notes?: string;
   };
   phenological?: {
     phase: string;
@@ -47,7 +60,6 @@ export interface CreatePlantingRequest {
   plot_id: string;
   planted_at: string;
   quantity?: number;
-  unit?: string;
 }
 
 @Injectable({
@@ -70,7 +82,7 @@ export class PlantingService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.get<PlantingsResponse>(`${this.API_URL}/plantings`).pipe(
+    return this.http.get<PlantingsResponse>(`${this.API_URL}/api/plantings`).pipe(
       tap(response => {
         this.plantingsSignal.set(response.plantings);
         this.loadingSignal.set(false);
@@ -87,7 +99,7 @@ export class PlantingService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.get<PlantingResponse>(`${this.API_URL}/plantings/${id}`).pipe(
+    return this.http.get<PlantingResponse>(`${this.API_URL}/api/plantings/${id}`).pipe(
       tap(() => {
         this.loadingSignal.set(false);
       }),
@@ -103,7 +115,7 @@ export class PlantingService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.get<PlantingResponse>(`${this.API_URL}/plantings/${id}/status`).pipe(
+    return this.http.get<PlantingResponse>(`${this.API_URL}/api/plantings/${id}/status`).pipe(
       tap(() => {
         this.loadingSignal.set(false);
       }),
@@ -119,7 +131,7 @@ export class PlantingService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.post<{ success: boolean; data: Planting }>(`${this.API_URL}/plantings`, data).pipe(
+    return this.http.post<{ success: boolean; data: Planting }>(`${this.API_URL}/api/plantings`, data).pipe(
       tap(() => {
         this.loadingSignal.set(false);
       }),
@@ -131,11 +143,22 @@ export class PlantingService {
     );
   }
 
-  harvestPlanting(id: string, harvested_at: string): Observable<{ success: boolean } | null> {
+  harvestPlanting(
+    id: string,
+    harvest_date: string,
+    total_harvest_kg?: number,
+    harvest_quality?: string,
+    harvest_notes?: string
+  ): Observable<{ success: boolean } | null> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.post<{ success: boolean }>(`${this.API_URL}/plantings/${id}/harvest`, { harvested_at }).pipe(
+    const body: any = { harvest_date };
+    if (total_harvest_kg) body.total_harvest_kg = total_harvest_kg;
+    if (harvest_quality) body.harvest_quality = harvest_quality;
+    if (harvest_notes) body.harvest_notes = harvest_notes;
+
+    return this.http.post<{ success: boolean }>(`${this.API_URL}/api/plantings/${id}/harvest`, body).pipe(
       tap(() => {
         this.loadingSignal.set(false);
       }),
@@ -149,5 +172,37 @@ export class PlantingService {
 
   clearError(): void {
     this.errorSignal.set(null);
+  }
+
+  getPlantingsByPlot(plotId: string): Observable<{ success: boolean; data: any[] } | null> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    return this.http.get<{ success: boolean; data: any[] }>(`${this.API_URL}/api/plots/${plotId}/plantings`).pipe(
+      tap(response => {
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error loading plot plantings');
+        return of(null);
+      })
+    );
+  }
+
+  getArchivedPlantings(gardenId: string): Observable<{ plantings: any[] } | null> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    return this.http.get<{ plantings: any[] }>(`${this.API_URL}/api/gardens/${gardenId}/plantings/archived`).pipe(
+      tap(response => {
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error loading archived plantings');
+        return of(null);
+      })
+    );
   }
 }

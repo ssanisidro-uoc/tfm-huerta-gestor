@@ -1,0 +1,28 @@
+services:
+  Backend.Planting.controllers.CreatePlantingController:
+    class: ../../../controllers/planting/CreatePlantingController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Planting.controllers.GetPlantingStatusController:
+    class: ../../../controllers/planting/GetPlantingStatusController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Planting.controllers.HarvestCropController:
+    class: ../../../controllers/planting/HarvestCropController
+    arguments: ['@Backend.Shared.domain.CommandBus', '@Backend.Shared.domain.QueryBus']
+
+  Backend.Planting.controllers.FindPlantingsController:
+    class: ../../../controllers/planting/FindPlantingsController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Planting.controllers.FindPlantingByIdController:
+    class: ../../../controllers/planting/FindPlantingByIdController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Planting.controllers.FindArchivedPlantingsController:
+    class: ../../../controllers/planting/FindArchivedPlantingsController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Planting.controllers.FindPlantingsByPlotController:
+    class: ../../../controllers/planting/FindPlantingsByPlotController
+    arguments: ['@Backend.Shared.domain.QueryBus']

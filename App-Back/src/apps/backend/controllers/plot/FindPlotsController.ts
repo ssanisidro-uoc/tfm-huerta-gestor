@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
-import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
-import { QueryBus } from '../../../../Contexts/Shared/domain/QueryBus';
 import { FindAllPlotsQuery } from '../../../../Contexts/Plot/application/FindAllPlots/FindAllPlotsQuery';
 import { FindAllPlotsResponse } from '../../../../Contexts/Plot/application/FindAllPlots/FindAllPlotsResponse';
+import { QueryBus } from '../../../../Contexts/Shared/domain/QueryBus';
+import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
 
 export class FindPlotsController {
   constructor(private queryBus: QueryBus) {}
 
   async run(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.userId;
+      const userId = (req as any).user?.userId;
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
@@ -22,7 +22,7 @@ export class FindPlotsController {
       logger.debug(`Finding plots for garden ${gardenId}`, 'FindPlotsController');
 
       const query = new FindAllPlotsQuery(gardenId, page, limit);
-      const response = await this.queryBus.ask(query) as FindAllPlotsResponse;
+      const response = (await this.queryBus.ask(query)) as FindAllPlotsResponse;
 
       logger.info(`Found ${response.total} plots in garden ${gardenId}`, 'FindPlotsController');
 

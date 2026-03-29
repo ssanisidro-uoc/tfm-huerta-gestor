@@ -20,7 +20,11 @@ export class FindAllCropsQueryHandler implements QueryHandler<FindAllCropsQuery,
         name: crop.name.get_value(),
         scientific_name: crop.scientific_name,
         family: crop.family,
-        days_to_maturity: crop.days_to_maturity
+        category: crop.category,
+        days_to_harvest_min: crop.days_to_harvest_min,
+        days_to_harvest_max: crop.days_to_harvest_max,
+        sun_requirement: crop.sun_requirement,
+        water_requirement: crop.water_requirement
       })),
       total,
       query.page,

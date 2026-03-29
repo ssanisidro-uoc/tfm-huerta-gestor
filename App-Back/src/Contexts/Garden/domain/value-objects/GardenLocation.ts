@@ -1,4 +1,6 @@
 import { ValueObject } from '../../../Shared/domain/value-object/ValueObject';
+import { InvalidArgumentError } from '../../../Shared/domain/InvalidArgumentError';
+import { InvalidGardenCountryCodeError } from '../errors/GardenErrors';
 
 interface GardenLocationProps {
   address?: string;
@@ -22,25 +24,23 @@ export class GardenLocation extends ValueObject<GardenLocationProps> {
 
   private validate(props: GardenLocationProps): void {
     if (props.country && !GardenLocation.VALID_COUNTRIES.includes(props.country)) {
-      throw new Error(
-        `Invalid country code: "${props.country}". Valid codes: ${GardenLocation.VALID_COUNTRIES.join(', ')}`
-      );
+      throw new InvalidGardenCountryCodeError(props.country);
     }
 
     if (props.latitude !== undefined && (props.latitude < -90 || props.latitude > 90)) {
-      throw new Error(`Latitude must be between -90 and 90, got: ${props.latitude}`);
+      throw new InvalidArgumentError(`Latitude must be between -90 and 90, got: ${props.latitude}`, { field: 'latitude', value: props.latitude });
     }
 
     if (props.longitude !== undefined && (props.longitude < -180 || props.longitude > 180)) {
-      throw new Error(`Longitude must be between -180 and 180, got: ${props.longitude}`);
+      throw new InvalidArgumentError(`Longitude must be between -180 and 180, got: ${props.longitude}`, { field: 'longitude', value: props.longitude });
     }
 
     if (props.latitude !== undefined && props.longitude === undefined) {
-      throw new Error('If latitude is provided, longitude must also be provided');
+      throw new InvalidArgumentError('If latitude is provided, longitude must also be provided', { field: 'location' });
     }
 
     if (props.latitude === undefined && props.longitude !== undefined) {
-      throw new Error('If longitude is provided, latitude must also be provided');
+      throw new InvalidArgumentError('If longitude is provided, latitude must also be provided', { field: 'location' });
     }
   }
 

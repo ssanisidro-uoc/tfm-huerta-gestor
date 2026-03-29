@@ -28,7 +28,7 @@ export class RegisterController {
         name,
         email,
         password_hash,
-        'owner'
+        '06207f28-3d92-4f19-81d0-dd9178d61724'
       );
 
       await this.commandBus.dispatch(command);
@@ -42,8 +42,11 @@ export class RegisterController {
       logger.info('User registered successfully', 'RegisterController', { email });
 
       res.status(201).json({
-        user: { id, name, email },
-        token
+        success: true,
+        data: {
+          token,
+          user: { id, name, email }
+        }
       });
     } catch (error: any) {
       logger.error('Error registering user', error, 'RegisterController');

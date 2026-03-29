@@ -1,98 +1,67 @@
 services:
   Backend.Task.domain.TaskRepository:
-    class: ../../../Contexts/Task/infrastructure/persistence/PostgresTaskRepository
-    arguments: ['@Backend.Shared.DatabasePool']
+    class: ../../../../Contexts/Task/infrastructure/persistence/PostgresTaskRepository
+    arguments: ['@Backend.Shared.PostgresConnection', '@Backend.Shared.PostgresGarderingConfig']
 
   Backend.Task.application.TaskGenerator:
-    class: ../../../Contexts/Task/application/GenerateTasks/TaskGenerator
+    class: ../../../../Contexts/Task/application/GenerateTasks/TaskGenerator
 
   Backend.Task.application.RecurringTaskSynchronizer:
-    class: ../../../Contexts/Task/application/SynchronizeRecurringTasks/RecurringTaskSynchronizer
+    class: ../../../../Contexts/Task/application/SynchronizeRecurringTasks/RecurringTaskSynchronizer
+    arguments: ['@Backend.Task.domain.TaskRepository']
+
+  Backend.Task.application.TaskPostponer:
+    class: ../../../../Contexts/Task/application/Postpone/TaskPostponer
     arguments: ['@Backend.Task.domain.TaskRepository']
 
   Backend.Task.application.PostponeTaskCommandHandler:
-    class: ../../../Contexts/Task/application/Postpone/PostponeTaskCommandHandler
-    arguments: ['@Backend.Task.domain.TaskRepository']
+    class: ../../../../Contexts/Task/application/Postpone/PostponeTaskCommandHandler
+    arguments: ['@Backend.Task.application.TaskPostponer']
     tags:
       - { name: 'commandHandler' }
-
-  Backend.Task.controllers.PostponeTaskController:
-    class: ../../controllers/task/PostponeTaskController
-    arguments: ['@Backend.Shared.domain.CommandBus']
 
   Backend.Task.application.CompleteTaskCommandHandler:
-    class: ../../../Contexts/Task/application/Complete/CompleteTaskCommandHandler
+    class: ../../../../Contexts/Task/application/Complete/CompleteTaskCommandHandler
     arguments: ['@Backend.Task.domain.TaskRepository']
     tags:
       - { name: 'commandHandler' }
 
-  Backend.Task.controllers.CompleteTaskController:
-    class: ../../controllers/task/CompleteTaskController
-    arguments: ['@Backend.Shared.domain.CommandBus']
-
   Backend.Task.application.TaskCanceller:
-    class: ../../../Contexts/Task/application/Cancel/TaskCanceller
+    class: ../../../../Contexts/Task/application/Cancel/TaskCanceller
     arguments: ['@Backend.Task.domain.TaskRepository']
 
   Backend.Task.application.CancelTaskCommandHandler:
-    class: ../../../Contexts/Task/application/Cancel/CancelTaskCommandHandler
+    class: ../../../../Contexts/Task/application/Cancel/CancelTaskCommandHandler
     arguments: ['@Backend.Task.application.TaskCanceller']
     tags:
       - { name: 'commandHandler' }
 
-  Backend.Task.controllers.CancelTaskController:
-    class: ../../controllers/task/CancelTaskController
-    arguments: ['@Backend.Shared.domain.CommandBus']
-
   Backend.Task.application.TaskAssigner:
-    class: ../../../Contexts/Task/application/Assign/TaskAssigner
+    class: ../../../../Contexts/Task/application/Assign/TaskAssigner
     arguments: ['@Backend.Task.domain.TaskRepository']
 
   Backend.Task.application.AssignTaskCommandHandler:
-    class: ../../../Contexts/Task/application/Assign/AssignTaskCommandHandler
+    class: ../../../../Contexts/Task/application/Assign/AssignTaskCommandHandler
     arguments: ['@Backend.Task.application.TaskAssigner']
     tags:
       - { name: 'commandHandler' }
 
-  Backend.Task.controllers.AssignTaskController:
-    class: ../../controllers/task/AssignTaskController
-    arguments: ['@Backend.Shared.domain.CommandBus']
-
-  Backend.Task.controllers.FindTasksController:
-    class: ../../controllers/task/FindTasksController
-    arguments: ['@Backend.Shared.domain.QueryBus', '@Backend.Garden.domain.UserGardenRepository']
-
   Backend.Task.application.ManualTaskCreator:
-    class: ../../../Contexts/Task/application/CreateManualTask/ManualTaskCreator
+    class: ../../../../Contexts/Task/application/CreateManualTask/ManualTaskCreator
     arguments: ['@Backend.Task.domain.TaskRepository']
 
   Backend.Task.application.CreateManualTaskCommandHandler:
-    class: ../../../Contexts/Task/application/CreateManualTask/CreateManualTaskCommandHandler
+    class: ../../../../Contexts/Task/application/CreateManualTask/CreateManualTaskCommandHandler
     arguments: ['@Backend.Task.application.ManualTaskCreator']
     tags:
       - { name: 'commandHandler' }
 
-  Backend.Task.controllers.CreateManualTaskController:
-    class: ../../controllers/task/CreateManualTaskController
-    arguments: ['@Backend.Shared.domain.CommandBus', '@Backend.Garden.domain.UserGardenRepository']
-
   Backend.Task.application.DeleteManualTaskCommandHandler:
-    class: ../../../Contexts/Task/application/DeleteManualTask/DeleteManualTaskCommandHandler
+    class: ../../../../Contexts/Task/application/DeleteManualTask/DeleteManualTaskCommandHandler
     arguments: ['@Backend.Task.domain.TaskRepository']
     tags:
       - { name: 'commandHandler' }
 
-  Backend.Task.controllers.DeleteManualTaskController:
-    class: ../../controllers/task/DeleteManualTaskController
-    arguments: ['@Backend.Shared.domain.CommandBus']
-
   Backend.Task.application.CalendarTasksFinder:
-    class: ../../../Contexts/Task/application/GetCalendarTasks/CalendarTasksFinder
+    class: ../../../../Contexts/Task/application/GetCalendarTasks/CalendarTasksFinder
     arguments: ['@Backend.Task.domain.TaskRepository']
-
-  Backend.Task.controllers.GetCalendarTasksController:
-    class: ../../controllers/task/GetCalendarTasksController
-    arguments: ['@Backend.Task.application.CalendarTasksFinder', '@Backend.Garden.domain.UserGardenRepository']
-
-  Backend.apps.TaskRecurrenceCronjob:
-    class: ../../cronjobs/TaskRecurrenceCronjob

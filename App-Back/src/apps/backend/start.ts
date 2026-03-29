@@ -1,9 +1,7 @@
-import 'module-alias/register';
 import dotenv from 'dotenv';
-dotenv.config();
-
 import { BackendApp } from './BackendApp';
 import { TaskRecurrenceCronjob } from './cronjobs/TaskRecurrenceCronjob';
+dotenv.config();
 
 try {
   TaskRecurrenceCronjob.start();
@@ -14,7 +12,7 @@ try {
   handleError(e);
 }
 
-process.on('uncaughtException', err => {
+process.on('uncaughtException', (err) => {
   console.log('uncaughtException', err);
   process.exit(1);
 });

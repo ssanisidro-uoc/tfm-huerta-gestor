@@ -1,0 +1,16 @@
+services:
+  Backend.Dashboard.controllers.GetDashboardStatsController:
+    class: ../../../controllers/dashboard/GetDashboardStatsController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Dashboard.controllers.GetDashboardPlotsSummaryController:
+    class: ../../../controllers/dashboard/GetDashboardPlotsSummaryController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Dashboard.controllers.GetDashboardCropsSummaryController:
+    class: ../../../controllers/dashboard/GetDashboardCropsSummaryController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Dashboard.controllers.GetDashboardRecentActivityController:
+    class: ../../../controllers/dashboard/GetDashboardRecentActivityController
+    arguments: ['@Backend.Shared.domain.QueryBus']

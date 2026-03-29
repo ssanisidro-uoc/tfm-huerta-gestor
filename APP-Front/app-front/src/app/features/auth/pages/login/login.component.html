@@ -1,0 +1,57 @@
+<div class="login-container">
+  <div class="login-card" role="region" aria-labelledby="login-title">
+    <h1 id="login-title">Iniciar Sesión</h1>
+    
+    @if (error()) {
+      <div class="error-message" role="alert" aria-live="assertive">{{ error() }}</div>
+    }
+
+    <form (ngSubmit)="onSubmit()" aria-label="Formulario de inicio de sesión">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          [(ngModel)]="email"
+          name="email"
+          required
+          email
+          aria-required="true"
+          [disabled]="loading()"
+          autocomplete="email"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input
+          type="password"
+          id="password"
+          [(ngModel)]="password"
+          name="password"
+          required
+          aria-required="true"
+          [disabled]="loading()"
+          autocomplete="current-password"
+        />
+      </div>
+
+      <button 
+        type="submit" 
+        [disabled]="loading()"
+        [attr.aria-busy]="loading()"
+      >
+        @if (loading()) {
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Cargando...</span>
+        } @else {
+          Iniciar Sesión
+        }
+      </button>
+    </form>
+
+    <p class="register-link">
+      ¿No tienes cuenta? <a routerLink="/auth/register" aria-label="Registrarse">Regístrate</a>
+    </p>
+  </div>
+</div>

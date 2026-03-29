@@ -13,10 +13,11 @@ export class FindCropsController {
       const limit = parseInt(req.query.limit as string) || 50;
       const category = req.query.category as string | undefined;
       const family = req.query.family as string | undefined;
+      const search = req.query.search as string | undefined;
 
       logger.debug(`Finding crops`, 'FindCropsController');
 
-      const query = new FindAllCropsQuery(page, limit, { category, family });
+      const query = new FindAllCropsQuery(page, limit, { category, family, search });
       const response = await this.queryBus.ask(query) as FindAllCropsResponse;
 
       res.status(200).json({

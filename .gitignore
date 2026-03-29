@@ -1,0 +1,7 @@
+# Wireframes (large binary files)
+wireframes/
+*.png
+
+# OS files
+.DS_Store
+Thumbs.db

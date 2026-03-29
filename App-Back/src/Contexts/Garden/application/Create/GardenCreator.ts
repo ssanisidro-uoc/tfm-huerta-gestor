@@ -6,6 +6,7 @@ import { GardenSurface } from '../../domain/value-objects/GardenSurface';
 import { GardenLocation } from '../../domain/value-objects/GardenLocation';
 import { GardenHardinessZone } from '../../domain/value-objects/GardenHardinessZone';
 import { GardenRepository } from '../../domain/GardenRepository';
+import { UserGardenRepository } from '../../../UserGarden/domain/UserGardenRepository';
 import { UserId } from '../../../User/domain/UserId';
 
 interface CreateGardenData {
@@ -28,7 +29,10 @@ interface CreateGardenData {
 }
 
 export class GardenCreator {
-  constructor(private repository: GardenRepository) {}
+  constructor(
+    private repository: GardenRepository,
+    private userGardenRepository: UserGardenRepository
+  ) {}
 
   async run(data: CreateGardenData): Promise<Garden> {
     const garden = Garden.create({
@@ -43,6 +47,15 @@ export class GardenCreator {
     });
 
     await this.repository.save(garden);
+
+    await this.userGardenRepository.create({
+      user_id: data.owner_id,
+      garden_id: data.id,
+      garden_role: 'owner',
+      invited_by: data.owner_id,
+      invitation_accepted_at: new Date()
+    });
+
     return garden;
   }
 }

@@ -1,0 +1,36 @@
+services:
+  Backend.Garden.controllers.CreateGardenController:
+    class: ../../../controllers/garden/CreateGardenController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Garden.controllers.FindGardensController:
+    class: ../../../controllers/garden/FindGardensController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Garden.controllers.FindGardenByIdController:
+    class: ../../../controllers/garden/FindGardenByIdController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Garden.controllers.UpdateGardenController:
+    class: ../../../controllers/garden/UpdateGardenController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Garden.controllers.DeleteGardenController:
+    class: ../../../controllers/garden/DeleteGardenController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Garden.controllers.InviteCollaboratorController:
+    class: ../../../controllers/garden/InviteCollaboratorController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Garden.controllers.AcceptInvitationController:
+    class: ../../../controllers/garden/AcceptInvitationController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Garden.controllers.RejectInvitationController:
+    class: ../../../controllers/garden/RejectInvitationController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Garden.controllers.ListSharedGardensController:
+    class: ../../../controllers/garden/ListSharedGardensController
+    arguments: ['@Backend.Shared.domain.QueryBus']

@@ -1,16 +1,16 @@
-import { AggregateRoot } from '../../Shared/domain/AggregateRoot';
-import { PlotId } from './value-objects/PlotId';
-import { PlotName } from './value-objects/PlotName';
 import { GardenId } from '../../Garden/domain/value-objects/GardenId';
-import { PlotSurface } from './value-objects/PlotSurface';
-import { PlotDimensions } from './value-objects/PlotDimensions';
-import { PlotShape } from './value-objects/PlotShape';
-import { PlotPosition } from './value-objects/PlotPosition';
-import { PlotSoil } from './value-objects/PlotSoil';
-import { PlotIrrigationType } from './value-objects/PlotIrrigationType';
-import { PlotOrientation } from './value-objects/PlotOrientation';
-import { PlotShadeLevel } from './value-objects/PlotShadeLevel';
+import { AggregateRoot } from '../../Shared/domain/AggregateRoot';
 import { PlotAccessibility } from './value-objects/PlotAccessibility';
+import { PlotDimensions } from './value-objects/PlotDimensions';
+import { PlotId } from './value-objects/PlotId';
+import { PlotIrrigationType } from './value-objects/PlotIrrigationType';
+import { PlotName } from './value-objects/PlotName';
+import { PlotOrientation } from './value-objects/PlotOrientation';
+import { PlotPosition } from './value-objects/PlotPosition';
+import { PlotShadeLevel } from './value-objects/PlotShadeLevel';
+import { PlotShape } from './value-objects/PlotShape';
+import { PlotSoil } from './value-objects/PlotSoil';
+import { PlotSurface } from './value-objects/PlotSurface';
 
 interface PlotProps {
   id: PlotId;
@@ -111,8 +111,8 @@ export class Plot extends AggregateRoot {
       code: data.code ?? null,
       description: null,
       surface: PlotSurface.create(data.surface_m2),
-      dimensions: PlotDimensions.create(null, null),
-      position: PlotPosition.create(null, null, null),
+      dimensions: PlotDimensions.create({ length: null, width: null }),
+      position: PlotPosition.create({ x: null, y: null, order: null }),
       shape: null,
       soil: PlotSoil.create({}),
       irrigation_type: PlotIrrigationType.manual(),
@@ -270,29 +270,31 @@ export class Plot extends AggregateRoot {
     };
   }
 
-  update(data: Partial<{
-    name: PlotName;
-    code: string | null;
-    description: string | null;
-    surface_m2: number;
-    dimensions: PlotDimensions;
-    position: PlotPosition;
-    shape: PlotShape | null;
-    soil: PlotSoil;
-    irrigation_type: PlotIrrigationType;
-    irrigation_flow_rate: number | null;
-    irrigation_notes: string | null;
-    has_water_access: boolean;
-    orientation: PlotOrientation | null;
-    sun_exposure_hours: number | null;
-    shade_level: PlotShadeLevel | null;
-    has_greenhouse: boolean;
-    has_raised_bed: boolean;
-    has_mulch: boolean;
-    accessibility: PlotAccessibility | null;
-    restrictions: string | null;
-    is_active: boolean;
-  }>): Plot {
+  update(
+    data: Partial<{
+      name: PlotName;
+      code: string | null;
+      description: string | null;
+      surface_m2: number;
+      dimensions: PlotDimensions;
+      position: PlotPosition;
+      shape: PlotShape | null;
+      soil: PlotSoil;
+      irrigation_type: PlotIrrigationType;
+      irrigation_flow_rate: number | null;
+      irrigation_notes: string | null;
+      has_water_access: boolean;
+      orientation: PlotOrientation | null;
+      sun_exposure_hours: number | null;
+      shade_level: PlotShadeLevel | null;
+      has_greenhouse: boolean;
+      has_raised_bed: boolean;
+      has_mulch: boolean;
+      accessibility: PlotAccessibility | null;
+      restrictions: string | null;
+      is_active: boolean;
+    }>
+  ): Plot {
     return new Plot({
       id: this.id,
       garden_id: this.garden_id,
@@ -305,8 +307,12 @@ export class Plot extends AggregateRoot {
       shape: data.shape !== undefined ? data.shape : this.shape,
       soil: data.soil ?? this.soil,
       irrigation_type: data.irrigation_type ?? this.irrigation_type,
-      irrigation_flow_rate: data.irrigation_flow_rate !== undefined ? data.irrigation_flow_rate : this.irrigation_flow_rate,
-      irrigation_notes: data.irrigation_notes !== undefined ? data.irrigation_notes : this.irrigation_notes,
+      irrigation_flow_rate:
+        data.irrigation_flow_rate !== undefined
+          ? data.irrigation_flow_rate
+          : this.irrigation_flow_rate,
+      irrigation_notes:
+        data.irrigation_notes !== undefined ? data.irrigation_notes : this.irrigation_notes,
       has_water_access: data.has_water_access ?? this.has_water_access,
       orientation: data.orientation ?? this.orientation,
       sun_exposure_hours: data.sun_exposure_hours ?? this.sun_exposure_hours,

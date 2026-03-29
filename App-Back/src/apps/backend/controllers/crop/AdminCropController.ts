@@ -1,16 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
-import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
-import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
-import { ManageCropCommand } from '../../../../Contexts/Crop/application/Manage/ManageCropCommand';
 import { DeleteCropCommand } from '../../../../Contexts/Crop/application/Delete/DeleteCropCommand';
+import { ManageCropCommand } from '../../../../Contexts/Crop/application/Manage/ManageCropCommand';
+import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
+import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
 
 interface CropBody {
   name: string;
   scientific_name: string;
   family: string;
-  days_to_maturity: number;
-  min_temperature: number;
-  max_temperature: number;
+  category: string;
+  days_to_harvest_min: number;
+  days_to_harvest_max: number;
+  min_temperature_c?: number;
+  max_temperature_c?: number;
+  sun_requirement?: string;
+  water_requirement?: string;
 }
 
 export class AdminCropController {
@@ -18,8 +22,8 @@ export class AdminCropController {
 
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.userId;
-      const userRole = req.user?.role;
+      const userId = (req as any).user?.userId;
+      const userRole = (req as any).user?.role;
 
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
@@ -33,8 +37,8 @@ export class AdminCropController {
 
       const body = req.body as CropBody;
 
-      if (!body.name || !body.family || !body.days_to_maturity) {
-        res.status(400).json({ error: 'name, family, and days_to_maturity are required' });
+      if (!body.name || !body.family || !body.category || !body.days_to_harvest_min || !body.days_to_harvest_max) {
+        res.status(400).json({ error: 'name, family, category, days_to_harvest_min, and days_to_harvest_max are required' });
         return;
       }
 
@@ -44,10 +48,15 @@ export class AdminCropController {
         body.name,
         body.scientific_name || '',
         body.family,
-        body.days_to_maturity,
-        body.min_temperature || 0,
-        body.max_temperature || 40,
-        userId
+        body.category,
+        body.days_to_harvest_min,
+        body.days_to_harvest_max,
+        userId,
+        undefined,
+        body.min_temperature_c,
+        body.max_temperature_c,
+        body.sun_requirement,
+        body.water_requirement
       );
 
       await this.commandBus.dispatch(command);
@@ -66,8 +75,8 @@ export class AdminCropController {
 
   async update(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.userId;
-      const userRole = req.user?.role;
+      const userId = (req as any).user?.userId;
+      const userRole = (req as any).user?.role;
 
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
@@ -82,8 +91,8 @@ export class AdminCropController {
       const { crop_id } = req.params;
       const body = req.body as CropBody;
 
-      if (!body.name || !body.family || !body.days_to_maturity) {
-        res.status(400).json({ error: 'name, family, and days_to_maturity are required' });
+      if (!body.name || !body.family || !body.category || !body.days_to_harvest_min || !body.days_to_harvest_max) {
+        res.status(400).json({ error: 'name, family, category, days_to_harvest_min, and days_to_harvest_max are required' });
         return;
       }
 
@@ -93,11 +102,15 @@ export class AdminCropController {
         body.name,
         body.scientific_name || '',
         body.family,
-        body.days_to_maturity,
-        body.min_temperature || 0,
-        body.max_temperature || 40,
+        body.category,
+        body.days_to_harvest_min,
+        body.days_to_harvest_max,
         userId,
-        crop_id
+        crop_id,
+        body.min_temperature_c,
+        body.max_temperature_c,
+        body.sun_requirement,
+        body.water_requirement
       );
 
       await this.commandBus.dispatch(command);
@@ -116,8 +129,8 @@ export class AdminCropController {
 
   async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.userId;
-      const userRole = req.user?.role;
+      const userId = (req as any).user?.userId;
+      const userRole = (req as any).user?.role;
 
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });

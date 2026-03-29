@@ -1,0 +1,20 @@
+services:
+  Backend.Plot.controllers.CreatePlotController:
+    class: ../../../controllers/plot/CreatePlotController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Plot.controllers.FindPlotsController:
+    class: ../../../controllers/plot/FindPlotsController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Plot.controllers.FindPlotByIdController:
+    class: ../../../controllers/plot/FindPlotByIdController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Plot.controllers.UpdatePlotController:
+    class: ../../../controllers/plot/UpdatePlotController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Plot.controllers.DeletePlotController:
+    class: ../../../controllers/plot/DeletePlotController
+    arguments: ['@Backend.Shared.domain.CommandBus']

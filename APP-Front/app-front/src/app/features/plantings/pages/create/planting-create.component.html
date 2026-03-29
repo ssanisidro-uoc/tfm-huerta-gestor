@@ -1,0 +1,75 @@
+<div class="create-planting">
+  <h2>Registrar Cultivo</h2>
+  
+  @if (loading()) {
+    <div class="loading">Guardando...</div>
+  }
+  
+  @if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  }
+  
+  @if (success()) {
+    <div class="success-message">{{ success() }}</div>
+  }
+  
+  <form (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="garden">Huerta *</label>
+      <select id="garden" [(ngModel)]="selectedGarden" name="garden" (change)="onGardenChange()" [class.error]="validationErrors()['garden']">
+        <option value="">Selecciona una huerta</option>
+        @for (garden of gardens(); track garden.id) {
+          <option [value]="garden.id">{{ garden.name }}</option>
+        }
+      </select>
+      @if (validationErrors()['garden']) {
+        <span class="field-error">{{ validationErrors()['garden'] }}</span>
+      }
+    </div>
+    
+    <div class="form-group">
+      <label for="plot">Parcela *</label>
+      <select id="plot" [(ngModel)]="selectedPlot" name="plot" [disabled]="!selectedGarden" [class.error]="validationErrors()['plot']">
+        <option value="">Selecciona una parcela</option>
+        @for (plot of plots(); track plot.id) {
+          <option [value]="plot.id">{{ plot.name }}</option>
+        }
+      </select>
+      @if (validationErrors()['plot']) {
+        <span class="field-error">{{ validationErrors()['plot'] }}</span>
+      }
+    </div>
+    
+    <div class="form-group">
+      <label for="crop">Cultivo *</label>
+      <select id="crop" [(ngModel)]="selectedCrop" name="crop" [class.error]="validationErrors()['crop']">
+        <option value="">Selecciona un cultivo</option>
+        @for (crop of crops(); track crop.id) {
+          <option [value]="crop.id">{{ crop.name }}</option>
+        }
+      </select>
+      @if (validationErrors()['crop']) {
+        <span class="field-error">{{ validationErrors()['crop'] }}</span>
+      }
+    </div>
+    
+    <div class="form-group">
+      <label for="planted_at">Fecha de siembra *</label>
+      <input type="date" id="planted_at" [(ngModel)]="plantedAt" name="planted_at" [class.error]="validationErrors()['planted_at']" />
+      @if (validationErrors()['planted_at']) {
+        <span class="field-error">{{ validationErrors()['planted_at'] }}</span>
+      }
+    </div>
+    
+    <div class="form-group">
+      <label for="quantity">Cantidad (número de plantas)</label>
+      <input type="number" id="quantity" [(ngModel)]="quantity" name="quantity" min="1" value="1" />
+    </div>
+    
+    <button type="submit" [disabled]="loading() || !isValid()">
+      {{ loading() ? 'Guardando...' : 'Registrar Cultivo' }}
+    </button>
+    
+    <button type="button" class="btn-cancel" (click)="goBack()">Cancelar</button>
+  </form>
+</div>

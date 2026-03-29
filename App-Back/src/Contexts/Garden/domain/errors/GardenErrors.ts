@@ -1,4 +1,7 @@
 import { ConflictError, NotFoundError } from '../../../Shared/domain/AppError';
+import { InvalidArgumentError } from '../../../Shared/domain/InvalidArgumentError';
+
+const VALID_COUNTRIES = ['ES', 'PT', 'FR', 'IT', 'MA', 'AR', 'CL', 'MX', 'CO', 'PE', 'UY'];
 
 export class GardenNotFoundError extends NotFoundError {
   constructor(identifier: string) {
@@ -39,5 +42,30 @@ export class GardenNotOwnedError extends ConflictError {
   constructor(gardenId: string, userId: string) {
     super(`Garden ${gardenId} is not owned by user ${userId}`);
     Object.setPrototypeOf(this, GardenNotOwnedError.prototype);
+  }
+}
+
+export class InvalidGardenNameError extends InvalidArgumentError {
+  constructor(name: string) {
+    super(`Garden name "${name}" is invalid. Name must be at least 2 characters.`, { field: 'name', value: name });
+    Object.setPrototypeOf(this, InvalidGardenNameError.prototype);
+  }
+}
+
+export class InvalidGardenCountryCodeError extends InvalidArgumentError {
+  constructor(code: string) {
+    super(`Invalid country code: "${code}". Valid codes: ${VALID_COUNTRIES.join(', ')}`, { 
+      field: 'country', 
+      value: code,
+      valid_codes: VALID_COUNTRIES
+    });
+    Object.setPrototypeOf(this, InvalidGardenCountryCodeError.prototype);
+  }
+}
+
+export class InvalidGardenSurfaceError extends InvalidArgumentError {
+  constructor(surface: number) {
+    super(`Garden surface "${surface}" is invalid. Surface must be a positive number.`, { field: 'surface_m2', value: surface });
+    Object.setPrototypeOf(this, InvalidGardenSurfaceError.prototype);
   }
 }

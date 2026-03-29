@@ -1,13 +1,21 @@
-import { Pool } from 'pg';
 import { Plot } from '../../domain/Plot';
 import { PlotRepository } from '../../domain/PlotRepository';
+import { PostgresRepository } from '../../../Shared/infrastructure/persistence/postgres/PostgresRepository';
+import PostgresConfig from '../../../Shared/infrastructure/persistence/postgres/PostgresConfig';
+import { Pool } from 'pg';
 
-export class PostgresPlotRepository implements PlotRepository {
-  constructor(private pool: Pool) {}
+export class PostgresPlotRepository extends PostgresRepository implements PlotRepository {
+  constructor(pool: Promise<Pool>, config: PostgresConfig) {
+    super(pool, config);
+  }
+
+  protected tableName(): string {
+    return 'plots';
+  }
 
   async save(plot: Plot): Promise<void> {
     const plot_data = plot.to_persistence();
-    
+
     const query: string = `
       INSERT INTO plots (
         id, garden_id, name, code, description, surface_m2, length_m, width_m, shape,
@@ -29,25 +37,17 @@ export class PostgresPlotRepository implements PlotRepository {
       plot_data.created_at, plot_data.updated_at
     ];
 
-    try {
-      await this.pool.query(query, values);
-    } catch (error) {
-      throw new Error(`Error saving plot: ${error}`);
-    }
+    await this.query(query, values);
   }
 
   async search_by_id(id: string): Promise<Plot | null> {
     const query: string = 'SELECT * FROM plots WHERE id = $1';
-    
-    try {
-      const result = await this.pool.query(query, [id]);
-      if (result.rows.length === 0) {
-        return null;
-      }
-      return Plot.from_persistence(result.rows[0]);
-    } catch (error) {
-      throw new Error(`Error searching plot by id: ${error}`);
+
+    const result = await this.query<any>(query, [id]);
+    if (result.rows.length === 0) {
+      return null;
     }
+    return Plot.from_persistence(result.rows[0]);
   }
 
   async find_by_garden(
@@ -62,23 +62,15 @@ export class PostgresPlotRepository implements PlotRepository {
       values.push(options.limit, options.offset);
     }
 
-    try {
-      const result = await this.pool.query(query, values);
-      return result.rows.map(row => Plot.from_persistence(row));
-    } catch (error) {
-      throw new Error(`Error searching plots by garden: ${error}`);
-    }
+    const result = await this.query<any>(query, values);
+    return result.rows.map(row => Plot.from_persistence(row));
   }
 
   async count_by_garden(garden_id: string): Promise<number> {
     const query: string = 'SELECT COUNT(*) as total FROM plots WHERE garden_id = $1 AND is_active = true';
-    
-    try {
-      const result = await this.pool.query(query, [garden_id]);
-      return parseInt(result.rows[0].total, 10);
-    } catch (error) {
-      throw new Error(`Error counting plots: ${error}`);
-    }
+
+    const result = await this.query<any>(query, [garden_id]);
+    return parseInt(result.rows[0].total, 10);
   }
 
   async update(plot: Plot): Promise<void> {
@@ -96,26 +88,18 @@ export class PostgresPlotRepository implements PlotRepository {
       plot_data.soil_type, plot_data.irrigation_type, plot_data.is_active, plot_data.updated_at
     ];
 
-    try {
-      const result = await this.pool.query(query, values);
-      if (result.rowCount === 0) {
-        throw new Error('Plot not found');
-      }
-    } catch (error) {
-      throw new Error(`Error updating plot: ${error}`);
+    const result = await this.query<any>(query, values);
+    if (result.rowCount === 0) {
+      throw new Error('Plot not found');
     }
   }
 
   async delete(id: string): Promise<void> {
     const query: string = 'DELETE FROM plots WHERE id = $1';
 
-    try {
-      const result = await this.pool.query(query, [id]);
-      if (result.rowCount === 0) {
-        throw new Error('Plot not found');
-      }
-    } catch (error) {
-      throw new Error(`Error deleting plot: ${error}`);
+    const result = await this.query<any>(query, [id]);
+    if (result.rowCount === 0) {
+      throw new Error('Plot not found');
     }
   }
 }

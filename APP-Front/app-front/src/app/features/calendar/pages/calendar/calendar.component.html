@@ -1,0 +1,72 @@
+<div class="calendar-page">
+  <header class="header">
+    <h1 id="title">Calendario de Tareas</h1>
+  </header>
+
+  <div class="calendar-nav">
+    <button class="nav-btn" (click)="calendarService.previousMonth()" aria-label="Mes anterior">
+      ←
+    </button>
+    <h2 class="current-month">{{ calendarService.monthName() }}</h2>
+    <button class="nav-btn" (click)="calendarService.nextMonth()" aria-label="Mes siguiente">
+      →
+    </button>
+    <button class="today-btn" (click)="calendarService.goToToday()">Hoy</button>
+  </div>
+
+  <div class="calendar-grid">
+    <div class="weekday-header" *ngFor="let day of weekDays">
+      {{ day }}
+    </div>
+
+    @for (day of calendarService.calendarDays(); track day.date.toISOString()) {
+      <div 
+        class="calendar-day" 
+        [class.other-month]="!day.isCurrentMonth"
+        [class.today]="day.isToday"
+        (click)="selectDate(day.date)"
+      >
+        <span class="day-number">{{ day.date.getDate() }}</span>
+        <div class="day-tasks">
+          @for (task of day.tasks.slice(0, 3); track task.id) {
+            <div class="task-dot" [class]="'task-' + task.type" [title]="task.title"></div>
+          }
+          @if (day.tasks.length > 3) {
+            <span class="more-tasks">+{{ day.tasks.length - 3 }}</span>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (selectedDate()) {
+    <div class="selected-day-panel">
+      <h3>Tareas para {{ selectedDate() | date:'fullDate':'es-ES' }}</h3>
+      @if (getTasksForDate(selectedDate()!).length === 0) {
+        <p class="no-tasks">No hay tareas para este día</p>
+      } @else {
+        <ul class="task-list">
+          @for (task of getTasksForDate(selectedDate()!); track task.id) {
+            <li class="task-item" [class]="'task-' + task.type">
+              <div class="task-time">
+                {{ task.date | date:'HH:mm' }}
+              </div>
+              <div class="task-content">
+                <strong>{{ task.title }}</strong>
+                @if (task.description) {
+                  <p>{{ task.description }}</p>
+                }
+                @if (task.garden_name) {
+                  <span class="task-location">{{ task.garden_name }}</span>
+                }
+              </div>
+              <span class="task-status" [class]="task.status">
+                {{ getStatusLabel(task.status) }}
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  }
+</div>

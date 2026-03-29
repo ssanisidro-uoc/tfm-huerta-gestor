@@ -1,5 +1,5 @@
-import { CommandHandler } from '../../../Shared/domain/CommandHandler';
 import { Command } from '../../../Shared/domain/Command';
+import { CommandHandler } from '../../../Shared/domain/CommandHandler';
 import { CreateUserCommand } from '../Create/CreateUserCommand';
 import { UserCreator } from './UserCreator';
 

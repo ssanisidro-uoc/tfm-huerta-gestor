@@ -1,13 +1,21 @@
-import { Pool } from 'pg';
 import { Garden } from '../../domain/Garden';
 import { GardenRepository } from '../../domain/GardenRepository';
+import { PostgresRepository } from '../../../Shared/infrastructure/persistence/postgres/PostgresRepository';
+import PostgresConfig from '../../../Shared/infrastructure/persistence/postgres/PostgresConfig';
+import { Pool } from 'pg';
 
-export class PostgresGardenRepository implements GardenRepository {
-  constructor(private pool: Pool) {}
+export class PostgresGardenRepository extends PostgresRepository implements GardenRepository {
+  constructor(pool: Promise<Pool>, config: PostgresConfig) {
+    super(pool, config);
+  }
+
+  protected tableName(): string {
+    return 'gardens';
+  }
 
   async save(garden: Garden): Promise<void> {
     const garden_data = garden.to_persistence();
-    
+
     const query: string = `
       INSERT INTO gardens (id, owner_id, name, surface_m2, climate_zone, is_active, created_at, updated_at)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -30,25 +38,17 @@ export class PostgresGardenRepository implements GardenRepository {
       garden_data.updated_at
     ];
 
-    try {
-      await this.pool.query(query, values);
-    } catch (error) {
-      throw new Error(`Error saving garden: ${error}`);
-    }
+    await this.query(query, values);
   }
 
   async search_by_id(id: string): Promise<Garden | null> {
     const query: string = 'SELECT * FROM gardens WHERE id = $1';
-    
-    try {
-      const result = await this.pool.query(query, [id]);
-      if (result.rows.length === 0) {
-        return null;
-      }
-      return Garden.from_persistence(result.rows[0]);
-    } catch (error) {
-      throw new Error(`Error searching garden by id: ${error}`);
+
+    const result = await this.query<any>(query, [id]);
+    if (result.rows.length === 0) {
+      return null;
     }
+    return Garden.from_persistence(result.rows[0]);
   }
 
   async search_by_owner(
@@ -65,12 +65,8 @@ export class PostgresGardenRepository implements GardenRepository {
       query += ' AND is_active = true ORDER BY created_at DESC';
     }
 
-    try {
-      const result = await this.pool.query(query, values);
-      return result.rows.map(row => Garden.from_persistence(row));
-    } catch (error) {
-      throw new Error(`Error searching gardens by owner: ${error}`);
-    }
+    const result = await this.query<any>(query, values);
+    return result.rows.map(row => Garden.from_persistence(row));
   }
 
   async find_by_owner(
@@ -82,13 +78,9 @@ export class PostgresGardenRepository implements GardenRepository {
 
   async count_by_owner(owner_id: string): Promise<number> {
     const query: string = 'SELECT COUNT(*) as total FROM gardens WHERE owner_id = $1';
-    
-    try {
-      const result = await this.pool.query(query, [owner_id]);
-      return parseInt(result.rows[0].total, 10);
-    } catch (error) {
-      throw new Error(`Error counting gardens: ${error}`);
-    }
+
+    const result = await this.query<any>(query, [owner_id]);
+    return parseInt(result.rows[0].total, 10);
   }
 
   async update(garden: Garden): Promise<void> {
@@ -113,26 +105,18 @@ export class PostgresGardenRepository implements GardenRepository {
       garden_data.updated_at
     ];
 
-    try {
-      const result = await this.pool.query(query, values);
-      if (result.rowCount === 0) {
-        throw new Error('Garden not found');
-      }
-    } catch (error) {
-      throw new Error(`Error updating garden: ${error}`);
+    const result = await this.query<any>(query, values);
+    if (result.rowCount === 0) {
+      throw new Error('Garden not found');
     }
   }
 
   async delete(id: string): Promise<void> {
     const query: string = 'DELETE FROM gardens WHERE id = $1';
 
-    try {
-      const result = await this.pool.query(query, [id]);
-      if (result.rowCount === 0) {
-        throw new Error('Garden not found');
-      }
-    } catch (error) {
-      throw new Error(`Error deleting garden: ${error}`);
+    const result = await this.query<any>(query, [id]);
+    if (result.rowCount === 0) {
+      throw new Error('Garden not found');
     }
   }
 }

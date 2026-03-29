@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
-import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
-import { QueryBus } from '../../../../Contexts/Shared/domain/QueryBus';
 import { FindGardenByIdQuery } from '../../../../Contexts/Garden/application/FindGardenById/FindGardenByIdQuery';
 import { AppError } from '../../../../Contexts/Shared/domain/AppError';
+import { QueryBus } from '../../../../Contexts/Shared/domain/QueryBus';
+import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
 
 export class FindGardenByIdController {
   constructor(private queryBus: QueryBus) {}
 
   async run(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.userId;
+      const userId = (req as any).user?.userId;
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;

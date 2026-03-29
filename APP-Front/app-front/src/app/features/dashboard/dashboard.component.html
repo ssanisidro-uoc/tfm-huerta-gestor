@@ -1,0 +1,227 @@
+<div class="dashboard">
+  <div class="dashboard-header">
+    <div class="header-text">
+      <h1>Dashboard general</h1>
+      <p>{{ today | date: "EEEE, d 'de' MMMM 'de' yyyy" : '' : 'es-ES' }}</p>
+    </div>
+  </div>
+
+  @if (dashboardService.alert(); as alert) {
+    <div class="alert-banner" [class]="'alert-' + alert.severity">
+      <div class="alert-content">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+        <span class="alert-label">Tratamiento preventivo pendiente</span>
+        <span class="alert-separator">—</span>
+        <span class="alert-text">{{ alert.message }}</span>
+      </div>
+      <button class="btn-alert-action" routerLink="/calendar">Ver tarea</button>
+    </div>
+  }
+
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card stat-green">
+        <div class="stat-value">{{ dashboardService.stats()?.parcelas_activas || dashboardService.stats()?.total_parcelas || 0 }}</div>
+        <div class="stat-label">Parcelas activas</div>
+        @if (dashboardService.stats()?.parcelas_nuevas_mes) {
+          <div class="stat-trend trend-up">↑ +{{ dashboardService.stats()?.parcelas_nuevas_mes }} este mes</div>
+        } @else {
+          <div class="stat-trend trend-neutral">Sin cambios este mes</div>
+        }
+      </div>
+
+      <div class="stat-card stat-blue">
+        <div class="stat-value">{{ dashboardService.stats()?.cultivos_en_curso || 0 }}</div>
+        <div class="stat-label">Cultivos en curso</div>
+        <div class="stat-trend trend-up">↑ Temporada {{ dashboardService.stats()?.cultivos_temporada || 'primavera' }}</div>
+      </div>
+
+      <div class="stat-card stat-orange">
+        <div class="stat-value">{{ dashboardService.stats()?.tareas_completadas || 0 }}</div>
+        <div class="stat-label">Tareas completadas</div>
+        @if (dashboardService.stats()?.porcentaje_tareas_semana !== undefined) {
+          <div class="stat-trend trend-neutral">de {{ (dashboardService.stats()?.tareas_completadas || 0) + (dashboardService.stats()?.tareas_pendientes || 0) }} esta semana ({{ dashboardService.stats()?.porcentaje_tareas_semana }}%)</div>
+        }
+      </div>
+
+      <div class="stat-card stat-red">
+        <div class="stat-value">{{ dashboardService.stats()?.cosechas_proximas || 0 }}</div>
+        <div class="stat-label">Cosechas próximas</div>
+        @if (dashboardService.stats()?.cosechas_esta_semana) {
+          <div class="stat-trend trend-up">↑ Esta semana</div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title-row">
+        <span class="section-icon">▦</span>
+        <h2 class="section-title">Estado de parcelas y cultivos</h2>
+      </div>
+      <a routerLink="/gardens" class="link-ver-todas">Ver todas →</a>
+    </div>
+
+    @if (dashboardService.plots().length > 0) {
+      <div class="plots-grid">
+        @for (plot of dashboardService.plots().slice(0, 3); track plot.id) {
+          <div class="plot-card">
+            <div class="plot-card-header">
+              <div class="plot-info">
+                <span class="plot-name">{{ plot.name }}</span>
+                <span class="plot-meta">{{ plot.surface_m2 }}m² · {{ plot.soil_type || 'Suelo' }}</span>
+              </div>
+              <span class="plot-status-dot" [class]="getPlotStatusClass(plot)"></span>
+            </div>
+
+            <div class="crop-list">
+              @for (crop of getCropsForPlot(plot.id).slice(0, 2); track crop.id) {
+                <div class="crop-row">
+                  <div class="crop-header-row">
+                    <div class="crop-name-col">
+                      <span class="crop-emoji">{{ crop.emoji || '🌱' }}</span>
+                      <span class="crop-name">{{ crop.name }}</span>
+                    </div>
+                    <div class="crop-dates">
+                      <span>Siembra: {{ crop.planted_at | date: 'd MMM' : '' : 'es-ES' }}</span>
+                      <span class="crop-day-badge">· Día {{ getDaysSincePlanting(crop) }}</span>
+                    </div>
+                  </div>
+                  <div class="crop-progress-row">
+                    <div class="progress-bar">
+                      <div class="progress-fill" [style.width.%]="crop.growth_percentage || 0" [class]="getCropProgressClass(crop)"></div>
+                    </div>
+                    <span class="progress-label">Crecimiento {{ crop.growth_percentage || 0 }}%</span>
+                    <span class="harvest-label">Cosecha: {{ crop.harvest_month || (crop.expected_harvest | date: 'MMM' : '' : 'es-ES') }}</span>
+                  </div>
+                </div>
+              }
+              @if (getCropsForPlot(plot.id).length === 0) {
+                <p class="no-crops">Sin cultivos activos</p>
+              }
+            </div>
+
+            @if (getNextTaskForPlot(plot.id); as nextTask) {
+              <div class="plot-next-task" [class]="'task-' + nextTask.type">
+                <span class="task-type-icon">{{ getTaskIcon(nextTask.type) }}</span>
+                <span>Próx: {{ nextTask.title }}</span>
+                <span class="task-date">· {{ nextTask.scheduled_time }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <p>No hay parcelas todavía</p>
+      </div>
+    }
+  </section>
+
+  <div class="bottom-grid">
+    <div class="tasks-section">
+      <div class="section-header">
+        <div class="section-title-row">
+          <span class="section-icon-check">✅</span>
+          <h2 class="section-title">Tareas de hoy</h2>
+        </div>
+        @if (pendingCount() > 0) {
+          <span class="badge-pending">{{ pendingCount() }} pendientes</span>
+        }
+      </div>
+
+      <div class="task-list">
+        @if (dashboardService.todayTasks().length > 0) {
+          @for (task of dashboardService.todayTasks(); track task.id) {
+            <div class="task-item" [class.task-completed]="task.status === 'completed'">
+              <div class="task-checkbox" [class.checked]="task.status === 'completed'">
+                @if (task.status === 'completed') {
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20,6 9,17 4,12" />
+                  </svg>
+                }
+              </div>
+              <div class="task-body">
+                <div class="task-title-row">
+                  <span class="task-title">{{ task.title }}</span>
+                  <span class="task-time" [class.urgent]="task.is_urgent">
+                    {{ task.scheduled_time }}
+                    @if (task.is_urgent) {
+                      <span class="urgent-icon">▲</span>
+                    }
+                  </span>
+                </div>
+                @if (task.subtitle) {
+                  <span class="task-subtitle">{{ task.subtitle }}</span>
+                }
+                <span class="task-tag" [class]="'tag-' + task.type">{{ getTaskLabel(task.type) }}</span>
+              </div>
+            </div>
+          }
+        } @else {
+          <div class="empty-tasks">
+            <p>No hay tareas para hoy 🎉</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="card mb-1">
+        <div class="card-header-row">
+          <h3 class="card-title"><span class="card-title-icon">📊</span> Tareas por tipo · {{ currentMonth }}</h3>
+        </div>
+        @if (dashboardService.taskStats().length > 0) {
+          <div class="donut-section">
+            <div class="donut-wrapper">
+              <svg class="donut-chart" viewBox="0 0 100 100">
+                @for (segment of donutSegments(); track segment.type) {
+                  <circle class="donut-ring" cx="50" cy="50" r="35" fill="transparent" [attr.stroke]="segment.color" stroke-width="14" [attr.stroke-dasharray]="segment.dasharray" [attr.stroke-dashoffset]="segment.dashoffset" stroke-linecap="butt" />
+                }
+                <circle cx="50" cy="50" r="28" fill="var(--card-bg)" />
+              </svg>
+            </div>
+            <div class="donut-legend">
+              @for (stat of dashboardService.taskStats(); track stat.type) {
+                <div class="legend-row">
+                  <span class="legend-dot" [style.background]="stat.color"></span>
+                  <span class="legend-label">{{ stat.label }}</span>
+                  <span class="legend-pct">{{ stat.percentage }}%</span>
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <p class="empty-text">Sin datos de tareas</p>
+        }
+      </div>
+
+      <div class="card">
+        <div class="card-header-row">
+          <h3 class="card-title"><span class="card-title-icon">🕐</span> Actividad reciente</h3>
+          <a routerLink="/history" class="link-ver-todas">Ver todo →</a>
+        </div>
+        <div class="activity-list">
+          @if (dashboardService.activities().length > 0) {
+            @for (activity of dashboardService.activities().slice(0, 4); track activity.date + activity.type) {
+              <div class="activity-item">
+                <span class="activity-emoji">{{ activity.emoji || getActivityEmoji(activity.type) }}</span>
+                <div class="activity-body">
+                  <span class="activity-desc">{{ activity.description }}</span>
+                  <span class="activity-time">{{ activity.time_ago || (activity.date | date: 'd MMM' : '' : 'es-ES') }}</span>
+                </div>
+              </div>
+            }
+          } @else {
+            <p class="empty-text">Sin actividad reciente</p>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

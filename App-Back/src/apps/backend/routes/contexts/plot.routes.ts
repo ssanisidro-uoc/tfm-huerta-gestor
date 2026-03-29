@@ -7,16 +7,16 @@ import { FindPlotByIdController } from '../../controllers/plot/FindPlotByIdContr
 import { UpdatePlotController } from '../../controllers/plot/UpdatePlotController';
 import { DeletePlotController } from '../../controllers/plot/DeletePlotController';
 
-export default (router: Router): void => {
-  const createPlotController = container.get('Backend.Plot.controllers.CreatePlotController') as CreatePlotController;
-  const findPlotsController = container.get('Backend.Plot.controllers.FindPlotsController') as FindPlotsController;
-  const findPlotByIdController = container.get('Backend.Plot.controllers.FindPlotByIdController') as FindPlotByIdController;
-  const updatePlotController = container.get('Backend.Plot.controllers.UpdatePlotController') as UpdatePlotController;
-  const deletePlotController = container.get('Backend.Plot.controllers.DeletePlotController') as DeletePlotController;
+export async function register_plot_routes(router: Router): Promise<void> {
+  const createPlotController = await container.get('Backend.Plot.controllers.CreatePlotController') as CreatePlotController;
+  const findPlotsController = await container.get('Backend.Plot.controllers.FindPlotsController') as FindPlotsController;
+  const findPlotByIdController = await container.get('Backend.Plot.controllers.FindPlotByIdController') as FindPlotByIdController;
+  const updatePlotController = await container.get('Backend.Plot.controllers.UpdatePlotController') as UpdatePlotController;
+  const deletePlotController = await container.get('Backend.Plot.controllers.DeletePlotController') as DeletePlotController;
 
-  router.post('/gardens/:gardenId/plots', require_auth, (req, res, next) => createPlotController.run(req, res, next));
-  router.get('/gardens/:gardenId/plots', require_auth, (req, res, next) => findPlotsController.run(req, res, next));
-  router.get('/plots/:id', require_auth, (req, res, next) => findPlotByIdController.run(req, res, next));
-  router.put('/plots/:id', require_auth, (req, res, next) => updatePlotController.run(req, res, next));
-  router.delete('/plots/:id', require_auth, (req, res, next) => deletePlotController.run(req, res, next));
+  router.post('/api/gardens/:gardenId/plots', require_auth, (req, res, next) => createPlotController.run(req, res, next));
+  router.get('/api/gardens/:gardenId/plots', require_auth, (req, res, next) => findPlotsController.run(req, res, next));
+  router.get('/api/plots/:id', require_auth, (req, res, next) => findPlotByIdController.run(req, res, next));
+  router.put('/api/plots/:id', require_auth, (req, res, next) => updatePlotController.run(req, res, next));
+  router.delete('/api/plots/:id', require_auth, (req, res, next) => deletePlotController.run(req, res, next));
 };

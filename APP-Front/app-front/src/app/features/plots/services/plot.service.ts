@@ -78,11 +78,19 @@ export class PlotService {
 
   constructor(private http: HttpClient) {}
 
+  setError(message: string): void {
+    this.errorSignal.set(message);
+  }
+
+  clearError(): void {
+    this.errorSignal.set(null);
+  }
+
   getPlotsByGarden(gardenId: string, page = 1, limit = 20): Observable<PlotsResponse | null> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.get<PlotsResponse>(`${this.API_URL}/gardens/${gardenId}/plots`, {
+    return this.http.get<PlotsResponse>(`${this.API_URL}/api/gardens/${gardenId}/plots`, {
       params: { page: page.toString(), limit: limit.toString() }
     }).pipe(
       tap(response => {
@@ -101,7 +109,7 @@ export class PlotService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.get<PlotDetail>(`${this.API_URL}/plots/${id}`).pipe(
+    return this.http.get<PlotDetail>(`${this.API_URL}/api/plots/${id}`).pipe(
       tap(() => {
         this.loadingSignal.set(false);
       }),
@@ -117,7 +125,7 @@ export class PlotService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.post<{ message: string }>(`${this.API_URL}/gardens/${gardenId}/plots`, data).pipe(
+    return this.http.post<{ message: string }>(`${this.API_URL}/api/gardens/${gardenId}/plots`, data).pipe(
       tap(() => {
         this.loadingSignal.set(false);
       }),
@@ -133,7 +141,7 @@ export class PlotService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.put<{ message: string }>(`${this.API_URL}/plots/${id}`, data).pipe(
+    return this.http.put<{ message: string }>(`${this.API_URL}/api/plots/${id}`, data).pipe(
       tap(() => {
         this.loadingSignal.set(false);
       }),
@@ -149,7 +157,7 @@ export class PlotService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.delete<{ message: string }>(`${this.API_URL}/plots/${id}`).pipe(
+    return this.http.delete<{ message: string }>(`${this.API_URL}/api/plots/${id}`).pipe(
       tap(() => {
         this.loadingSignal.set(false);
       }),
@@ -159,9 +167,5 @@ export class PlotService {
         return of(null);
       })
     );
-  }
-
-  clearError(): void {
-    this.errorSignal.set(null);
   }
 }

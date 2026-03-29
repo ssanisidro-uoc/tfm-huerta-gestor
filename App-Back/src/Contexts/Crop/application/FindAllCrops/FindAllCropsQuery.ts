@@ -7,6 +7,7 @@ export class FindAllCropsQuery implements Query {
     readonly filters?: {
       category?: string;
       family?: string;
+      search?: string;
     }
   ) {}
 }

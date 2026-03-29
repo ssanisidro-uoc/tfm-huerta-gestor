@@ -1,0 +1,12 @@
+<div class="card" [class.hoverable]="hoverable" [class.clickable]="clickable" (click)="onClick()">
+  <div class="card-header" *ngIf="title || hasHeaderContent">
+    <ng-content select="[card-header]"></ng-content>
+    <h3 *ngIf="title">{{ title }}</h3>
+  </div>
+  <div class="card-body">
+    <ng-content></ng-content>
+  </div>
+  <div class="card-footer" *ngIf="hasFooterContent">
+    <ng-content select="[card-footer]"></ng-content>
+  </div>
+</div>

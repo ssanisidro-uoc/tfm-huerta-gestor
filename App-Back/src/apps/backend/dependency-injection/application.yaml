@@ -7,3 +7,5 @@ imports:
   - { resource: ./Crop/application.yaml }
   - { resource: ./Planting/application.yaml }
   - { resource: ./Task/application.yaml }
+  - { resource: ./Dashboard/application.yaml }
+  - { resource: ./UserGarden/application.yaml }

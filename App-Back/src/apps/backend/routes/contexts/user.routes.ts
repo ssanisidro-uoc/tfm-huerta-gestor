@@ -8,11 +8,11 @@ import { async_handler, handle_validation_errors, require_auth } from '../../mid
 import { validate_login } from '../../validators/login.validator';
 import { validate_create_user, validate_find_user_by_id, validate_update_profile } from '../../validators/user.validator';
 
-export function register_user_routes(router: Router): void {
-  const create_user_controller: CreateUserController = container.get('Backend.User.controllers.CreateUserController');
-  const find_user_controller: FindUserByIdController = container.get('Backend.User.controllers.FindUserByIdController');
-  const login_controller: LoginController = container.get('Backend.User.controllers.LoginController');
-  const update_profile_controller: UpdateProfileController = container.get('Backend.User.controllers.UpdateProfileController');
+export async function register_user_routes(router: Router): Promise<void> {
+  const create_user_controller: CreateUserController = await container.get('Backend.User.controllers.CreateUserController');
+  const find_user_controller: FindUserByIdController = await container.get('Backend.User.controllers.FindUserByIdController');
+  const login_controller: LoginController = await container.get('Backend.User.controllers.LoginController');
+  const update_profile_controller: UpdateProfileController = await container.get('Backend.User.controllers.UpdateProfileController');
 
   router.post(
     '/api/users',

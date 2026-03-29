@@ -1,17 +1,17 @@
-import { Plot } from '../../domain/Plot';
-import { PlotId } from '../../domain/value-objects/PlotId';
-import { PlotName } from '../../domain/value-objects/PlotName';
-import { PlotSurface } from '../../domain/value-objects/PlotSurface';
-import { PlotDimensions } from '../../domain/value-objects/PlotDimensions';
-import { PlotShape } from '../../domain/value-objects/PlotShape';
-import { PlotPosition } from '../../domain/value-objects/PlotPosition';
-import { PlotSoil } from '../../domain/value-objects/PlotSoil';
-import { PlotIrrigationType } from '../../domain/value-objects/PlotIrrigationType';
-import { PlotOrientation } from '../../domain/value-objects/PlotOrientation';
-import { PlotShadeLevel } from '../../domain/value-objects/PlotShadeLevel';
-import { PlotAccessibility } from '../../domain/value-objects/PlotAccessibility';
-import { PlotRepository } from '../../domain/PlotRepository';
 import { GardenId } from '../../../Garden/domain/value-objects/GardenId';
+import { Plot } from '../../domain/Plot';
+import { PlotRepository } from '../../domain/PlotRepository';
+import { PlotAccessibility } from '../../domain/value-objects/PlotAccessibility';
+import { PlotDimensions } from '../../domain/value-objects/PlotDimensions';
+import { PlotId } from '../../domain/value-objects/PlotId';
+import { PlotIrrigationType } from '../../domain/value-objects/PlotIrrigationType';
+import { PlotName } from '../../domain/value-objects/PlotName';
+import { PlotOrientation } from '../../domain/value-objects/PlotOrientation';
+import { PlotPosition } from '../../domain/value-objects/PlotPosition';
+import { PlotShadeLevel } from '../../domain/value-objects/PlotShadeLevel';
+import { PlotShape } from '../../domain/value-objects/PlotShape';
+import { PlotSoil } from '../../domain/value-objects/PlotSoil';
+import { PlotSurface } from '../../domain/value-objects/PlotSurface';
 
 interface CreatePlotData {
   id: string;
@@ -49,7 +49,7 @@ export class PlotCreator {
 
   async run(data: CreatePlotData): Promise<Plot> {
     const now = new Date();
-    
+
     const plot = new Plot({
       id: new PlotId(data.id),
       garden_id: new GardenId(data.garden_id),
@@ -57,8 +57,15 @@ export class PlotCreator {
       code: data.code ?? null,
       description: data.description ?? null,
       surface: PlotSurface.create(data.surface_m2),
-      dimensions: PlotDimensions.create(data.length_m ?? null, data.width_m ?? null),
-      position: PlotPosition.create(data.position_x ?? null, data.position_y ?? null, data.plot_order ?? null),
+      dimensions: PlotDimensions.create({
+        length: data.length_m ?? null,
+        width: data.width_m ?? null
+      }),
+      position: PlotPosition.create({
+        x: data.position_x ?? null,
+        y: data.position_y ?? null,
+        order: data.plot_order ?? null
+      }),
       shape: data.shape ? new PlotShape(data.shape) : null,
       soil: PlotSoil.create({
         type: data.soil_type,

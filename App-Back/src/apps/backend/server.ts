@@ -17,6 +17,10 @@ export class Server {
   constructor(port: string) {
     this.port = port;
     this.app = express();
+    this.app.use(cors({
+      origin: ['http://localhost:4200', 'http://localhost:3001'],
+      credentials: true
+    }));
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
     this.app.use(helmet.xssFilter());
@@ -26,7 +30,6 @@ export class Server {
     this.app.use(compress());
 
     const router = Router();
-    router.use(cors());
     router.use(errorHandler());
     this.app.use(router);
 

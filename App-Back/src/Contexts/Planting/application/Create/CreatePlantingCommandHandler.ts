@@ -18,8 +18,7 @@ export class CreatePlantingCommandHandler implements CommandHandler<CreatePlanti
       command.plot_id,
       command.planted_at,
       command.expected_harvest_at,
-      command.quantity,
-      command.unit
+      command.quantity
     );
   }
 }

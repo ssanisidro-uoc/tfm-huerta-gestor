@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
-import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
-import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
 import { HarvestCropCommand } from '../../../../Contexts/Planting/application/Harvest/HarvestCropCommand';
-import { UserGardenRepository } from '../../../../Contexts/Garden/infrastructure/persistence/UserGardenRepository';
+import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
+import { QueryBus } from '../../../../Contexts/Shared/domain/QueryBus';
+import { FindPlantingByIdQuery } from '../../../../Contexts/Planting/application/FindPlantingById/FindPlantingByIdQuery';
+import { CheckGardenAccessQuery } from '../../../../Contexts/UserGarden/application/CheckGardenAccess/CheckGardenAccessQuery';
+import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
 
 interface HarvestCropBody {
   harvest_date: string;
@@ -14,12 +16,12 @@ interface HarvestCropBody {
 export class HarvestCropController {
   constructor(
     private commandBus: CommandBus,
-    private userGardenRepository: UserGardenRepository
+    private queryBus: QueryBus
   ) {}
 
   async run(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.userId;
+      const userId = (req as any).user?.userId;
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
@@ -33,22 +35,21 @@ export class HarvestCropController {
         return;
       }
 
-      const plantingFinder = req.app.get('Planting.PlantingByIdFinder');
-      const planting = await (plantingFinder as any).run(planting_id);
-      
+      const query = new FindPlantingByIdQuery(planting_id);
+      const planting = await this.queryBus.ask(query) as any;
+
       if (!planting) {
         res.status(404).json({ error: 'Planting not found' });
         return;
       }
 
-      const gardenId = planting.garden_id.get_value();
-      const hasAccess = await this.userGardenRepository.has_permission(userId, gardenId, 'collaborator');
-      if (!hasAccess) {
-        const garden = await this.userGardenRepository.find_by_user_and_garden(userId, gardenId);
-        if (!garden) {
-          res.status(403).json({ error: 'You do not have access to this garden' });
-          return;
-        }
+      const gardenId = planting.garden_id;
+      const accessQuery = new CheckGardenAccessQuery(userId, gardenId, 'collaborator');
+      const accessResult = await this.queryBus.ask(accessQuery) as any;
+
+      if (!accessResult.hasAccess) {
+        res.status(403).json({ error: 'You do not have access to this garden' });
+        return;
       }
 
       logger.debug(`Harvesting crop ${planting_id} by user ${userId}`, 'HarvestCropController');

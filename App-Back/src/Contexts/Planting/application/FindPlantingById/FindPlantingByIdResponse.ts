@@ -8,7 +8,6 @@ export class FindPlantingByIdResponse {
     readonly expected_harvest_at: Date,
     readonly harvested_at: Date | null,
     readonly quantity: number,
-    readonly unit: string,
     readonly is_active: boolean
   ) {}
 }

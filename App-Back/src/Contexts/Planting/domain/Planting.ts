@@ -20,8 +20,10 @@ export class Planting extends AggregateRoot {
   readonly status: PlantingStatus;
   readonly health_status: HealthStatus;
   readonly quantity: number;
-  readonly unit: string;
   readonly is_active: boolean;
+  readonly total_harvest_kg: number | null;
+  readonly harvest_quality: string | null;
+  readonly harvest_notes: string | null;
   readonly created_at: Date;
   readonly updated_at: Date;
 
@@ -39,8 +41,10 @@ export class Planting extends AggregateRoot {
     status: PlantingStatus,
     health_status: HealthStatus,
     quantity: number,
-    unit: string,
     is_active: boolean,
+    total_harvest_kg: number | null,
+    harvest_quality: string | null,
+    harvest_notes: string | null,
     created_at: Date,
     updated_at: Date
   ) {
@@ -58,8 +62,10 @@ export class Planting extends AggregateRoot {
     this.status = status;
     this.health_status = health_status;
     this.quantity = quantity;
-    this.unit = unit;
     this.is_active = is_active;
+    this.total_harvest_kg = total_harvest_kg;
+    this.harvest_quality = harvest_quality;
+    this.harvest_notes = harvest_notes;
     this.created_at = created_at;
     this.updated_at = updated_at;
   }
@@ -72,7 +78,6 @@ export class Planting extends AggregateRoot {
     planted_at: Date,
     expected_harvest_at: Date,
     quantity: number,
-    unit: string,
     created_by?: string,
     variety?: string,
     custom_name?: string
@@ -89,11 +94,13 @@ export class Planting extends AggregateRoot {
       planted_at,
       expected_harvest_at,
       null,
-      'seedling',
+      'growing',
       'healthy',
       quantity,
-      unit,
       true,
+      null,
+      null,
+      null,
       now,
       now
     );
@@ -108,20 +115,35 @@ export class Planting extends AggregateRoot {
       raw.created_by,
       raw.variety,
       raw.custom_name,
-      new Date(raw.actual_planting_date || raw.planted_at || new Date()),
-      new Date(raw.expected_harvest_date || raw.expected_harvest_at || new Date()),
-      raw.first_harvest_date ? new Date(raw.first_harvest_date) : (raw.harvested_at ? new Date(raw.harvested_at) : null),
+      new Date(raw.actual_planting_date || new Date()),
+      new Date(raw.expected_harvest_date || new Date()),
+      raw.first_harvest_date ? new Date(raw.first_harvest_date) : (raw.last_harvest_date ? new Date(raw.last_harvest_date) : null),
       raw.status || 'growing',
       raw.health_status || 'healthy',
       raw.quantity || 1,
-      raw.unit || 'plants',
       raw.is_active !== false,
+      raw.total_harvest_kg ? Number(raw.total_harvest_kg) : null,
+      raw.harvest_quality || null,
+      raw.harvest_notes || null,
       new Date(raw.created_at),
       new Date(raw.updated_at)
     );
   }
 
   to_persistence(): any {
+    const today = new Date().toISOString().split('T')[0];
+    
+    const formatDate = (date: Date | undefined | null): string | null => {
+      if (!date) return today;
+      if (date instanceof Date && !isNaN(date.getTime())) {
+        return date.toISOString().split('T')[0];
+      }
+      return today;
+    };
+
+    const plantedDate = formatDate(this.planted_at);
+    const harvestDate = formatDate(this.expected_harvest_at);
+
     return {
       id: this.id.get_value(),
       crop_catalog_id: this.crop_id.get_value(),
@@ -130,14 +152,17 @@ export class Planting extends AggregateRoot {
       created_by: this.created_by,
       variety: this.variety,
       custom_name: this.custom_name,
-      actual_planting_date: this.planted_at,
-      expected_harvest_date: this.expected_harvest_at,
-      first_harvest_date: this.harvested_at,
+      planned_planting_date: plantedDate,
+      actual_planting_date: plantedDate,
+      expected_harvest_date: harvestDate,
+      first_harvest_date: this.harvested_at ? formatDate(this.harvested_at) : null,
       status: this.status,
       health_status: this.health_status,
       quantity: this.quantity,
-      unit: this.unit,
       is_active: this.is_active,
+      total_harvest_kg: this.total_harvest_kg,
+      harvest_quality: this.harvest_quality,
+      harvest_notes: this.harvest_notes,
       created_at: this.created_at,
       updated_at: this.updated_at
     };

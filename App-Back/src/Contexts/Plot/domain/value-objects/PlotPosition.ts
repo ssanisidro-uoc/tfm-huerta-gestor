@@ -7,11 +7,22 @@ interface PlotPositionProps {
 }
 
 export class PlotPosition extends ValueObject<PlotPositionProps> {
+  x!: number | null;
+  y!: number | null;
+  order!: number | null;
   constructor(props: PlotPositionProps) {
     super(props);
   }
 
-  static create(x: number | null, y: number | null, order: number | null = null): PlotPosition {
+  static create({
+    x,
+    y,
+    order = null
+  }: {
+    x: number | null;
+    y: number | null;
+    order: number | null;
+  }): PlotPosition {
     return new PlotPosition({ x, y, order });
   }
 

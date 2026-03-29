@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
-import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
 import { UpdatePlotCommand } from '../../../../Contexts/Plot/application/UpdatePlot/UpdatePlotCommand';
 import { AppError } from '../../../../Contexts/Shared/domain/AppError';
+import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
+import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
 
 interface UpdatePlotBody {
   name?: string;
@@ -39,7 +39,7 @@ export class UpdatePlotController {
 
   async run(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.userId;
+      const userId = (req as any).user?.userId;
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;

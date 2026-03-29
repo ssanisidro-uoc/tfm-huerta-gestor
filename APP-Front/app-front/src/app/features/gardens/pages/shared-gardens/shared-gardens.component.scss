@@ -1,0 +1,203 @@
+.shared-gardens {
+  padding: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+}
+
+.btn-secondary {
+  background: var(--text-muted);
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s;
+
+  &:hover {
+    background: var(--text-secondary);
+  }
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  background: var(--bg-tertiary);
+  color: var(--color-error);
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+
+  .hint {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+}
+
+.garden-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.garden-card {
+  a, .garden-card-pending {
+    display: block;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+  }
+
+  a:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .garden-card-pending {
+    cursor: not-allowed;
+    opacity: 0.75;
+
+    &.processing {
+      opacity: 0.5;
+    }
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  .role-badge {
+    background: rgba(33, 150, 243, 0.15);
+    color: #2196f3;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+
+    &.pending {
+      background: rgba(245, 124, 0, 0.15);
+      color: #f57c00;
+    }
+  }
+
+  .garden-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+
+    .label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .status {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+
+      .accepted {
+        color: var(--color-primary);
+      }
+
+      .pending {
+        color: var(--color-accent);
+      }
+
+      .processing {
+        color: var(--text-muted);
+        font-style: italic;
+      }
+
+      .invitation-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+
+      .btn-accept, .btn-reject {
+        border: none;
+        padding: 0.35rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        font-weight: 500;
+      }
+
+      .btn-accept {
+        background: var(--color-primary);
+        color: white;
+
+        &:hover {
+          background: var(--color-primary-hover);
+        }
+      }
+
+      .btn-reject {
+        background: transparent;
+        color: var(--color-error);
+        border: 1px solid var(--color-error);
+
+        &:hover {
+          background: rgba(198, 40, 40, 0.1);
+        }
+      }
+    }
+  }
+}

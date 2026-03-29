@@ -16,9 +16,13 @@ export class ManageCropCommandHandler implements CommandHandler<ManageCropComman
       name: command.name,
       scientific_name: command.scientific_name,
       family: command.family,
-      days_to_maturity: command.days_to_maturity,
-      min_temperature: command.min_temperature,
-      max_temperature: command.max_temperature,
+      days_to_harvest_min: command.days_to_harvest_min,
+      days_to_harvest_max: command.days_to_harvest_max,
+      category: command.category,
+      min_temperature_c: command.min_temperature_c,
+      max_temperature_c: command.max_temperature_c,
+      sun_requirement: command.sun_requirement,
+      water_requirement: command.water_requirement,
       created_by: command.created_by
     });
   }

@@ -1,0 +1,33 @@
+services:
+  Backend.User.controllers.CreateUserController:
+    class: ../../../controllers/user/CreateUserController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.User.controllers.FindUserByIdController:
+    class: ../../../controllers/user/FindUserByIdController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.User.controllers.LoginController:
+    class: ../../../controllers/user/LoginController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.User.controllers.UpdateProfileController:
+    class: ../../../controllers/user/UpdateProfileController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Auth.controllers.RegisterController:
+    class: ../../../controllers/auth/RegisterController
+    arguments:
+      [
+        '@Backend.Shared.domain.CommandBus',
+        '@Backend.Shared.PasswordHasher',
+        '@Backend.Shared.JwtHandler'
+      ]
+
+  Backend.Auth.controllers.MeController:
+    class: ../../../controllers/auth/MeController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Auth.controllers.LogoutController:
+    class: ../../../controllers/auth/LogoutController
+    arguments: ['@Backend.Shared.domain.CommandBus']

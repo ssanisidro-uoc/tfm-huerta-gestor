@@ -1,4 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, tap, catchError, of } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface Task {
   id: string;
@@ -21,15 +24,25 @@ export interface CalendarDay {
   tasks: Task[];
 }
 
+export interface TasksResponse {
+  tasks: Task[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class CalendarService {
+  private readonly API_URL = environment.apiUrl;
+  
   private tasksSignal = signal<Task[]>([]);
   private currentDateSignal = signal<Date>(new Date());
+  private loadingSignal = signal(false);
+  private errorSignal = signal<string | null>(null);
 
   readonly tasks = this.tasksSignal.asReadonly();
   readonly currentDate = this.currentDateSignal.asReadonly();
+  readonly loading = this.loadingSignal.asReadonly();
+  readonly error = this.errorSignal.asReadonly();
 
   readonly currentMonth = computed(() => {
     return this.currentDateSignal().getMonth();
@@ -82,6 +95,64 @@ export class CalendarService {
 
     return days;
   });
+
+  constructor(private http: HttpClient) {}
+
+  loadTasksForGarden(gardenId: string): void {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    this.http.get<TasksResponse>(`${this.API_URL}/api/gardens/${gardenId}/tasks`).pipe(
+      tap(response => {
+        this.tasksSignal.set(response.tasks);
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error loading tasks');
+        return of(null);
+      })
+    ).subscribe();
+  }
+
+  loadTasksForGardens(gardenIds: string[], gardenNames: Record<string, string>): void {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+    this.tasksSignal.set([]);
+
+    if (gardenIds.length === 0) {
+      this.loadingSignal.set(false);
+      return;
+    }
+
+    let loadedCount = 0;
+    const allTasks: Task[] = [];
+
+    for (const gardenId of gardenIds) {
+      this.http.get<TasksResponse>(`${this.API_URL}/api/gardens/${gardenId}/tasks`).pipe(
+        tap(response => {
+          const tasksWithGardenName = response.tasks.map(task => ({
+            ...task,
+            garden_name: task.garden_name || gardenNames[gardenId] || 'Unknown'
+          }));
+          allTasks.push(...tasksWithGardenName);
+          loadedCount++;
+          if (loadedCount === gardenIds.length) {
+            this.tasksSignal.set(allTasks);
+            this.loadingSignal.set(false);
+          }
+        }),
+        catchError((err: HttpErrorResponse) => {
+          loadedCount++;
+          if (loadedCount === gardenIds.length) {
+            this.tasksSignal.set(allTasks);
+            this.loadingSignal.set(false);
+          }
+          return of(null);
+        })
+      ).subscribe();
+    }
+  }
 
   previousMonth(): void {
     const current = this.currentDateSignal();
@@ -160,24 +231,6 @@ export class CalendarService {
         garden_name: 'Huerta Principal',
         plot_id: 'p2',
         plot_name: 'Parcela 2'
-      },
-      {
-        id: '4',
-        title: 'Fertilización',
-        date: new Date(year, month, 25),
-        type: 'fertilizing',
-        status: 'pending',
-        garden_id: 'g1',
-        garden_name: 'Huerta Principal'
-      },
-      {
-        id: '5',
-        title: 'Poda de árboles',
-        date: new Date(year, month, 28),
-        type: 'pruning',
-        status: 'pending',
-        garden_id: 'g1',
-        garden_name: 'Huerta Principal'
       }
     ];
 
@@ -186,5 +239,9 @@ export class CalendarService {
 
   clearTasks(): void {
     this.tasksSignal.set([]);
+  }
+
+  clearError(): void {
+    this.errorSignal.set(null);
   }
 }

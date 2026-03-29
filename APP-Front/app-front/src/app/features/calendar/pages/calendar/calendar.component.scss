@@ -1,0 +1,238 @@
+.calendar-page {
+  padding: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  .current-month {
+    min-width: 200px;
+    text-align: center;
+    text-transform: capitalize;
+    margin: 0;
+  }
+
+  .nav-btn {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.25rem;
+    transition: all 0.2s;
+
+    &:hover {
+      background: var(--bg-tertiary);
+    }
+  }
+
+  .today-btn {
+    margin-left: auto;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+      background: var(--color-primary-hover);
+    }
+  }
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--border-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.weekday-header {
+  background: var(--bg-tertiary);
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.calendar-day {
+  background: var(--card-bg);
+  min-height: 100px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: var(--bg-tertiary);
+  }
+
+  &.other-month {
+    background: var(--bg-secondary);
+    
+    .day-number {
+      color: var(--text-muted);
+    }
+  }
+
+  &.today {
+    background: rgba(46, 125, 50, 0.1);
+    
+    .day-number {
+      background: var(--color-primary);
+      color: white;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .day-number {
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .day-tasks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    align-items: center;
+  }
+
+  .task-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+
+    &.task-planting { background: #4CAF50; }
+    &.task-harvest { background: #FF9800; }
+    &.task-irrigation { background: #2196F3; }
+    &.task-fertilizing { background: #9C27B0; }
+    &.task-pruning { background: #795548; }
+    &.task-treatment { background: #F44336; }
+    &.task-other { background: #607D8B; }
+  }
+
+  .more-tasks {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+}
+
+.selected-day-panel {
+  margin-top: 1.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.25rem;
+
+  h3 {
+    margin: 0 0 1rem;
+    font-size: 1.1rem;
+    text-transform: capitalize;
+  }
+
+  .no-tasks {
+    color: var(--text-muted);
+    margin: 0;
+  }
+}
+
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border-left: 4px solid;
+  
+  &.task-planting { border-color: #4CAF50; background: rgba(76, 175, 80, 0.1); }
+  &.task-harvest { border-color: #FF9800; background: rgba(255, 152, 0, 0.1); }
+  &.task-irrigation { border-color: #2196F3; background: rgba(33, 150, 243, 0.1); }
+  &.task-fertilizing { border-color: #9C27B0; background: rgba(156, 39, 176, 0.1); }
+  &.task-pruning { border-color: #795548; background: rgba(121, 85, 72, 0.1); }
+  &.task-treatment { border-color: #F44336; background: rgba(244, 67, 54, 0.1); }
+  &.task-other { border-color: #607D8B; background: rgba(96, 125, 139, 0.1); }
+
+  .task-time {
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 50px;
+  }
+
+  .task-content {
+    flex: 1;
+
+    strong {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    p {
+      margin: 0.25rem 0;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .task-location {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+  }
+
+  .task-status {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+
+    &.pending {
+      background: rgba(255, 152, 0, 0.2);
+      color: #FF9800;
+    }
+
+    &.completed {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4CAF50;
+    }
+
+    &.cancelled {
+      background: rgba(158, 158, 158, 0.2);
+      color: #9E9E9E;
+    }
+  }
+}

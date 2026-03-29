@@ -1,0 +1,82 @@
+<div class="profile-container">
+  <h2>Editar Perfil</h2>
+
+  @if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  }
+
+  @if (success()) {
+    <div class="success-message">{{ success() }}</div>
+  }
+
+  <form (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="name">Nombre</label>
+      <input
+        type="text"
+        id="name"
+        [(ngModel)]="name"
+        name="name"
+        placeholder="Tu nombre"
+        [class.error]="validationErrors()['name']"
+      />
+      @if (validationErrors()['name']) {
+        <span class="field-error">{{ validationErrors()['name'] }}</span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input
+        type="email"
+        id="email"
+        [(ngModel)]="email"
+        name="email"
+        placeholder="tu@email.com"
+        [class.error]="validationErrors()['email']"
+      />
+      @if (validationErrors()['email']) {
+        <span class="field-error">{{ validationErrors()['email'] }}</span>
+      }
+    </div>
+
+    <hr />
+    <h3>Cambiar contraseña (opcional)</h3>
+
+    <div class="form-group">
+      <label for="currentPassword">Contraseña actual</label>
+      <input
+        type="password"
+        id="currentPassword"
+        [(ngModel)]="currentPassword"
+        name="currentPassword"
+        placeholder="••••••••"
+        [class.error]="validationErrors()['currentPassword']"
+      />
+      @if (validationErrors()['currentPassword']) {
+        <span class="field-error">{{ validationErrors()['currentPassword'] }}</span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="newPassword">Nueva contraseña</label>
+      <input
+        type="password"
+        id="newPassword"
+        [(ngModel)]="newPassword"
+        name="newPassword"
+        placeholder="Mínimo 8 caracteres"
+        [class.error]="validationErrors()['newPassword']"
+      />
+      @if (validationErrors()['newPassword']) {
+        <span class="field-error">{{ validationErrors()['newPassword'] }}</span>
+      }
+    </div>
+
+    <button type="submit" [disabled]="loading()">
+      {{ loading() ? 'Guardando...' : 'Guardar cambios' }}
+    </button>
+  </form>
+
+  <button class="btn-cancel" (click)="goBack()">Cancelar</button>
+</div>

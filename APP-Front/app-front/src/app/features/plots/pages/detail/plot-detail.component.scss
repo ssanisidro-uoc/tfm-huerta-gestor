@@ -1,0 +1,293 @@
+.plot-detail {
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: #666;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #ddd;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  background: #fee;
+  color: #c00;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+.plot-header {
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+h1 {
+  margin: 0.5rem 0;
+  color: #333;
+}
+
+.plot-code {
+  display: inline-block;
+  background: #e9ecef;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.plot-info, .plot-features, .plot-description, .plot-plantings {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    margin: 0 0 1rem;
+    font-size: 1.1rem;
+    color: #333;
+  }
+}
+
+.plot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-add-planting {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #059669;
+  }
+}
+
+.loading-plantings {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  color: #666;
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ddd;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.empty-plantings {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+
+  p {
+    margin: 0 0 1rem;
+  }
+}
+
+.btn-add-first {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  &:hover {
+    background: #059669;
+  }
+}
+
+.plantings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.planting-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #10b981;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+  }
+}
+
+.planting-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+  }
+}
+
+.planting-status {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+
+  &.planted {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  &.harvested {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  &.archived {
+    background: #f3f4f6;
+    color: #6b7280;
+  }
+}
+
+.planting-dates {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+
+  .label {
+    font-weight: 500;
+  }
+}
+
+.planting-progress {
+  margin: 0.75rem 0;
+
+  .progress-bar {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.25rem;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #34d399);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .progress-text {
+    font-size: 0.8rem;
+    color: #666;
+  }
+}
+
+.planting-quantity {
+  font-size: 0.85rem;
+  color: #666;
+
+  .label {
+    font-weight: 500;
+  }
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+
+.info-item {
+  dt {
+    color: #888;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+  }
+
+  dd {
+    margin: 0;
+    color: #333;
+    font-weight: 500;
+  }
+}
+
+.features-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.feature-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.greenhouse, .raised-bed, .mulch {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.none {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.plot-description p {
+  margin: 0;
+  color: #555;
+  line-height: 1.6;
+}

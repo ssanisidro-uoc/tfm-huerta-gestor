@@ -36,7 +36,7 @@ export const require_auth = async (
 
     const token = authHeader.substring(7); // Remove "Bearer " prefix
 
-    const jwtHandler: JwtHandler = container.get('Shared.JwtHandler');
+    const jwtHandler: JwtHandler = container.get('Backend.Shared.JwtHandler');
     const payload = jwtHandler.verify_token(token);
 
     req.user = payload;
@@ -106,7 +106,7 @@ export const optional_auth = (req: Request, res: Response, next: NextFunction): 
     }
 
     const token = authHeader.substring(7);
-    const jwtHandler: JwtHandler = container.get('Shared.JwtHandler');
+    const jwtHandler: JwtHandler = container.get('Backend.Shared.JwtHandler');
 
     try {
       const payload = jwtHandler.verify_token(token);

@@ -14,8 +14,7 @@ export class PlantingCreator {
     plot_id: string,
     planted_at: Date,
     expected_harvest_at: Date,
-    quantity: number,
-    unit: string
+    quantity: number
   ): Promise<Planting> {
     const planting = Planting.create(
       new PlantingId(id),
@@ -24,8 +23,7 @@ export class PlantingCreator {
       plot_id,
       planted_at,
       expected_harvest_at,
-      quantity,
-      unit
+      quantity
     );
 
     await this.repository.save(planting);

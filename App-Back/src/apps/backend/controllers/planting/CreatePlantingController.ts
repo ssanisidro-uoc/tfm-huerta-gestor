@@ -10,17 +10,21 @@ export class CreatePlantingController {
   async run(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const user = (req as any).user;
-      const { crop_id, plot_id, garden_id, planted_at, quantity, unit, variety } = req.body;
+      const { crop_id, plot_id, garden_id, planted_at, quantity, variety } = req.body;
 
       if (!user) {
         throw new AppError(401, 'AUTH_UNAUTHORIZED', 'User not authenticated');
       }
 
       if (!crop_id || !plot_id || !garden_id || !planted_at) {
-        throw new AppError(400, 'INVALID_REQUEST', 'crop_id, plot_id, garden_id and planted_at are required');
+        throw new AppError(400, 'VALIDATION_ERROR', 'crop_id, plot_id, garden_id and planted_at are required');
       }
 
       const plantedDate = new Date(planted_at);
+      if (isNaN(plantedDate.getTime())) {
+        throw new AppError(400, 'VALIDATION_ERROR', 'Invalid planted_at date');
+      }
+
       const harvestDate = new Date(plantedDate);
       harvestDate.setDate(harvestDate.getDate() + (req.body.days_to_maturity || 90));
 
@@ -31,8 +35,7 @@ export class CreatePlantingController {
         plot_id,
         plantedDate,
         harvestDate,
-        quantity || 1,
-        unit || 'plants'
+        quantity || 1
       );
 
       await this.commandBus.dispatch(command);
@@ -49,8 +52,7 @@ export class CreatePlantingController {
           planted_at: command.planted_at,
           expected_harvest_at: command.expected_harvest_at,
           quantity: command.quantity,
-          unit: command.unit,
-          status: 'planted'
+          status: 'growing'
         }
       });
     } catch (error: any) {

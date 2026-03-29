@@ -12,9 +12,14 @@ export class CropManager {
     name: string;
     scientific_name: string;
     family: string;
-    days_to_maturity: number;
-    min_temperature: number;
-    max_temperature: number;
+    days_to_harvest_min: number;
+    days_to_harvest_max: number;
+    category: string;
+    lifecycle?: string;
+    sun_requirement?: string;
+    water_requirement?: string;
+    min_temperature_c?: number;
+    max_temperature_c?: number;
     created_by: string;
   }): Promise<Crop> {
     const now = new Date();
@@ -25,9 +30,55 @@ export class CropManager {
       new CropName(data.name),
       data.scientific_name,
       data.family,
-      data.days_to_maturity,
-      data.min_temperature,
-      data.max_temperature,
+      data.category,
+      data.lifecycle || 'annual',
+      'herbaceous',
+      data.days_to_harvest_min,
+      data.days_to_harvest_max,
+      data.days_to_harvest_max,
+      7,
+      data.min_temperature_c || 10,
+      data.max_temperature_c || 35,
+      15,
+      30,
+      false,
+      false,
+      data.sun_requirement || 'full_sun',
+      6,
+      'low',
+      [],
+      6.0,
+      7.5,
+      'medium',
+      'medium',
+      data.water_requirement || 'moderate',
+      false,
+      false,
+      30,
+      60,
+      1,
+      3,
+      10,
+      5,
+      11,
+      [],
+      [],
+      'default',
+      3,
+      [],
+      [],
+      'medium',
+      false,
+      false,
+      false,
+      2.5,
+      'single',
+      '',
+      '',
+      '',
+      '',
+      '',
+      null,
       data.id ? now : now,
       now
     );

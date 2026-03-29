@@ -1,0 +1,10 @@
+services:
+  Backend.UserGarden.application.CheckGardenAccessFinder:
+    class: ../../../../Contexts/UserGarden/application/CheckGardenAccess/CheckGardenAccessFinder
+    arguments: ['@Backend.Garden.domain.UserGardenRepository']
+
+  Backend.UserGarden.application.CheckGardenAccessQueryHandler:
+    class: ../../../../Contexts/UserGarden/application/CheckGardenAccess/CheckGardenAccessQueryHandler
+    arguments: ['@Backend.UserGarden.application.CheckGardenAccessFinder']
+    tags:
+      - { name: 'queryHandler' }

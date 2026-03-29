@@ -1,4 +1,5 @@
 import { NotFoundError } from '../../../Shared/domain/AppError';
+import { InvalidArgumentError } from '../../../Shared/domain/InvalidArgumentError';
 
 export class PlotNotFoundError extends NotFoundError {
   constructor(identifier: string) {
@@ -32,5 +33,19 @@ export class PlotNotOwnedError extends Error {
   constructor(plotId: string, gardenId: string) {
     super(`Plot ${plotId} does not belong to garden ${gardenId}`);
     Object.setPrototypeOf(this, PlotNotOwnedError.prototype);
+  }
+}
+
+export class InvalidPlotNameError extends InvalidArgumentError {
+  constructor(name: string) {
+    super(`Plot name "${name}" is invalid. Name is required.`, { field: 'name', value: name });
+    Object.setPrototypeOf(this, InvalidPlotNameError.prototype);
+  }
+}
+
+export class InvalidPlotSurfaceError extends InvalidArgumentError {
+  constructor(surface: number | string) {
+    super(`Plot surface is invalid. Must be a positive number.`, { field: 'surface_m2', value: surface });
+    Object.setPrototypeOf(this, InvalidPlotSurfaceError.prototype);
   }
 }

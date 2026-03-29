@@ -1,8 +1,8 @@
-import { NextFunction, Request, Response } from 'express';
-import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
-import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
-import { CreatePlotCommand } from '../../../../Contexts/Plot/application/CreatePlot/CreatePlotCommand';
 import crypto from 'crypto';
+import { NextFunction, Request, Response } from 'express';
+import { CreatePlotCommand } from '../../../../Contexts/Plot/application/CreatePlot/CreatePlotCommand';
+import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
+import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
 
 interface CreatePlotBody {
   name: string;
@@ -38,7 +38,7 @@ export class CreatePlotController {
 
   async run(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.userId;
+      const userId = (req as any).user?.userId;
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
@@ -46,8 +46,11 @@ export class CreatePlotController {
 
       const { gardenId } = req.params;
       const body = req.body as CreatePlotBody;
-      
-      logger.debug(`Creating plot in garden ${gardenId} for user ${userId}`, 'CreatePlotController');
+
+      logger.debug(
+        `Creating plot in garden ${gardenId} for user ${userId}`,
+        'CreatePlotController'
+      );
 
       const command = new CreatePlotCommand(
         crypto.randomUUID(),

@@ -7,7 +7,11 @@ export class FindAllCropsResponse implements Response {
       name: string;
       scientific_name: string;
       family: string;
-      days_to_maturity: number;
+      category: string;
+      days_to_harvest_min: number;
+      days_to_harvest_max: number;
+      sun_requirement: string;
+      water_requirement: string;
     }>,
     readonly total: number,
     readonly page: number,

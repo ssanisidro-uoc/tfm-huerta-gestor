@@ -1,0 +1,201 @@
+<div class="garden-create">
+  <div class="form-container">
+    <h1 id="title">Crear Nueva Huerta</h1>
+    
+    @if (gardenService.error()) {
+      <div class="error-message" role="alert" aria-live="assertive">
+        {{ gardenService.error() }}
+      </div>
+    }
+
+    <form (ngSubmit)="onSubmit()" aria-labelledby="title">
+      <div class="form-section">
+        <div class="form-group">
+          <label for="name">Nombre *</label>
+          <input
+            type="text"
+            id="name"
+            [(ngModel)]="name"
+            name="name"
+            required
+            aria-required="true"
+            [disabled]="gardenService.loading()"
+            autocomplete="name"
+            placeholder="Nombre de tu huerta"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="climate_zone">Zona Climática *</label>
+          <select
+            id="climate_zone"
+            [(ngModel)]="climate_zone"
+            name="climate_zone"
+            required
+            aria-required="true"
+            [disabled]="gardenService.loading()"
+          >
+            <option value="">Selecciona una zona climática</option>
+            @for (zone of climateZones; track zone.value) {
+              <option [value]="zone.value">{{ zone.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <button 
+          type="button" 
+          class="expand-toggle"
+          (click)="showBasicFields.set(!showBasicFields())"
+          [attr.aria-expanded]="showBasicFields()"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            stroke-width="2"
+            [class.rotated]="showBasicFields()"
+          >
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+          <span>{{ showBasicFields() ? 'Menos opciones' : 'Más opciones' }}</span>
+        </button>
+
+        @if (showBasicFields()) {
+          <div class="expanded-fields">
+            <div class="form-group">
+              <label for="description">Descripción</label>
+              <textarea
+                id="description"
+                [(ngModel)]="description"
+                name="description"
+                rows="2"
+                [disabled]="gardenService.loading()"
+                placeholder="Breve descripción de tu huerta"
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="surface_m2">Superficie (m²)</label>
+              <input
+                type="number"
+                id="surface_m2"
+                [(ngModel)]="surface_m2"
+                name="surface_m2"
+                min="1"
+                max="1000000"
+                [disabled]="gardenService.loading()"
+                placeholder="Ej: 500"
+              />
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="form-section">
+        <button 
+          type="button" 
+          class="expand-toggle advanced"
+          (click)="showAdvancedFields.set(!showAdvancedFields())"
+          [attr.aria-expanded]="showAdvancedFields()"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            stroke-width="2"
+            [class.rotated]="showAdvancedFields()"
+          >
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+          <span>{{ showAdvancedFields() ? 'Ocultar ubicación' : 'Añadir ubicación' }}</span>
+        </button>
+
+        @if (showAdvancedFields()) {
+          <div class="expanded-fields advanced">
+            <fieldset class="location-fieldset">
+              <legend>Ubicación</legend>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="location_city">Ciudad</label>
+                  <input
+                    type="text"
+                    id="location_city"
+                    [(ngModel)]="location_city"
+                    name="location_city"
+                    [disabled]="gardenService.loading()"
+                    autocomplete="address-level2"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="location_region">Provincia/Región</label>
+                  <input
+                    type="text"
+                    id="location_region"
+                    [(ngModel)]="location_region"
+                    name="location_region"
+                    [disabled]="gardenService.loading()"
+                    autocomplete="address-level1"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="location_address">Dirección</label>
+                <input
+                  type="text"
+                  id="location_address"
+                  [(ngModel)]="location_address"
+                  name="location_address"
+                  [disabled]="gardenService.loading()"
+                  autocomplete="street-address"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="location_country">País</label>
+                <select
+                  id="location_country"
+                  [(ngModel)]="location_country"
+                  name="location_country"
+                  [disabled]="gardenService.loading()"
+                >
+                  <option value="">Selecciona un país</option>
+                  @for (country of countries; track country.value) {
+                    <option [value]="country.value">{{ country.label }}</option>
+                  }
+                </select>
+              </div>
+            </fieldset>
+          </div>
+        }
+      </div>
+
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn-primary"
+          [disabled]="gardenService.loading()"
+          [attr.aria-busy]="gardenService.loading()"
+        >
+          @if (gardenService.loading()) {
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Creando...</span>
+          } @else {
+            Crear Huerta
+          }
+        </button>
+        <a routerLink="/gardens" class="btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>

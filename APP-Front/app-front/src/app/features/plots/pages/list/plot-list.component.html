@@ -1,0 +1,50 @@
+<div class="plot-list">
+  <header class="header">
+    <a [routerLink]="['/gardens', gardenId]" class="back-link">← Volver a la huerta</a>
+    <h1 id="title">Parcelas</h1>
+    <a [routerLink]="['/gardens', gardenId, 'plots', 'create']" class="btn-primary" aria-label="Crear nueva parcela">
+      + Nueva Parcela
+    </a>
+  </header>
+
+  @if (plotService.loading()) {
+    <div class="loading" role="status" aria-live="polite">
+      <span class="spinner"></span>
+      <span>Cargando parcelas...</span>
+    </div>
+  }
+
+  @if (plotService.error()) {
+    <div class="error-message" role="alert">{{ plotService.error() }}</div>
+  }
+
+  @if (!plotService.loading() && plotService.plots().length === 0) {
+    <div class="empty-state">
+      <p>No hay parcelas todavía</p>
+      <a [routerLink]="['/gardens', gardenId, 'plots', 'create']" class="btn-primary">
+        Crear tu primera parcela
+      </a>
+    </div>
+  }
+
+  @if (plotService.plots().length > 0) {
+    <ul class="plot-grid" role="list">
+      @for (plot of plotService.plots(); track plot.id) {
+        <li class="plot-card">
+          <a [routerLink]="['/plots', plot.id]">
+            <h2>{{ plot.name }}</h2>
+            @if (plot.code) {
+              <span class="plot-code">{{ plot.code }}</span>
+            }
+            @if (plot.description) {
+              <p class="description">{{ plot.description }}</p>
+            }
+            <div class="plot-info">
+              <span class="surface">{{ plot.surface_m2 }} m²</span>
+            </div>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</div>

@@ -1,8 +1,8 @@
-import { NextFunction, Request, Response } from 'express';
-import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
-import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
-import { CreateGardenCommand } from '../../../../Contexts/Garden/application/Create/CreateGardenCommand';
 import crypto from 'crypto';
+import { NextFunction, Request, Response } from 'express';
+import { CreateGardenCommand } from '../../../../Contexts/Garden/application/Create/CreateGardenCommand';
+import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
+import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
 
 interface CreateGardenBody {
   name: string;
@@ -26,14 +26,14 @@ export class CreateGardenController {
 
   async run(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.userId;
+      const userId = (req as any).user?.userId;
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
       }
 
       const body = req.body as CreateGardenBody;
-      
+
       logger.debug(`Creating garden for user ${userId}`, 'CreateGardenController');
 
       const command = new CreateGardenCommand(

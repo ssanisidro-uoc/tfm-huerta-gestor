@@ -1,0 +1,36 @@
+services:
+  Backend.Task.controllers.PostponeTaskController:
+    class: ../../../controllers/task/PostponeTaskController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Task.controllers.CompleteTaskController:
+    class: ../../../controllers/task/CompleteTaskController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Task.controllers.CancelTaskController:
+    class: ../../../controllers/task/CancelTaskController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Task.controllers.FindTasksController:
+    class: ../../../controllers/task/FindTasksController
+    arguments: ['@Backend.Shared.domain.QueryBus', '@Backend.Garden.domain.UserGardenRepository']
+
+  Backend.Task.controllers.CreateManualTaskController:
+    class: ../../../controllers/task/CreateManualTaskController
+    arguments: ['@Backend.Shared.domain.CommandBus', '@Backend.Garden.domain.UserGardenRepository']
+
+  Backend.Task.controllers.AssignTaskController:
+    class: ../../../controllers/task/AssignTaskController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Task.controllers.DeleteManualTaskController:
+    class: ../../../controllers/task/DeleteManualTaskController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Task.controllers.GetCalendarTasksController:
+    class: ../../../controllers/task/GetCalendarTasksController
+    arguments:
+      [
+        '@Backend.Task.application.CalendarTasksFinder',
+        '@Backend.Garden.domain.UserGardenRepository'
+      ]

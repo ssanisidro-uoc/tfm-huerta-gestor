@@ -1,0 +1,53 @@
+<div class="crop-list">
+  <header class="header">
+    <h1 id="title">Catálogo de Cultivos</h1>
+    <div class="search-box">
+      <input 
+        type="text" 
+        placeholder="Buscar cultivos..." 
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+        (keyup.enter)="onSearch()"
+        class="search-input"
+      />
+      <button (click)="onSearch()" class="search-btn">Buscar</button>
+    </div>
+  </header>
+
+  @if (cropService.loading()) {
+    <div class="loading" role="status" aria-live="polite">
+      <span class="spinner"></span>
+      <span>Cargando cultivos...</span>
+    </div>
+  }
+
+  @if (cropService.error()) {
+    <div class="error-message" role="alert">{{ cropService.error() }}</div>
+  }
+
+  @if (!cropService.loading() && cropService.crops().length === 0) {
+    <div class="empty-state">
+      <p>No hay cultivos disponibles</p>
+    </div>
+  }
+
+  @if (cropService.crops().length > 0) {
+    <ul class="crop-grid" role="list">
+      @for (crop of cropService.crops(); track crop.id) {
+        <li class="crop-card">
+          <a [routerLink]="['/crops', crop.id]">
+            <h2>{{ crop.name }}</h2>
+            @if (crop.scientific_name) {
+              <p class="scientific">{{ crop.scientific_name }}</p>
+            }
+            <div class="crop-info">
+              <span class="badge family">{{ crop.family }}</span>
+              <span class="badge category">{{ getCategoryLabel(crop.category) }}</span>
+            </div>
+            <p class="days">{{ crop.days_to_harvest_min }} - {{ crop.days_to_harvest_max }} días</p>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</div>

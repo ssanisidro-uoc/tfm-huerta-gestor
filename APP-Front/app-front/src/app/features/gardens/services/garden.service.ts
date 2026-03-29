@@ -66,6 +66,7 @@ export interface SharedGarden {
   garden_id: string;
   garden_role: string;
   invitation_accepted: boolean;
+  invitation_accepted_at: string | null;
   created_at: Date;
   garden: {
     id: string;
@@ -98,11 +99,19 @@ export class GardenService {
 
   constructor(private http: HttpClient) {}
 
+  setError(message: string): void {
+    this.errorSignal.set(message);
+  }
+
+  clearError(): void {
+    this.errorSignal.set(null);
+  }
+
   getGardens(page = 1, limit = 20): Observable<GardensResponse | null> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.get<GardensResponse>(`${this.API_URL}/gardens`, {
+    return this.http.get<GardensResponse>(`${this.API_URL}/api/gardens`, {
       params: { page: page.toString(), limit: limit.toString() }
     }).pipe(
       tap(response => {
@@ -111,7 +120,8 @@ export class GardenService {
       }),
       catchError((err: HttpErrorResponse) => {
         this.loadingSignal.set(false);
-        this.errorSignal.set(err.error?.message || 'Error loading gardens');
+        const message = err.error?.message || 'Error loading gardens';
+        this.errorSignal.set(message);
         return of(null);
       })
     );
@@ -121,7 +131,7 @@ export class GardenService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.get<GardenDetail>(`${this.API_URL}/gardens/${id}`).pipe(
+    return this.http.get<GardenDetail>(`${this.API_URL}/api/gardens/${id}`).pipe(
       tap(() => {
         this.loadingSignal.set(false);
       }),
@@ -137,13 +147,14 @@ export class GardenService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.post<{ message: string }>(`${this.API_URL}/gardens`, data).pipe(
+    return this.http.post<{ message: string }>(`${this.API_URL}/api/gardens`, data).pipe(
       tap(() => {
         this.loadingSignal.set(false);
       }),
       catchError((err: HttpErrorResponse) => {
         this.loadingSignal.set(false);
-        this.errorSignal.set(err.error?.message || 'Error creating garden');
+        const message = err.error?.message || 'Error creating garden';
+        this.errorSignal.set(message);
         return of(null);
       })
     );
@@ -153,7 +164,7 @@ export class GardenService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.put<{ message: string }>(`${this.API_URL}/gardens/${id}`, data).pipe(
+    return this.http.put<{ message: string }>(`${this.API_URL}/api/gardens/${id}`, data).pipe(
       tap(() => {
         this.loadingSignal.set(false);
       }),
@@ -169,7 +180,7 @@ export class GardenService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.delete<{ message: string }>(`${this.API_URL}/gardens/${id}`).pipe(
+    return this.http.delete<{ message: string }>(`${this.API_URL}/api/gardens/${id}`).pipe(
       tap(() => {
         this.loadingSignal.set(false);
       }),
@@ -181,11 +192,11 @@ export class GardenService {
     );
   }
 
-  inviteCollaborator(gardenId: string, email: string): Observable<InviteResponse | null> {
+  inviteCollaborator(gardenId: string, email: string, role: string = 'collaborator'): Observable<InviteResponse | null> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.post<InviteResponse>(`${this.API_URL}/gardens/${gardenId}/invite`, { email }).pipe(
+    return this.http.post<InviteResponse>(`${this.API_URL}/api/gardens/${gardenId}/collaborators`, { email, role }).pipe(
       tap(() => {
         this.loadingSignal.set(false);
       }),
@@ -201,7 +212,7 @@ export class GardenService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.get<SharedGardensResponse>(`${this.API_URL}/gardens/shared`).pipe(
+    return this.http.get<SharedGardensResponse>(`${this.API_URL}/api/gardens/shared`).pipe(
       tap(response => {
         this.sharedGardensSignal.set(response.data);
         this.loadingSignal.set(false);
@@ -214,7 +225,35 @@ export class GardenService {
     );
   }
 
-  clearError(): void {
+  acceptInvitation(gardenId: string): Observable<{ success: boolean; message: string } | null> {
+    this.loadingSignal.set(true);
     this.errorSignal.set(null);
+
+    return this.http.post<{ success: boolean; message: string }>(`${this.API_URL}/api/gardens/${gardenId}/accept`, {}).pipe(
+      tap(response => {
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error accepting invitation');
+        return of(null);
+      })
+    );
+  }
+
+  rejectInvitation(gardenId: string): Observable<{ success: boolean; message: string } | null> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    return this.http.post<{ success: boolean; message: string }>(`${this.API_URL}/api/gardens/${gardenId}/reject`, {}).pipe(
+      tap(response => {
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error rejecting invitation');
+        return of(null);
+      })
+    );
   }
 }

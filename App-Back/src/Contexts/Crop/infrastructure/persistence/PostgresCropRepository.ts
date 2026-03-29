@@ -1,15 +1,17 @@
-import { Pool } from 'pg';
+import { PostgresRepository } from '../../../Shared/infrastructure/persistence/postgres/PostgresRepository';
 import { Crop } from '../../domain/Crop';
 import { CropRepository } from '../../domain/CropRepository';
 
-export class PostgresCropRepository implements CropRepository {
-  constructor(private pool: Pool) {}
+export class PostgresCropRepository extends PostgresRepository implements CropRepository {
+  protected tableName(): string {
+    throw new Error('Method not implemented.');
+  }
 
   async search_by_id(id: string): Promise<Crop | null> {
     const query: string = 'SELECT * FROM crop_catalog WHERE id = $1';
-    
+
     try {
-      const result = await this.pool.query(query, [id]);
+      const result = await this.query(query, [id]);
       if (result.rows.length === 0) {
         return null;
       }
@@ -23,7 +25,7 @@ export class PostgresCropRepository implements CropRepository {
     page: number;
     limit: number;
     offset: number;
-    filters?: { category?: string; family?: string };
+    filters?: { category?: string; family?: string; search?: string };
   }): Promise<Crop[]> {
     let query: string = 'SELECT * FROM crop_catalog';
     const conditions: string[] = [];
@@ -39,6 +41,13 @@ export class PostgresCropRepository implements CropRepository {
         conditions.push(`family = $${paramIndex++}`);
         values.push(options.filters.family);
       }
+      if (options.filters.search) {
+        conditions.push(
+          `(common_name ILIKE $${paramIndex} OR scientific_name ILIKE $${paramIndex} OR family ILIKE $${paramIndex})`
+        );
+        values.push(`%${options.filters.search}%`);
+        paramIndex++;
+      }
     }
 
     if (conditions.length > 0) {
@@ -53,8 +62,8 @@ export class PostgresCropRepository implements CropRepository {
     }
 
     try {
-      const result = await this.pool.query(query, values);
-      return result.rows.map(row => Crop.from_persistence(row));
+      const result = await this.query(query, values);
+      return result.rows.map((row) => Crop.from_persistence(row));
     } catch (error) {
       throw new Error(`Error searching crops: ${error}`);
     }
@@ -62,16 +71,16 @@ export class PostgresCropRepository implements CropRepository {
 
   async search_by_family(family: string): Promise<Crop[]> {
     const query: string = 'SELECT * FROM crop_catalog WHERE family = $1 ORDER BY common_name ASC';
-    
+
     try {
-      const result = await this.pool.query(query, [family]);
-      return result.rows.map(row => Crop.from_persistence(row));
+      const result = await this.query(query, [family]);
+      return result.rows.map((row) => Crop.from_persistence(row));
     } catch (error) {
       throw new Error(`Error searching crops by family: ${error}`);
     }
   }
 
-  async count(filters?: { category?: string; family?: string }): Promise<number> {
+  async count(filters?: { category?: string; family?: string; search?: string }): Promise<number> {
     let query: string = 'SELECT COUNT(*) as total FROM crop_catalog';
     const conditions: string[] = [];
     const values: any[] = [];
@@ -86,6 +95,13 @@ export class PostgresCropRepository implements CropRepository {
         conditions.push(`family = $${paramIndex++}`);
         values.push(filters.family);
       }
+      if (filters.search) {
+        conditions.push(
+          `(common_name ILIKE $${paramIndex} OR scientific_name ILIKE $${paramIndex} OR family ILIKE $${paramIndex})`
+        );
+        values.push(`%${filters.search}%`);
+        paramIndex++;
+      }
     }
 
     if (conditions.length > 0) {
@@ -93,7 +109,7 @@ export class PostgresCropRepository implements CropRepository {
     }
 
     try {
-      const result = await this.pool.query(query, values);
+      const result = await this.query(query, values);
       return parseInt(result.rows[0].total, 10);
     } catch (error) {
       throw new Error(`Error counting crops: ${error}`);
@@ -132,7 +148,7 @@ export class PostgresCropRepository implements CropRepository {
     ];
 
     try {
-      await this.pool.query(query, values);
+      await this.query(query, values);
     } catch (error) {
       throw new Error(`Error saving crop: ${error}`);
     }
@@ -142,7 +158,7 @@ export class PostgresCropRepository implements CropRepository {
     const query: string = 'DELETE FROM crop_catalog WHERE id = $1';
 
     try {
-      const result = await this.pool.query(query, [id]);
+      const result = await this.query(query, [id]);
       if (result.rowCount === 0) {
         throw new Error('Crop not found');
       }

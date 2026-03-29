@@ -1,0 +1,182 @@
+<div class="planting-detail">
+  @if (plantingService.loading()) {
+    <div class="loading">Cargando...</div>
+  }
+  
+  @if (plantingService.error()) {
+    <div class="error-message">{{ plantingService.error() }}</div>
+  }
+  
+  @if (planting()) {
+    <header class="planting-header">
+      <div class="header-content">
+        <a routerLink="/crops" class="back-link">← Volver</a>
+        <h1>{{ planting()!.crop?.name || 'Cultivo' }}</h1>
+      </div>
+    </header>
+    
+    @if (planting()!.phenological) {
+      <section class="phenological-status">
+        <h2>Estado Fenológico</h2>
+        
+        <div class="phase-info">
+          <div class="phase-badge" [class]="getPhaseClass(planting()!.phenological!.phase)">
+            {{ planting()!.phenological!.phase }}
+          </div>
+          
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="planting()!.phenological!.progress"></div>
+            </div>
+            <span class="progress-text">{{ planting()!.phenological!.progress }}%</span>
+          </div>
+          
+          <p class="description">{{ planting()!.phenological!.description }}</p>
+        </div>
+        
+        <div class="days-info">
+          <div class="day-item">
+            <span class="day-label">Días transcurridos</span>
+            <span class="day-value">{{ planting()!.phenological!.days_elapsed }}</span>
+          </div>
+          <div class="day-item">
+            <span class="day-label">Días hasta cosecha</span>
+            <span class="day-value">{{ planting()!.phenological!.days_to_harvest }}</span>
+          </div>
+        </div>
+        
+        <div class="harvest-text">
+          {{ planting()!.phenological!.days_until_harvest_text }}
+        </div>
+      </section>
+    }
+    
+    <section class="planting-info">
+      <h2>Información</h2>
+      <dl class="info-grid">
+        <div class="info-item">
+          <dt>Fecha de siembra</dt>
+          <dd>{{ formatDate(planting()!.planted_at) }}</dd>
+        </div>
+        <div class="info-item">
+          <dt>Cosecha esperada</dt>
+          <dd>{{ formatDate(planting()!.expected_harvest_at) }}</dd>
+        </div>
+        <div class="info-item">
+          <dt>Cantidad</dt>
+          <dd>{{ planting()!.quantity }} plantas</dd>
+        </div>
+        <div class="info-item">
+          <dt>Estado</dt>
+          <dd>{{ getStatusLabel(planting()!.status) }}</dd>
+        </div>
+      </dl>
+    </section>
+    
+    @if (planting()!.actions && planting()!.actions!.length > 0) {
+      <section class="actions-section">
+        <h2>Acciones Recomendadas</h2>
+        <ul class="actions-list">
+          @for (action of planting()!.actions!; track action) {
+            <li>{{ action }}</li>
+          }
+        </ul>
+      </section>
+    }
+    
+    @if (canHarvest()) {
+      @if (!showHarvestForm) {
+        <button class="btn-harvest" (click)="openHarvestForm()">
+          Registrar Cosecha
+        </button>
+      } @else {
+        <section class="harvest-form">
+          <h2>Registrar Cosecha</h2>
+          
+          <div class="form-group">
+            <label for="harvestDate">Fecha de cosecha</label>
+            <input 
+              type="date" 
+              id="harvestDate" 
+              [(ngModel)]="harvestDate"
+              class="form-control"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="harvestKg">Cantidad cosechada (kg)</label>
+            <input 
+              type="number" 
+              id="harvestKg" 
+              [(ngModel)]="harvestKg"
+              class="form-control"
+              placeholder="Ej: 5.5"
+              step="0.1"
+              min="0"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="harvestQuality">Calidad</label>
+            <select 
+              id="harvestQuality" 
+              [(ngModel)]="harvestQuality"
+              class="form-control"
+            >
+              <option value="excellent">Excelente</option>
+              <option value="good">Buena</option>
+              <option value="acceptable">Regular</option>
+              <option value="poor">Baja</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="harvestNotes">Notas</label>
+            <textarea 
+              id="harvestNotes" 
+              [(ngModel)]="harvestNotes"
+              class="form-control"
+              rows="3"
+              placeholder="Observaciones sobre la cosecha..."
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-cancel" (click)="cancelHarvest()">Cancelar</button>
+            <button class="btn-confirm" (click)="onHarvest()">Confirmar Cosecha</button>
+          </div>
+        </section>
+      }
+    }
+
+    @if (planting()!.status === 'harvested' || planting()!.status === 'archived') {
+      <section class="harvest-info">
+        <h2>Información de Cosecha</h2>
+        <dl class="info-grid">
+          <div class="info-item">
+            <dt>Fecha de cosecha</dt>
+            <dd>{{ formatDate(planting()!.harvested_at!) }}</dd>
+          </div>
+          @if (planting()!.harvest_info?.total_harvest_kg) {
+            <div class="info-item">
+              <dt>Cantidad cosechada</dt>
+              <dd>{{ planting()!.harvest_info?.total_harvest_kg }} kg</dd>
+            </div>
+          }
+          @if (planting()!.harvest_info?.harvest_quality) {
+            <div class="info-item">
+              <dt>Calidad</dt>
+              <dd>{{ getQualityLabel(planting()!.harvest_info?.harvest_quality!) }}</dd>
+            </div>
+          }
+          @if (planting()!.harvest_info?.harvest_notes) {
+            <div class="info-item full-width">
+              <dt>Notas</dt>
+              <dd>{{ planting()!.harvest_info?.harvest_notes }}</dd>
+            </div>
+          }
+        </dl>
+      </section>
+    }
+  }
+</div>

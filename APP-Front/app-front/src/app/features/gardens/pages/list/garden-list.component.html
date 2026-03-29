@@ -1,0 +1,56 @@
+<div class="garden-list">
+  <header class="header">
+    <h1 id="title">Mis Huertas</h1>
+    <div class="header-actions">
+      <a routerLink="/gardens/shared" class="btn-secondary" aria-label="Ver huertas compartidas">Compartidas</a>
+      <a routerLink="/gardens/create" class="btn-primary" aria-label="Crear nueva huerta">+ Nueva Huerta</a>
+    </div>
+  </header>
+
+  @if (gardenService.loading()) {
+    <div class="loading" role="status" aria-live="polite">
+      <span class="spinner"></span>
+      <span>Cargando huertas...</span>
+    </div>
+  }
+
+  @if (gardenService.error()) {
+    <div class="error-message" role="alert" aria-live="assertive">{{ gardenService.error() }}</div>
+  }
+
+  @if (!gardenService.loading() && gardenService.gardens().length === 0) {
+    <div class="empty-state">
+      <p>No tienes huertas todavía</p>
+      <a routerLink="/gardens/create" class="btn-primary">Crear tu primera huerta</a>
+    </div>
+  }
+
+  @if (gardenService.gardens().length > 0) {
+    <ul class="garden-grid" role="list" aria-label="Lista de huertas">
+      @for (garden of gardenService.gardens(); track garden.id) {
+        <li class="garden-card">
+          <a [routerLink]="['/gardens', garden.id]" [attr.aria-label]="'Ver detalles de ' + garden.name">
+            <div class="card-header">
+              <h2>{{ garden.name }}</h2>
+              @if (garden.is_active) {
+                <span class="status-badge active">Activa</span>
+              }
+            </div>
+            @if (garden.description) {
+              <p class="description">{{ garden.description }}</p>
+            }
+            <div class="garden-info">
+              <span class="climate"><span class="label">Clima:</span> {{ getClimateLabel(garden.climate_zone) }}</span>
+              @if (garden.surface_m2) {
+                <span class="surface"><span class="label">Superficie:</span> {{ garden.surface_m2 }} m²</span>
+              }
+              @if (garden.location.city) {
+                <span class="location"><span class="label">Ubicación:</span> {{ garden.location.city }}</span>
+              }
+            </div>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</div>

@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ThemeToggleComponent } from './core/components/theme-toggle/theme-toggle.component';
@@ -10,6 +10,7 @@ import { ToastComponent } from './shared/components/toast/toast.component';
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggleComponent, ToastComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -31,5 +32,9 @@ export class AppComponent {
   getUserInitials(): string {
     const name = this.authService.currentUser()?.name || '';
     return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

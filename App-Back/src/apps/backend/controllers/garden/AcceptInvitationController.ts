@@ -1,18 +1,30 @@
 import { NextFunction, Request, Response } from 'express';
 import { AppError } from '../../../../Contexts/Shared/domain/AppError';
 import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
+import { AcceptInvitationCommand } from '../../../../Contexts/Garden/application/AcceptInvitation/AcceptInvitationCommand';
+import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
 
 export class AcceptInvitationController {
+  constructor(private commandBus: CommandBus) {}
+
   async execute(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const user = (req as any).user;
-      const { gardenId } = req.params;
+      const gardenId = req.params.gardenId;
 
       if (!user) {
         throw new AppError(401, 'AUTH_UNAUTHORIZED', 'User not authenticated');
       }
 
+      if (!gardenId) {
+        throw new AppError(400, 'INVALID_REQUEST', 'gardenId is required');
+      }
+
       logger.info(`User ${user.userId} accepting invitation to garden ${gardenId}`, 'AcceptInvitationController');
+
+      const command = new AcceptInvitationCommand(gardenId, user.userId);
+
+      await this.commandBus.dispatch(command);
 
       res.status(200).json({
         success: true,

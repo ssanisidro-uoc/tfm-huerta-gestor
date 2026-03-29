@@ -25,7 +25,6 @@ export class FindPlantingByIdQueryHandler implements QueryHandler<FindPlantingBy
       planting.expected_harvest_at,
       planting.harvested_at,
       planting.quantity,
-      planting.unit,
       planting.is_active
     );
   }

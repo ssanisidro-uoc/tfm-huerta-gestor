@@ -2,9 +2,9 @@ import { Router } from 'express';
 import { globSync } from 'glob';
 import path from 'path';
 
-type RouteRegister = (router: Router) => void;
+type RouteRegister = (router: Router) => Promise<void>;
 
-export function registerRoutes(app: Router): void {
+export async function registerRoutes(app: Router): Promise<void> {
   const routes_dir = path.join(__dirname, 'contexts');
   console.log('Loading routes from:', routes_dir);
   
@@ -21,7 +21,7 @@ export function registerRoutes(app: Router): void {
       ) as RouteRegister | undefined;
 
       if (register_function) {
-        register_function(app);
+        await register_function(app);
         console.log(`✓ Rutas cargadas desde: ${path.basename(route_file)}`);
       }
     } catch (error) {

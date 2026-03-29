@@ -1,9 +1,17 @@
-import { Pool } from 'pg';
 import { Task } from '../../domain/Task';
 import { TaskRepository } from '../../domain/TaskRepository';
+import { PostgresRepository } from '../../../Shared/infrastructure/persistence/postgres/PostgresRepository';
+import PostgresConfig from '../../../Shared/infrastructure/persistence/postgres/PostgresConfig';
+import { Pool } from 'pg';
 
-export class PostgresTaskRepository implements TaskRepository {
-  constructor(private pool: Pool) {}
+export class PostgresTaskRepository extends PostgresRepository implements TaskRepository {
+  constructor(pool: Promise<Pool>, config: PostgresConfig) {
+    super(pool, config);
+  }
+
+  protected tableName(): string {
+    return 'tasks';
+  }
 
   async save(task: Task): Promise<void> {
     await this.save_many([task]);
@@ -18,9 +26,9 @@ export class PostgresTaskRepository implements TaskRepository {
 
     for (const task of tasks) {
       const task_data = task.to_persistence();
-      
+
       placeholders.push(`($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4}, $${paramIndex + 5}, $${paramIndex + 6}, $${paramIndex + 7}, $${paramIndex + 8}, $${paramIndex + 9}, $${paramIndex + 10}, $${paramIndex + 11}, $${paramIndex + 12}, $${paramIndex + 13}, $${paramIndex + 14}, $${paramIndex + 15}, $${paramIndex + 16}, $${paramIndex + 17}, $${paramIndex + 18}, $${paramIndex + 19}, $${paramIndex + 20}, $${paramIndex + 21}, $${paramIndex + 22}, $${paramIndex + 23}, $${paramIndex + 24}, $${paramIndex + 25}, $${paramIndex + 26}, $${paramIndex + 27}, $${paramIndex + 28}, $${paramIndex + 29}, $${paramIndex + 30}, $${paramIndex + 31}, $${paramIndex + 32}, $${paramIndex + 33}, $${paramIndex + 34}, $${paramIndex + 35}, $${paramIndex + 36}, $${paramIndex + 37}, $${paramIndex + 38}, $${paramIndex + 39}, $${paramIndex + 40}, $${paramIndex + 41})`);
-      
+
       values.push(
         task_data.id, task_data.garden_id, task_data.plot_id, task_data.planting_id,
         task_data.task_type, task_data.task_category, task_data.generated_by, task_data.template_id,
@@ -58,25 +66,17 @@ export class PostgresTaskRepository implements TaskRepository {
         updated_at = EXCLUDED.updated_at
     `;
 
-    try {
-      await this.pool.query(query, values);
-    } catch (error) {
-      throw new Error(`Error saving tasks: ${error}`);
-    }
+    await this.query(query, values);
   }
 
   async search_by_id(id: string): Promise<Task | null> {
     const query: string = 'SELECT * FROM tasks WHERE id = $1';
-    
-    try {
-      const result = await this.pool.query(query, [id]);
-      if (result.rows.length === 0) {
-        return null;
-      }
-      return Task.from_persistence(result.rows[0]);
-    } catch (error) {
-      throw new Error(`Error searching task by id: ${error}`);
+
+    const result = await this.query<any>(query, [id]);
+    if (result.rows.length === 0) {
+      return null;
     }
+    return Task.from_persistence(result.rows[0]);
   }
 
   async search_by_garden(
@@ -109,12 +109,8 @@ export class PostgresTaskRepository implements TaskRepository {
       values.push(options.limit, options.offset);
     }
 
-    try {
-      const result = await this.pool.query(query, values);
-      return result.rows.map(row => Task.from_persistence(row));
-    } catch (error) {
-      throw new Error(`Error searching tasks by garden: ${error}`);
-    }
+    const result = await this.query<any>(query, values);
+    return result.rows.map(row => Task.from_persistence(row));
   }
 
   async find_by_garden(
@@ -144,12 +140,8 @@ export class PostgresTaskRepository implements TaskRepository {
       }
     }
 
-    try {
-      const result = await this.pool.query(query, values);
-      return parseInt(result.rows[0].total, 10);
-    } catch (error) {
-      throw new Error(`Error counting tasks: ${error}`);
-    }
+    const result = await this.query<any>(query, values);
+    return parseInt(result.rows[0].total, 10);
   }
 
   async find_by_date_range(
@@ -175,12 +167,8 @@ export class PostgresTaskRepository implements TaskRepository {
 
     query += ' ORDER BY scheduled_date ASC';
 
-    try {
-      const result = await this.pool.query(query, values);
-      return result.rows.map(row => Task.from_persistence(row));
-    } catch (error) {
-      throw new Error(`Error searching tasks by date range: ${error}`);
-    }
+    const result = await this.query<any>(query, values);
+    return result.rows.map(row => Task.from_persistence(row));
   }
 
   async find_recurring_pending(): Promise<Task[]> {
@@ -193,12 +181,8 @@ export class PostgresTaskRepository implements TaskRepository {
       ORDER BY scheduled_date ASC
     `;
 
-    try {
-      const result = await this.pool.query(query);
-      return result.rows.map(row => Task.from_persistence(row));
-    } catch (error) {
-      throw new Error(`Error finding recurring pending tasks: ${error}`);
-    }
+    const result = await this.query<any>(query, []);
+    return result.rows.map(row => Task.from_persistence(row));
   }
 
   async update(task: Task): Promise<void> {
@@ -216,26 +200,18 @@ export class PostgresTaskRepository implements TaskRepository {
       task_data.postponed_at, task_data.postponed_until, task_data.updated_at
     ];
 
-    try {
-      const result = await this.pool.query(query, values);
-      if (result.rowCount === 0) {
-        throw new Error('Task not found');
-      }
-    } catch (error) {
-      throw new Error(`Error updating task: ${error}`);
+    const result = await this.query<any>(query, values);
+    if (result.rowCount === 0) {
+      throw new Error('Task not found');
     }
   }
 
   async delete(id: string): Promise<void> {
     const query: string = 'DELETE FROM tasks WHERE id = $1';
 
-    try {
-      const result = await this.pool.query(query, [id]);
-      if (result.rowCount === 0) {
-        throw new Error('Task not found');
-      }
-    } catch (error) {
-      throw new Error(`Error deleting task: ${error}`);
+    const result = await this.query<any>(query, [id]);
+    if (result.rowCount === 0) {
+      throw new Error('Task not found');
     }
   }
 }

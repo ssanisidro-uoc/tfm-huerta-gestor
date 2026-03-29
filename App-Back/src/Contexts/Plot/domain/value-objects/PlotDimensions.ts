@@ -21,11 +21,20 @@ export class PlotDimensions extends ValueObject<PlotDimensionsProps> {
     }
   }
 
-  static create(length: number | null, width: number | null): PlotDimensions {
+  static create({
+    length,
+    width
+  }: {
+    length: number | null;
+    width: number | null;
+  }): PlotDimensions {
     return new PlotDimensions({ length_m: length, width_m: width });
   }
 
-  static from_persistence(raw: { length_m: number | null; width_m: number | null }): PlotDimensions {
+  static from_persistence(raw: {
+    length_m: number | null;
+    width_m: number | null;
+  }): PlotDimensions {
     return new PlotDimensions({
       length_m: raw.length_m,
       width_m: raw.width_m

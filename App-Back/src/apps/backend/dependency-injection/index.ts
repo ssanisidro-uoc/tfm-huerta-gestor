@@ -1,6 +1,6 @@
 import { ContainerBuilder, YamlFileLoader } from 'node-dependency-injection';
 import path from 'path';
-import config from '../config';
+import config from '../config/config';
 
 const env = config.get('env') || 'development';
 

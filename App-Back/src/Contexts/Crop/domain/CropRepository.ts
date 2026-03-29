@@ -6,10 +6,10 @@ export interface CropRepository {
     page: number;
     limit: number;
     offset: number;
-    filters?: { category?: string; family?: string };
+    filters?: { category?: string; family?: string; search?: string };
   }): Promise<Crop[]>;
   search_by_family(family: string): Promise<Crop[]>;
-  count(filters?: { category?: string; family?: string }): Promise<number>;
+  count(filters?: { category?: string; family?: string; search?: string }): Promise<number>;
   save(crop: Crop): Promise<void>;
   delete(id: string): Promise<void>;
 }

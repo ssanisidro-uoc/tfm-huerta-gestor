@@ -1,9 +1,9 @@
-import { NextFunction, Request, Response } from 'express';
-import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
-import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
-import { CreateManualTaskCommand } from '../../../../Contexts/Task/application/CreateManualTask/CreateManualTaskCommand';
-import { UserGardenRepository } from '../../../../Contexts/Garden/infrastructure/persistence/UserGardenRepository';
 import crypto from 'crypto';
+import { NextFunction, Request, Response } from 'express';
+import { UserGardenRepository } from '../../../../Contexts/Garden/infrastructure/persistence/UserGardenRepository';
+import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
+import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
+import { CreateManualTaskCommand } from '../../../../Contexts/Task/application/CreateManualTask/CreateManualTaskCommand';
 
 interface CreateManualTaskBody {
   plot_id?: string;
@@ -26,7 +26,7 @@ export class CreateManualTaskController {
 
   async run(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.userId;
+      const userId = (req as any).user?.userId;
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
@@ -55,7 +55,11 @@ export class CreateManualTaskController {
         return;
       }
 
-      const hasAccess = await this.userGardenRepository.has_permission(userId, garden_id, 'collaborator');
+      const hasAccess = await this.userGardenRepository.has_permission(
+        userId,
+        garden_id,
+        'collaborator'
+      );
       if (!hasAccess) {
         const garden = await this.userGardenRepository.find_by_user_and_garden(userId, garden_id);
         if (!garden) {
@@ -64,7 +68,10 @@ export class CreateManualTaskController {
         }
       }
 
-      logger.debug(`Creating manual task for garden ${garden_id} by user ${userId}`, 'CreateManualTaskController');
+      logger.debug(
+        `Creating manual task for garden ${garden_id} by user ${userId}`,
+        'CreateManualTaskController'
+      );
 
       const command = new CreateManualTaskCommand(
         crypto.randomUUID(),
@@ -84,7 +91,10 @@ export class CreateManualTaskController {
 
       await this.commandBus.dispatch(command);
 
-      logger.info(`Manual task created successfully in garden ${garden_id}`, 'CreateManualTaskController');
+      logger.info(
+        `Manual task created successfully in garden ${garden_id}`,
+        'CreateManualTaskController'
+      );
 
       res.status(201).json({
         success: true,

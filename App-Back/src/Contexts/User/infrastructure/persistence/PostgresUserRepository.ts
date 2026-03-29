@@ -1,9 +1,17 @@
-import { Pool } from 'pg';
 import { User } from '../../domain/User';
 import { UserRepository } from '../../domain/UserRepository';
+import { PostgresRepository } from '../../../Shared/infrastructure/persistence/postgres/PostgresRepository';
+import PostgresConfig from '../../../Shared/infrastructure/persistence/postgres/PostgresConfig';
+import { Pool } from 'pg';
 
-export class PostgresUserRepository implements UserRepository {
-  constructor(private pool: Pool) {}
+export class PostgresUserRepository extends PostgresRepository implements UserRepository {
+  constructor(pool: Promise<Pool>, config: PostgresConfig) {
+    super(pool, config);
+  }
+
+  protected tableName(): string {
+    return 'users';
+  }
 
   async save(user: User): Promise<void> {
     const user_data = user.to_persistence();
@@ -31,25 +39,17 @@ export class PostgresUserRepository implements UserRepository {
       user_data.updated_at
     ];
 
-    try {
-      await this.pool.query(query, values);
-    } catch (error) {
-      throw new Error(`Error saving user: ${error}`);
-    }
+    await this.query(query, values);
   }
 
   async search_by_id(id: string): Promise<User | null> {
     const query: string = 'SELECT * FROM users WHERE id = $1';
 
-    try {
-      const result = await this.pool.query(query, [id]);
-      if (result.rows.length === 0) {
-        return null;
-      }
-      return User.from_persistence(result.rows[0]);
-    } catch (error) {
-      throw new Error(`Error searching user by id: ${error}`);
+    const result = await this.query<any>(query, [id]);
+    if (result.rows.length === 0) {
+      return null;
     }
+    return User.from_persistence(result.rows[0]);
   }
 
   async search_all(options?: {
@@ -85,12 +85,8 @@ export class PostgresUserRepository implements UserRepository {
       values.push(options.limit, options.offset);
     }
 
-    try {
-      const result = await this.pool.query(query, values);
-      return result.rows.map((row) => User.from_persistence(row));
-    } catch (error) {
-      throw new Error(`Error searching users: ${error}`);
-    }
+    const result = await this.query<any>(query, values);
+    return result.rows.map((row) => User.from_persistence(row));
   }
 
   async count(filters?: { is_active?: boolean; role_id?: string }): Promise<number> {
@@ -114,26 +110,18 @@ export class PostgresUserRepository implements UserRepository {
       query += ' WHERE ' + conditions.join(' AND ');
     }
 
-    try {
-      const result = await this.pool.query(query, values);
-      return parseInt(result.rows[0].total, 10);
-    } catch (error) {
-      throw new Error(`Error counting users: ${error}`);
-    }
+    const result = await this.query<any>(query, values);
+    return parseInt(result.rows[0].total, 10);
   }
 
   async search_by_email(email: string): Promise<User | null> {
     const query: string = 'SELECT * FROM users WHERE email = $1';
 
-    try {
-      const result = await this.pool.query(query, [email]);
-      if (result.rows.length === 0) {
-        return null;
-      }
-      return User.from_persistence(result.rows[0]);
-    } catch (error) {
-      throw new Error(`Error searching user by email: ${error}`);
+    const result = await this.query<any>(query, [email]);
+    if (result.rows.length === 0) {
+      return null;
     }
+    return User.from_persistence(result.rows[0]);
   }
 
   async find_by_email(email: string): Promise<User | null> {
@@ -162,26 +150,18 @@ export class PostgresUserRepository implements UserRepository {
       user_data.updated_at
     ];
 
-    try {
-      const result = await this.pool.query(query, values);
-      if (result.rowCount === 0) {
-        throw new Error('User not found');
-      }
-    } catch (error) {
-      throw new Error(`Error updating user: ${error}`);
+    const result = await this.query<any>(query, values);
+    if (result.rowCount === 0) {
+      throw new Error('User not found');
     }
   }
 
   async delete(id: string): Promise<void> {
     const query: string = 'DELETE FROM users WHERE id = $1';
 
-    try {
-      const result = await this.pool.query(query, [id]);
-      if (result.rowCount === 0) {
-        throw new Error('User not found');
-      }
-    } catch (error) {
-      throw new Error(`Error deleting user: ${error}`);
+    const result = await this.query<any>(query, [id]);
+    if (result.rowCount === 0) {
+      throw new Error('User not found');
     }
   }
 }

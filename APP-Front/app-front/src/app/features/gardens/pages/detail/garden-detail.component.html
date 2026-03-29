@@ -1,0 +1,186 @@
+<div class="garden-detail">
+  <app-breadcrumb [items]="breadcrumbs()"></app-breadcrumb>
+
+  @if (loading()) {
+    <div class="loading">Cargando...</div>
+  }
+
+  @if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  }
+
+  @if (garden(); as garden) {
+    <header class="garden-header">
+      <h1>{{ garden.name }}</h1>
+      <p class="location">
+        {{ garden.location.city }}, {{ garden.location.region }}
+        @if (garden.climate_zone) {
+          · {{ getClimateLabel(garden.climate_zone) }}
+        }
+      </p>
+      <div class="header-actions">
+        <button class="btn-secondary" (click)="startEdit()">Editar</button>
+        <button class="btn-invite" (click)="startInvite()">
+          + Invitar
+        </button>
+        <button class="btn-danger" (click)="onDelete()">Eliminar</button>
+      </div>
+    </header>
+
+    @if (isEditing()) {
+      ...
+    }
+    @if (isInviting()) {
+      <div class="invite-form">
+        <div class="form-group">
+          <label for="inviteEmail">Email del colaborador</label>
+          <input
+            type="email"
+            id="inviteEmail"
+            [(ngModel)]="inviteEmail"
+            placeholder="email@ejemplo.com"
+            class="form-input"
+          />
+        </div>
+        <div class="form-group">
+          <label for="inviteRole">Rol</label>
+          <select id="inviteRole" [(ngModel)]="inviteRole" class="form-input">
+            <option value="collaborator">Colaborador</option>
+            <option value="viewer">Visor</option>
+          </select>
+        </div>
+        @if (inviteMessage()) {
+          <div class="message">{{ inviteMessage() }}</div>
+        }
+        <div class="form-actions">
+          <button class="btn-primary" (click)="sendInvite()">Enviar invitación</button>
+          <button class="btn-secondary" (click)="cancelInvite()">Cancelar</button>
+        </div>
+      </div>
+    }
+
+    <section class="plots-section">
+      <div class="section-header">
+        <h2>Parcelas</h2>
+        <a
+          [routerLink]="['/gardens', garden.id, 'plots', 'create']"
+          class="btn-primary"
+          >+ Nueva Parcela</a
+        >
+      </div>
+
+      @if (plots().length === 0) {
+        <div class="empty-plots">No hay parcelas en esta huerta</div>
+      } @else {
+        <div class="plots-grid">
+          @for (plot of plots(); track plot.id) {
+            <div class="plot-card">
+              <div class="plot-header">
+                <h3>{{ plot.name }}</h3>
+                <span class="plot-surface">{{ plot.surface_m2 }} m²</span>
+                <span class="soil-type">{{ plot.soil_type }}</span>
+              </div>
+              <div class="crops-list">
+                @for (crop of plot.crops; track crop.id) {
+                  <div class="crop-item">
+                    <span class="crop-name">{{ crop.name }}</span>
+                    <div class="growth-bar">
+                      <div
+                        class="growth-fill"
+                        [style.width.%]="crop.growth_percentage"
+                      ></div>
+                      <span class="growth-percentage"
+                        >{{ crop.growth_percentage }}%</span
+                      >
+                    </div>
+                  </div>
+                }
+              </div>
+              @if (plot.next_task) {
+                <div class="next-task">
+                  <span class="task-label">Próx.:</span>
+                  <span class="task-type">{{ plot.next_task.type }}</span>
+                  <span class="task-date"
+                    >· {{ plot.next_task.date | date: 'EEE d MMM' }}</span
+                  >
+                </div>
+              }
+              <a [routerLink]="['/plots', plot.id]" class="detail-link"
+                >Ver detalle →</a
+              >
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    @if (tasks().length > 0) {
+      <section class="tasks-section">
+        <h2>Calendario de tareas</h2>
+        <div class="tasks-table-wrapper">
+          <table class="tasks-table">
+            <thead>
+              <tr>
+                <th>Cultivo / Parcela</th>
+                <th>Tipo</th>
+                <th>Fecha programada</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (task of tasks(); track task.id) {
+                <tr [class.urgent]="task.status === 'Urgente'">
+                  <td class="task-crop">
+                    {{ task.crop_name }} · {{ task.plot_name }}
+                  </td>
+                  <td>{{ task.type }}</td>
+                  <td>{{ task.scheduled_date | date: 'd MMM' }}</td>
+                  <td class="task-status">
+                    @if (task.completed) {
+                      <span class="status-completed">✓ Completada</span>
+                    } @else {
+                      <span class="status-pending">{{ task.status }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    @if (harvestHistory().length > 0) {
+      <section class="harvest-section">
+        <h2>Historial de Cosechas</h2>
+        <div class="tasks-table-wrapper">
+          <table class="tasks-table">
+            <thead>
+              <tr>
+                <th>Cultivo</th>
+                <th>Fecha de siembra</th>
+                <th>Fecha de cosecha</th>
+                <th>Cantidad</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of harvestHistory(); track item.id) {
+                <tr>
+                  <td>{{ item.crop_name }}</td>
+                  <td>{{ item.planted_at | date: 'd MMM yyyy' }}</td>
+                  <td>{{ item.harvested_at ? (item.harvested_at | date: 'd MMM yyyy') : '-' }}</td>
+                  <td>{{ item.quantity }} {{ item.unit }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <footer class="garden-footer">
+      <span class="owner">SS {{ garden.owner_id }}</span>
+      <span class="owner-role">Propietario</span>
+    </footer>
+  }
+</div>

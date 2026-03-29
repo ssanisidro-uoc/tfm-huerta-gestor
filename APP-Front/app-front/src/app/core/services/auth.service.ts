@@ -1,14 +1,14 @@
-import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { computed, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { catchError, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface User {
   id: string;
   email: string;
   name: string;
-  role_id: number;
+  role_id: string | number;
 }
 
 export interface LoginRequest {
@@ -44,7 +44,7 @@ export interface UpdateProfileResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private readonly API_URL = environment.apiUrl;
@@ -59,31 +59,35 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
   ) {}
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/auth/login`, credentials).pipe(
-      tap(response => {
-        if (response.success) {
-          this.storeToken(response.data.token);
-          this.storeUser(response.data.user);
-          this.currentUserSignal.set(response.data.user);
-        }
-      })
-    );
+    return this.http
+      .post<AuthResponse>(`${this.API_URL}/api/auth/login`, credentials)
+      .pipe(
+        tap((response) => {
+          if (response.success) {
+            this.storeToken(response.data.token);
+            this.storeUser(response.data.user);
+            this.currentUserSignal.set(response.data.user);
+          }
+        }),
+      );
   }
 
   register(data: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/auth/register`, data).pipe(
-      tap(response => {
-        if (response.success) {
-          this.storeToken(response.data.token);
-          this.storeUser(response.data.user);
-          this.currentUserSignal.set(response.data.user);
-        }
-      })
-    );
+    return this.http
+      .post<AuthResponse>(`${this.API_URL}/api/auth/register`, data)
+      .pipe(
+        tap((response) => {
+          if (response.success) {
+            this.storeToken(response.data.token);
+            this.storeUser(response.data.user);
+            this.currentUserSignal.set(response.data.user);
+          }
+        }),
+      );
   }
 
   me(): Observable<AuthResponse | null> {
@@ -92,8 +96,8 @@ export class AuthService {
       return of(null);
     }
 
-    return this.http.get<AuthResponse>(`${this.API_URL}/auth/me`).pipe(
-      tap(response => {
+    return this.http.get<AuthResponse>(`${this.API_URL}/api/auth/me`).pipe(
+      tap((response) => {
         if (response.success) {
           this.storeUser(response.data.user);
           this.currentUserSignal.set(response.data.user);
@@ -102,7 +106,7 @@ export class AuthService {
       catchError(() => {
         this.logout();
         return of(null);
-      })
+      }),
     );
   }
 
@@ -113,14 +117,30 @@ export class AuthService {
     this.router.navigate(['/auth/login']);
   }
 
-  updateProfile(data: UpdateProfileRequest): Observable<UpdateProfileResponse> {
-    return this.http.put<UpdateProfileResponse>(`${this.API_URL}/auth/profile`, data).pipe(
-      tap(response => {
-        if (response.success) {
-          this.me().subscribe();
-        }
+  updateProfile(
+    data: UpdateProfileRequest,
+    headers: { [key: string]: string },
+  ): Observable<UpdateProfileResponse> {
+    return this.http
+      .put<UpdateProfileResponse>(`${this.API_URL}/api/users/profile`, data, {
+        headers,
       })
-    );
+      .pipe(
+        tap((response) => {
+          if (response.success) {
+            const storedUser = this.getStoredUser();
+            if (storedUser) {
+              const updatedUser: User = {
+                ...storedUser,
+                ...(data.name && { name: data.name }),
+                ...(data.email && { email: data.email }),
+              };
+              this.storeUser(updatedUser);
+              this.currentUserSignal.set(updatedUser);
+            }
+          }
+        }),
+      );
   }
 
   getToken(): string | null {

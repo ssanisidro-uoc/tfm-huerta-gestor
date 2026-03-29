@@ -8,6 +8,7 @@ export interface SharedGardenResponse {
   garden_id: string;
   garden_role: string;
   invitation_accepted: boolean;
+  invitation_accepted_at: Date | null;
   created_at: Date;
   garden: {
     id: string;
@@ -37,6 +38,7 @@ export class ListSharedGardensQueryHandler implements QueryHandler<ListSharedGar
           garden_id: ug.garden_id,
           garden_role: ug.garden_role,
           invitation_accepted: ug.invitation_accepted_at !== null,
+          invitation_accepted_at: ug.invitation_accepted_at,
           created_at: ug.created_at,
           garden: garden ? {
             id: garden.id.get_value(),
