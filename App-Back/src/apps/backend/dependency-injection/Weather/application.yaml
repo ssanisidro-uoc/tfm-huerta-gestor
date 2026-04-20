@@ -4,7 +4,7 @@ services:
 
   Backend.Weather.WeatherService:
     class: ../../../../Contexts/Weather/application/WeatherService
-    arguments: ['@Backend.Shared.PostgresConnection', '@Backend.Weather.OpenMeteoClient']
+    arguments: ['@Backend.Shared.PostgresConnection', '@Backend.Weather.OpenMeteoClient', '@Backend.Shared.NominatimClient']
 
   Backend.Weather.WeatherAgriculturalRulesRepository:
     class: ../../../../Contexts/Weather/infrastructure/persistence/PostgresWeatherAgriculturalRulesRepository

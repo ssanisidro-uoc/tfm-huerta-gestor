@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { OpenMeteoClient, WeatherData } from '../../Shared/infrastructure/OpenMeteoClient';
+import { NominatimClient } from '../../Shared/infrastructure/NominatimClient';
 import { logger } from '../../Shared/infrastructure/Logger';
 
 export interface WeatherLocation {
@@ -32,7 +33,8 @@ export interface IrrigationRecommendation {
 export class WeatherService {
   constructor(
     private pool: Promise<Pool>,
-    private openMeteoClient: OpenMeteoClient
+    private openMeteoClient: OpenMeteoClient,
+    private nominatimClient: NominatimClient
   ) {}
 
   async getLocations(): Promise<WeatherLocation[]> {
@@ -206,6 +208,30 @@ export class WeatherService {
       await pool.query(`
         UPDATE gardens SET weather_location_id = $1 WHERE id = $2
       `, [location.id, gardenId]);
+    } else if (garden.location_city) {
+      const geocoded = await this.nominatimClient.geocode(
+        garden.location_city,
+        garden.location_region || undefined,
+        garden.location_country || 'ES'
+      );
+
+      if (geocoded) {
+        location = await this.getOrCreateLocation(
+          geocoded.latitude,
+          geocoded.longitude,
+          garden.name
+        );
+
+        await pool.query(`
+          UPDATE gardens SET 
+            weather_location_id = $1,
+            location_latitude = $2,
+            location_longitude = $3
+          WHERE id = $4
+        `, [location.id, geocoded.latitude, geocoded.longitude, gardenId]);
+      } else {
+        throw new Error('Garden location city not found. Please update with a valid city.');
+      }
     } else {
       throw new Error('Garden does not have valid coordinates for weather');
     }
