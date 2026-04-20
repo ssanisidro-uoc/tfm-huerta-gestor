@@ -1,6 +1,5 @@
 import bodyParser from 'body-parser';
 import compress from 'compression';
-import errorHandler from 'errorhandler';
 import express, { Application } from 'express';
 import Router from 'express-promise-router';
 import helmet from 'helmet';
@@ -8,6 +7,7 @@ import * as http from 'http';
 import cors from 'cors';
 import { logger } from '../../Contexts/Shared/infrastructure/Logger';
 import { registerRoutes } from './routes';
+import { handle_errors } from './middleware/error.middleware';
 
 export class Server {
   readonly port: string;
@@ -30,8 +30,8 @@ export class Server {
     this.app.use(compress());
 
     const router = Router();
-    router.use(errorHandler());
     this.app.use(router);
+    this.app.use(handle_errors);
 
     registerRoutes(router);
   }
