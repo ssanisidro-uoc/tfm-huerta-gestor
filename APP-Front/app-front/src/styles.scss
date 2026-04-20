@@ -1,46 +1,161 @@
 :root {
-  /* Light theme (default) */
+  /* ============================================
+     SISTEMA DE DISEÑO - HUERTA DIGITAL
+     Paleta de colores adaptada de prompt_huerta_digital.md
+     ============================================ */
+
+  /* ---------------- COLORES BASE ---------------- */
   --bg-primary: #F5F7F2;
   --bg-secondary: #FFFFFF;
   --bg-tertiary: #E8F5E9;
   --bg-section: #E8F5E9;
-  --text-primary: #212121;
-  --text-secondary: #757575;
-  --text-muted: #9E9E9E;
+  --bg-surface: #F5F5F5;
+  --bg-hover: #EEEEEE;
+
+  /* ---------------- VERDE PRINCIPAL ---------------- */
+  /* Verde primario */
   --color-primary: #2E7D32;
   --color-primary-hover: #66BB6A;
   --color-primary-light: #E8F5E9;
+  --color-primary-soft: rgba(46, 125, 50, 0.1);
+  /* Verde claro */
+  --color-primary-light-main: #66BB6A;
+  /* Verde oscuro */
+  --color-primary-dark: #1B5E20;
+
+  /* ---------------- NARANJA / ROJO (estados) ---------------- */
   --color-accent: #F57C00;
+  --color-warning: #F57C00;
+  --color-warning-light: #FFB74D;
   --color-error: #C62828;
+  --color-error-light: #EF9A9A;
+  --color-success: #2E7D32;
+  --color-success-light: #66BB6A;
+  --color-info: #1976D2;
+
+  /* ---------------- COLORES POR TIPO DE TAREA ---------------- */
+  --color-watering: #3b82f6;    /* Azul - Riego */
+  --color-harvest: #ef4444;     /* Rojo - Cosecha */
+  --color-nutrition: #78350f;   /* Marrón - Abonado */
+  --color-maintenance: #f59e0b; /* Amarillo/Naranja - Mantenimiento */
+  --color-pest_disease: #a855f7;/* Morado - Tratamiento */
+  --color-planting: #22c55e;    /* Verde - Siembra */
+  --color-observation: #3b82f6;  /* Azul - Observación */
+
+  /* ---------------- TEXTO ---------------- */
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --text-muted: #9E9E9E;
+  --text-on-primary: #FFFFFF;
+
+  /* ---------------- BORDES Y SOMBRAS ---------------- */
   --border-color: #E0E0E0;
+  --border-color-light: #EEEEEE;
   --shadow: 0 2px 4px rgba(0,0,0,0.1);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+
+  /* ---------------- LAYOUT ---------------- */
   --sidebar-bg: var(--color-primary);
   --sidebar-text: #FFFFFF;
   --header-bg: var(--bg-secondary);
   --card-bg: var(--bg-secondary);
+  --bg-main: var(--bg-primary);
+  --bg-sidebar: #E8F5E9;
+
+  /* ---------------- ESPACIADO (sistema 4px) ---------------- */
+  --spacing-1: 0.25rem;   /* 4px */
+  --spacing-2: 0.5rem;    /* 8px */
+  --spacing-3: 0.75rem;   /* 12px */
+  --spacing-4: 1rem;      /* 16px */
+  --spacing-5: 1.25rem;   /* 20px */
+  --spacing-6: 1.5rem;    /* 24px */
+  --spacing-8: 2rem;      /* 32px */
+  --spacing-10: 2.5rem;   /* 40px */
+
+  /* ---------------- RADIOS ---------------- */
+  --radius-sm: 0.375rem;  /* 6px */
+  --radius-md: 0.5rem;    /* 8px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;      /* 16px */
+  --radius-full: 9999px;
+
+  /* ---------------- TIPOGRAFÍA ---------------- */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-size-xs: 0.75rem;   /* 12px */
+  --font-size-sm: 0.875rem;  /* 14px */
+  --font-size-base: 1rem;    /* 16px */
+  --font-size-lg: 1.125rem;  /* 18px */
+  --font-size-xl: 1.25rem;   /* 20px */
+  --font-size-2xl: 1.5rem;   /* 24px */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ---------------- TRANSICIONES ---------------- */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
 }
 
+/* ---------------- TEMA OSCURO ---------------- */
 [data-theme="dark"] {
-  --bg-primary: #1A2315;
-  --bg-secondary: #263238;
-  --bg-tertiary: #1B5E20;
-  --bg-section: #1B5E20;
-  --text-primary: #ECEFF1;
-  --text-secondary: #90A4AE;
-  --text-muted: #607D8B;
-  --color-primary: #4CAF50;
-  --color-primary-hover: #388E3C;
-  --color-primary-light: #388E3C;
+  /* Colores base */
+  --bg-primary: #0a1f1a;
+  --bg-secondary: #1a2e28;
+  --bg-tertiary: #1a3329;
+  --bg-section: #1a3329;
+  --bg-surface: #2a4a3f;
+  --bg-hover: #2a4a3f;
+
+  /* Verde principal (brand) */
+  --color-primary: #4ade80;
+  --color-primary-hover: #22c55e;
+  --color-primary-light: rgba(74, 222, 128, 0.15);
+  --color-primary-soft: rgba(74, 222, 128, 0.2);
+  --color-primary-light-main: #4ade80;
+  --color-primary-dark: #16a34a;
+
+  /* Estados */
   --color-accent: #FFB74D;
-  --color-error: #EF9A9A;
-  --border-color: #37474F;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fbbf24;
+  --color-error: #ef4444;
+  --color-error-light: #f87171;
+  --color-success: #4ade80;
+  --color-success-light: #22c55e;
+  --color-info: #3b82f6;
+
+  /* Colores tareas (ligeramente más brillantes en oscuro) */
+  --color-watering: #60a5fa;
+  --color-harvest: #f87171;
+  --color-nutrition: #a16207;
+  --color-maintenance: #fbbf24;
+  --color-pest_disease: #c084fc;
+  --color-planting: #4ade80;
+  --color-observation: #60a5fa;
+
+  /* Texto */
+  --text-primary: #f0fdf4;
+  --text-secondary: #86efac;
+  --text-muted: #6b7280;
+  --text-on-primary: #0a1f1a;
+
+  /* Bordes y sombras */
+  --border-color: #2a4a3f;
+  --border-color-light: #1a3329;
   --shadow: 0 2px 4px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
-  --sidebar-bg: #263238;
-  --sidebar-text: #ECEFF1;
-  --header-bg: #263238;
-  --card-bg: #263238;
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.5);
+
+  /* Layout */
+  --sidebar-bg: #1a2e28;
+  --sidebar-text: #f0fdf4;
+  --header-bg: #1a2e28;
+  --card-bg: #1a3329;
+  --bg-main: #0a1f1a;
+  --bg-sidebar: #1a2e28;
 }
 
 *, *::before, *::after {
@@ -50,16 +165,18 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color var(--transition-slow), color var(--transition-slow);
+  line-height: 1.5;
 }
 
 a {
   color: var(--color-primary);
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color var(--transition-base);
   
   &:hover {
     color: var(--color-primary-hover);
@@ -68,62 +185,110 @@ a {
 
 button {
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-base);
+  font-family: var(--font-family);
 }
 
 input, select, textarea {
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  transition: all 0.2s ease;
+  transition: all var(--transition-base);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-md);
   
   &:focus {
     outline: none;
     border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
   }
 }
 
 .btn-primary {
   background: var(--color-primary);
-  color: white;
-  padding: 0.75rem 1.25rem;
-  border-radius: 6px;
+  color: var(--text-on-primary);
+  padding: var(--spacing-3) var(--spacing-5);
+  border-radius: var(--radius-md);
   border: none;
-  font-weight: 500;
-  transition: background 0.2s;
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-base);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
 
   &:hover {
     background: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 }
 
 .btn-secondary {
-  background: var(--text-muted);
-  color: white;
-  padding: 0.75rem 1.25rem;
-  border-radius: 6px;
-  border: none;
-  font-weight: 500;
-  transition: background 0.2s;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  padding: var(--spacing-3) var(--spacing-5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-base);
 
   &:hover {
-    background: var(--text-secondary);
+    background: var(--bg-hover);
+    border-color: var(--color-primary);
+  }
+}
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: var(--spacing-2);
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
   }
 }
 
 .card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  transition: all 0.2s ease;
+  transition: all var(--transition-base);
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.card-interactive {
+  cursor: pointer;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-primary);
+  }
 }
 
 .loading {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 2rem;
+  gap: var(--spacing-3);
+  padding: var(--spacing-8);
   color: var(--text-secondary);
 }
 
@@ -140,25 +305,72 @@ input, select, textarea {
   to { transform: rotate(360deg); }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
 .error-message {
-  background: var(--bg-tertiary);
+  background: rgba(198, 40, 40, 0.1);
   color: var(--color-error);
-  padding: 1rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
+  padding: var(--spacing-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-4);
+  border: 1px solid var(--color-error-light);
+  
+  @media (prefers-color-scheme: dark) {
+    background: rgba(198, 40, 40, 0.25);
+    border-color: rgba(198, 40, 40, 0.5);
+  }
 }
 
 .empty-state {
   text-align: center;
-  padding: 3rem;
-  color: var(--text-secondary);
+  padding: var(--spacing-10);
+  color: var(--text-muted);
+  
+  svg {
+    width: 64px;
+    height: 64px;
+    margin-bottom: var(--spacing-4);
+    opacity: 0.5;
+  }
+  
+  p {
+    font-size: var(--font-size-sm);
+    margin: 0;
+  }
 }
 
 h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
   margin: 0;
+  font-weight: var(--font-weight-semibold);
 }
+
+h1 { font-size: var(--font-size-2xl); }
+h2 { font-size: var(--font-size-xl); }
+h3 { font-size: var(--font-size-lg); }
+h4 { font-size: var(--font-size-base); }
 
 p {
   color: var(--text-secondary);
+  margin: 0;
 }
+
+.text-sm { font-size: var(--font-size-sm); }
+.text-xs { font-size: var(--font-size-xs); }
+.text-muted { color: var(--text-muted); }
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-error { color: var(--color-error); }

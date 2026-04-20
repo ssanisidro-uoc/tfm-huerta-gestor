@@ -164,4 +164,29 @@ export class PostgresUserGardenRepository extends PostgresRepository implements 
       throw new Error(`Error checking permission: ${error}`);
     }
   }
+
+  async find_collaborators_by_garden(garden_id: string): Promise<any[]> {
+    const query = `
+      SELECT 
+        ug.id,
+        ug.user_id,
+        ug.garden_id,
+        ug.garden_role,
+        ug.invitation_accepted_at,
+        u.name as user_name,
+        u.email as user_email
+      FROM user_gardens ug
+      LEFT JOIN users u ON ug.user_id = u.id
+      WHERE ug.garden_id = $1
+        AND ug.invitation_accepted_at IS NOT NULL
+      ORDER BY ug.garden_role DESC, u.name ASC
+    `;
+
+    try {
+      const result = await this.query<any>(query, [garden_id]);
+      return result.rows;
+    } catch (error) {
+      throw new Error(`Error finding collaborators: ${error}`);
+    }
+  }
 }

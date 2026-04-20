@@ -1,19 +1,25 @@
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { TranslationService } from '../../../../core/services/i18n/translation.service';
+import { TranslatePipe } from '../../../../core/services/i18n/translate.pipe';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private translationService = inject(TranslationService);
+
   name = '';
   email = '';
   password = '';
@@ -21,37 +27,32 @@ export class RegisterComponent {
   loading = signal(false);
   error = signal('');
 
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
-
   onSubmit(): void {
     this.error.set('');
 
     if (!this.name || !this.email || !this.password || !this.confirmPassword) {
-      this.error.set('Por favor, completa todos los campos');
+      this.error.set(this.translationService.t('auth.fillAllFields') || 'Por favor, completa todos los campos');
       return;
     }
 
     if (this.name.length < 2) {
-      this.error.set('El nombre debe tener al menos 2 caracteres');
+      this.error.set(this.translationService.t('profile.nameMinLength') || 'El nombre debe tener al menos 2 caracteres');
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.email)) {
-      this.error.set('Por favor, introduce un email válido');
+      this.error.set(this.translationService.t('auth.invalidEmail') || 'Por favor, introduce un email válido');
       return;
     }
 
     if (this.password.length < 6) {
-      this.error.set('La contraseña debe tener al menos 6 caracteres');
+      this.error.set(this.translationService.t('auth.passwordMinLength') || 'La contraseña debe tener al menos 6 caracteres');
       return;
     }
 
     if (this.password !== this.confirmPassword) {
-      this.error.set('Las contraseñas no coinciden');
+      this.error.set(this.translationService.t('auth.passwordMismatch') || 'Las contraseñas no coinciden');
       return;
     }
 
@@ -67,7 +68,7 @@ export class RegisterComponent {
       },
       error: (err: HttpErrorResponse) => {
         this.loading.set(false);
-        this.error.set(err.error?.message || 'Error al crear la cuenta');
+        this.error.set(err.error?.message || this.translationService.t('auth.registerError'));
       }
     });
   }

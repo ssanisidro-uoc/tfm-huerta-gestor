@@ -8,6 +8,14 @@ export class FindAllPlotsResponse implements Response {
       code: string | null;
       surface_m2: number;
       is_active: boolean;
+      crops?: Array<{
+        id: string;
+        crop_id: string;
+        name: string;
+        growth_percentage: number;
+        planted_at: string;
+        status: string;
+      }>;
     }>,
     readonly total: number,
     readonly page: number,

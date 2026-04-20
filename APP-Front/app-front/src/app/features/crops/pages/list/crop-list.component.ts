@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CropService } from '../../services/crop.service';
+import { TranslatePipe } from '../../../../core/services/i18n/translate.pipe';
 
 @Component({
   selector: 'app-crop-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './crop-list.component.html',
   styleUrl: './crop-list.component.scss'

@@ -1,13 +1,13 @@
 <div class="crop-detail">
   @if (cropService.loading()) {
-    <div class="loading" role="status"><span class="spinner"></span>Cargando...</div>
+    <div class="loading" role="status"><span class="spinner"></span>{{ 'app.loading' | t }}</div>
   }
   @if (cropService.error()) {
     <div class="error-message" role="alert">{{ cropService.error() }}</div>
   }
   @if (crop()) {
     <header class="crop-header">
-      <a routerLink="/crops" class="back-link">← Volver al catálogo</a>
+      <a routerLink="/crops" class="back-link">← {{ 'crops.backToCatalog' | t }}</a>
       <h1 id="title">{{ crop()!.name }}</h1>
       @if (crop()!.scientific_name) {
         <p class="scientific">{{ crop()!.scientific_name }}</p>
@@ -16,125 +16,140 @@
 
     @if (crop()!.description) {
       <section class="crop-section">
-        <h2>Descripción</h2>
+        <h2>{{ 'crops.description' | t }}</h2>
         <p>{{ crop()!.description }}</p>
       </section>
     }
 
     <section class="crop-section">
-      <h2>Información General</h2>
+      <h2>{{ 'crops.generalInfo' | t }}</h2>
       <dl class="info-grid">
-        <div class="info-item"><dt>Familia</dt><dd>{{ crop()!.family }}</dd></div>
-        <div class="info-item"><dt>Categoría</dt><dd>{{ crop()!.category }}</dd></div>
-        <div class="info-item"><dt>Ciclo de vida</dt><dd>{{ crop()!.lifecycle }}</dd></div>
-        <div class="info-item"><dt>Hábito de crecimiento</dt><dd>{{ crop()!.growth_habit }}</dd></div>
-        <div class="info-item"><dt>Días hasta cosecha</dt><dd>{{ crop()!.days_to_harvest_min }} - {{ crop()!.days_to_harvest_max }} días</dd></div>
-        <div class="info-item"><dt>Días hasta germinación</dt><dd>{{ crop()!.days_to_germination }} días</dd></div>
+        <div class="info-item"><dt>{{ 'crops.family' | t }}</dt><dd>{{ crop()!.family }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.category' | t }}</dt><dd>{{ getCategoryLabel(crop()!.category) }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.lifecycle' | t }}</dt><dd>{{ getLifecycleLabel(crop()!.lifecycle) }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.growthHabit' | t }}</dt><dd>{{ getGrowthHabitLabel(crop()!.growth_habit) }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.daysToMaturity' | t }}</dt><dd>{{ crop()!.days_to_harvest_min }} - {{ crop()!.days_to_harvest_max }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.daysToGermination' | t }}</dt><dd>{{ crop()!.days_to_germination }} {{ 'plots.daysCultivated' | t }}</dd></div>
       </dl>
     </section>
 
     <section class="crop-section">
-      <h2>Requisitos de Clima</h2>
+      <h2>{{ 'crops.climateRequirements' | t }}</h2>
       <dl class="info-grid">
-        <div class="info-item"><dt>Temperatura mínima</dt><dd>{{ crop()!.min_temperature_c }}°C</dd></div>
-        <div class="info-item"><dt>Temperatura máxima</dt><dd>{{ crop()!.max_temperature_c }}°C</dd></div>
-        <div class="info-item"><dt>Temperatura óptima</dt><dd>{{ crop()!.optimal_temperature_min_c }}°C - {{ crop()!.optimal_temperature_max_c }}°C</dd></div>
-        <div class="info-item"><dt>Resistente a heladas</dt><dd>{{ crop()!.frost_tolerant ? 'Sí' : 'No' }}</dd></div>
-        <div class="info-item"><dt>Resistente al calor</dt><dd>{{ crop()!.heat_tolerant ? 'Sí' : 'No' }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.minTemperature' | t }}</dt><dd>{{ crop()!.min_temperature_c }}°C</dd></div>
+        <div class="info-item"><dt>{{ 'crops.maxTemperature' | t }}</dt><dd>{{ crop()!.max_temperature_c }}°C</dd></div>
+        <div class="info-item"><dt>{{ 'crops.optimalTemperature' | t }}</dt><dd>{{ crop()!.optimal_temperature_min_c }}°C - {{ crop()!.optimal_temperature_max_c }}°C</dd></div>
+        <div class="info-item"><dt>{{ 'crops.frostTolerant' | t }}</dt><dd>{{ crop()!.frost_tolerant ? ('plots.yes' | t) : ('plots.no' | t) }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.heatTolerant' | t }}</dt><dd>{{ crop()!.heat_tolerant ? ('plots.yes' | t) : ('plots.no' | t) }}</dd></div>
       </dl>
     </section>
 
     <section class="crop-section">
-      <h2>Requisitos de Luz</h2>
+      <h2>{{ 'crops.lightRequirements' | t }}</h2>
       <dl class="info-grid">
-        <div class="info-item"><dt>Necesidad de sol</dt><dd>{{ crop()!.sun_requirement }}</dd></div>
-        <div class="info-item"><dt>Horas mínimas de sol</dt><dd>{{ crop()!.min_sun_hours }} horas</dd></div>
-        <div class="info-item"><dt>Tolerancia a sombra</dt><dd>{{ crop()!.shade_tolerance || 'N/A' }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.sunNeed' | t }}</dt><dd>{{ getSunExposureLabel(crop()!.sun_requirement) }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.minSunHours' | t }}</dt><dd>{{ crop()!.min_sun_hours }} {{ 'plots.plants' | t }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.shadeTolerance' | t }}</dt><dd>{{ getSunExposureLabel(crop()!.shade_tolerance) }}</dd></div>
       </dl>
     </section>
 
     <section class="crop-section">
-      <h2>Requisitos de Suelo</h2>
+      <h2>{{ 'crops.soilRequirements' | t }}</h2>
       <dl class="info-grid">
-        <div class="info-item"><dt>Tipos de suelo preferidos</dt><dd>{{ crop()!.preferred_soil_types?.join(', ') || 'N/A' }}</dd></div>
-        <div class="info-item"><dt>pH del suelo</dt><dd>{{ crop()!.min_soil_ph }} - {{ crop()!.max_soil_ph }}</dd></div>
-        <div class="info-item"><dt>Profundidad del suelo</dt><dd>{{ crop()!.soil_depth_requirement || 'N/A' }}</dd></div>
-        <div class="info-item"><dt>Fertilidad del suelo</dt><dd>{{ crop()!.soil_fertility_requirement || 'N/A' }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.preferredSoilTypes' | t }}</dt><dd>{{ getSoilTypesLabel(crop()!.preferred_soil_types) }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.soilPhLabel' | t }}</dt><dd>{{ crop()!.min_soil_ph }} - {{ crop()!.max_soil_ph }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.soilDepth' | t }}</dt><dd>{{ getSoilDepthLabel(crop()!.soil_depth_requirement) }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.soilFertility' | t }}</dt><dd>{{ getSoilFertilityLabel(crop()!.soil_fertility_requirement) }}</dd></div>
       </dl>
     </section>
 
     <section class="crop-section">
-      <h2>Necesidades de Agua</h2>
+      <h2>{{ 'crops.waterRequirements' | t }}</h2>
       <dl class="info-grid">
-        <div class="info-item"><dt>Necesidad de agua</dt><dd>{{ crop()!.water_requirement }}</dd></div>
-        <div class="info-item"><dt>Resistente a sequía</dt><dd>{{ crop()!.drought_tolerant ? 'Sí' : 'No' }}</dd></div>
-        <div class="info-item"><dt>Resistente a encharcamiento</dt><dd>{{ crop()!.waterlogging_tolerant ? 'Sí' : 'No' }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.waterNeed' | t }}</dt><dd>{{ getWaterRequirementLabel(crop()!.water_requirement) }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.droughtTolerant' | t }}</dt><dd>{{ crop()!.drought_tolerant ? ('plots.yes' | t) : ('plots.no' | t) }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.waterloggingTolerant' | t }}</dt><dd>{{ crop()!.waterlogging_tolerant ? ('plots.yes' | t) : ('plots.no' | t) }}</dd></div>
       </dl>
     </section>
 
     <section class="crop-section">
-      <h2>Espaciamiento y Siembra</h2>
+      <h2>{{ 'crops.spacingAndSowing' | t }}</h2>
       <dl class="info-grid">
-        <div class="info-item"><dt>Espaciamiento recomendado</dt><dd>{{ crop()!.recommended_spacing_cm }} cm</dd></div>
-        <div class="info-item"><dt>Espaciamiento entre hileras</dt><dd>{{ crop()!.recommended_row_spacing_cm }} cm</dd></div>
-        <div class="info-item"><dt>Profundidad de semilla</dt><dd>{{ crop()!.seed_depth_cm }} cm</dd></div>
+        <div class="info-item"><dt>{{ 'crops.recommendedSpacing' | t }}</dt><dd>{{ crop()!.recommended_spacing_cm }} cm</dd></div>
+        <div class="info-item"><dt>{{ 'crops.rowSpacing' | t }}</dt><dd>{{ crop()!.recommended_row_spacing_cm }} cm</dd></div>
+        <div class="info-item"><dt>{{ 'crops.seedDepth' | t }}</dt><dd>{{ crop()!.seed_depth_cm }} cm</dd></div>
       </dl>
     </section>
 
     <section class="crop-section">
-      <h2>Calendario de Siembra y Cosecha</h2>
+      <h2>{{ 'crops.sowingAndHarvestCalendar' | t }}</h2>
       <dl class="info-grid">
-        <div class="info-item"><dt>Épocas de siembra</dt><dd>Mes {{ crop()!.sowing_start_month }} - Mes {{ crop()!.sowing_end_month }}</dd></div>
-        <div class="info-item"><dt>Épocas de cosecha</dt><dd>Mes {{ crop()!.harvest_start_month }} - Mes {{ crop()!.harvest_end_month }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.sowingSeasons' | t }}</dt><dd>{{ 'crops.monthRange' | t:{start: crop()!.sowing_start_month, end: crop()!.sowing_end_month} }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.harvestSeasons' | t }}</dt><dd>{{ 'crops.monthRange' | t:{start: crop()!.harvest_start_month, end: crop()!.harvest_end_month} }}</dd></div>
       </dl>
     </section>
 
     <section class="crop-section">
-      <h2>Producción</h2>
+      <h2>{{ 'crops.production' | t }}</h2>
       <dl class="info-grid">
-        <div class="info-item"><dt>Rendimiento promedio</dt><dd>{{ crop()!.average_yield_kg_per_m2 }} kg/m²</dd></div>
-        <div class="info-item"><dt>Tipo de cosecha</dt><dd>{{ crop()!.harvest_type || 'N/A' }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.averageYield' | t }}</dt><dd>{{ 'crops.yieldPerArea' | t:{yield: crop()!.average_yield_kg_per_m2} }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.harvestType' | t }}</dt><dd>{{ crop()!.harvest_type || ('crops.na' | t) }}</dd></div>
       </dl>
     </section>
 
     <section class="crop-section">
-      <h2>Información Adicional</h2>
+      <h2>{{ 'crops.additionalInfo' | t }}</h2>
       <dl class="info-grid">
-        <div class="info-item"><dt>Grupo de rotación</dt><dd>{{ crop()!.rotation_group || 'N/A' }}</dd></div>
-        <div class="info-item"><dt>Años antes de replantar</dt><dd>{{ crop()!.years_before_replant || 'N/A' }}</dd></div>
-        <div class="info-item"><dt>Fixador de nitrógeno</dt><dd>{{ crop()!.nitrogen_fixer ? 'Sí' : 'No' }}</dd></div>
-        <div class="info-item"><dt>Atrae polinizadores</dt><dd>{{ crop()!.attracts_pollinators ? 'Sí' : 'No' }}</dd></div>
-        <div class="info-item"><dt>Atrae insectos beneficiosos</dt><dd>{{ crop()!.attracts_beneficial_insects ? 'Sí' : 'No' }}</dd></div>
-        <div class="info-item"><dt>Nivel de resistencia a plagas</dt><dd>{{ crop()!.pest_resistance_level || 'N/A' }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.rotationGroup' | t }}</dt><dd>{{ crop()!.rotation_group || ('crops.na' | t) }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.yearsBeforeReplant' | t }}</dt><dd>{{ crop()!.years_before_replant || ('crops.na' | t) }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.nitrogenFixer' | t }}</dt><dd>{{ crop()!.nitrogen_fixer ? ('plots.yes' | t) : ('plots.no' | t) }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.attractsPollinators' | t }}</dt><dd>{{ crop()!.attracts_pollinators ? ('plots.yes' | t) : ('plots.no' | t) }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.attractsBeneficialInsects' | t }}</dt><dd>{{ crop()!.attracts_beneficial_insects ? ('plots.yes' | t) : ('plots.no' | t) }}</dd></div>
+        <div class="info-item"><dt>{{ 'crops.pestResistanceLevel' | t }}</dt><dd>{{ crop()!.pest_resistance_level || ('crops.na' | t) }}</dd></div>
       </dl>
     </section>
 
     @if (crop()!.growing_tips) {
       <section class="crop-section">
-        <h2>Consejos de Cultivo</h2>
+        <h2>{{ 'crops.growingTips' | t }}</h2>
         <p>{{ crop()!.growing_tips }}</p>
       </section>
     }
 
     @if (crop()!.culinary_uses) {
       <section class="crop-section">
-        <h2>Usos Culinarios</h2>
+        <h2>{{ 'crops.culinaryUses' | t }}</h2>
         <p>{{ crop()!.culinary_uses }}</p>
       </section>
     }
 
     @if (crop()!.preferred_moon_phase || crop()!.biodynamic_type) {
       <section class="crop-section">
-        <h2>Calendario Biodinámico</h2>
+        <h2>{{ 'crops.biodynamicCalendar' | t }}</h2>
         <dl class="info-grid">
           @if (crop()!.preferred_moon_phase) {
-            <div class="info-item"><dt>Fase lunar preferida</dt><dd>{{ crop()!.preferred_moon_phase }}</dd></div>
+            <div class="info-item"><dt>{{ 'crops.moonPhase' | t }}</dt><dd>{{ crop()!.preferred_moon_phase }}</dd></div>
           }
           @if (crop()!.biodynamic_type) {
-            <div class="info-item"><dt>Tipo biodinámico</dt><dd>{{ crop()!.biodynamic_type }}</dd></div>
+            <div class="info-item"><dt>{{ 'crops.biodynamicType' | t }}</dt><dd>{{ crop()!.biodynamic_type }}</dd></div>
           }
         </dl>
       </section>
     }
+
+    <div class="actions">
+      <button 
+        class="btn-delete" 
+        (click)="deleteCrop()" 
+        [disabled]="deleting()"
+        type="button"
+      >
+        @if (deleting()) {
+          {{ 'crops.deleting' | t }}
+        } @else {
+          {{ 'crops.deleteCropButton' | t }}
+        }
+      </button>
+    </div>
   }
 </div>

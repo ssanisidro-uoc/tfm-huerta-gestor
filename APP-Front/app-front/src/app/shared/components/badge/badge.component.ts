@@ -1,6 +1,8 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+export type BadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'watering' | 'harvest' | 'nutrition' | 'maintenance' | 'pest_disease' | 'planting' | 'observation';
+
 @Component({
   selector: 'app-badge',
   standalone: true,
@@ -10,6 +12,6 @@ import { CommonModule } from '@angular/common';
   styleUrl: './badge.component.scss'
 })
 export class BadgeComponent {
-  @Input() variant: 'success' | 'warning' | 'error' | 'info' | 'neutral' = 'info';
+  @Input() variant: BadgeVariant = 'info';
   @Input() showDot = false;
 }

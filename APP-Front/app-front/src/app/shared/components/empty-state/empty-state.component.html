@@ -1,0 +1,24 @@
+<div class="empty-state-container">
+  @if (icon) {
+    <div class="empty-icon" [innerHTML]="icon"></div>
+  } @else {
+    <div class="empty-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M8 15h8M9 9h.01M15 9h.01"></path>
+      </svg>
+    </div>
+  }
+  
+  <h3 class="empty-title">{{ title }}</h3>
+  
+  @if (message) {
+    <p class="empty-message">{{ message }}</p>
+  }
+  
+  @if (actionLabel && actionCallback) {
+    <button class="btn-primary empty-action" (click)="actionCallback()">
+      {{ actionLabel }}
+    </button>
+  }
+</div>

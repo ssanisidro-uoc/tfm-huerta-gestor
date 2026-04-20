@@ -9,7 +9,7 @@ export interface Task {
   description?: string;
   date: Date;
   type: 'planting' | 'harvest' | 'irrigation' | 'fertilizing' | 'pruning' | 'treatment' | 'other';
-  status: 'pending' | 'completed' | 'cancelled';
+  status: 'pending' | 'completed' | 'cancelled' | 'postponed';
   garden_id?: string;
   garden_name?: string;
   plot_id?: string;
@@ -110,6 +110,57 @@ export class CalendarService {
       catchError((err: HttpErrorResponse) => {
         this.loadingSignal.set(false);
         this.errorSignal.set(err.error?.message || 'Error loading tasks');
+        return of(null);
+      })
+    ).subscribe();
+  }
+
+  loadTasksByDateRange(
+    gardenId: string, 
+    startDate: Date, 
+    endDate: Date,
+    filters?: { task_type?: string; status?: string; planting_id?: string; crop_id?: string }
+  ): void {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    const params: Record<string, string> = {
+      start_date: startDate.toISOString().split('T')[0],
+      end_date: endDate.toISOString().split('T')[0]
+    };
+
+    if (filters?.['task_type']) params['task_type'] = filters['task_type'];
+    if (filters?.['status']) params['status'] = filters['status'];
+    if (filters?.['planting_id']) params['planting_id'] = filters['planting_id'];
+    if (filters?.['crop_id']) params['crop_id'] = filters['crop_id'];
+
+    this.http.get<any>(`${this.API_URL}/api/gardens/${gardenId}/calendar`, { params }).pipe(
+      tap(response => {
+        if (response.success) {
+          const tasks: Task[] = [];
+          const tasksByDate = response.data.tasks;
+          for (const [dateStr, dayTasks] of Object.entries(tasksByDate)) {
+            for (const task of dayTasks as any[]) {
+              tasks.push({
+                id: task.id,
+                title: task.title,
+                description: task.description,
+                date: new Date(task.scheduled_date),
+                type: task.task_type as any,
+                status: task.status,
+                garden_id: gardenId,
+                plot_id: task.plot_id,
+                planting_id: task.planting_id
+              });
+            }
+          }
+          this.tasksSignal.set(tasks);
+        }
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error loading calendar tasks');
         return of(null);
       })
     ).subscribe();
@@ -243,5 +294,63 @@ export class CalendarService {
 
   clearError(): void {
     this.errorSignal.set(null);
+  }
+
+  completeTask(taskId: string, completionNotes?: string): Observable<{ message: string } | null> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    return this.http.patch<{ message: string }>(`${this.API_URL}/api/tasks/${taskId}/complete`, {
+      completion_notes: completionNotes
+    }).pipe(
+      tap(response => {
+        this.updateTask(taskId, { status: 'completed' });
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error completing task');
+        return of(null);
+      })
+    );
+  }
+
+  postponeTask(taskId: string, reason: string, until: Date): Observable<{ message: string } | null> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    return this.http.patch<{ message: string }>(`${this.API_URL}/api/tasks/${taskId}/postpone`, {
+      reason,
+      until: until.toISOString()
+    }).pipe(
+      tap(response => {
+        this.updateTask(taskId, { status: 'postponed', date: until });
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error postponing task');
+        return of(null);
+      })
+    );
+  }
+
+  cancelTask(taskId: string, cancellationReason: string): Observable<{ message: string } | null> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    return this.http.patch<{ message: string }>(`${this.API_URL}/api/tasks/${taskId}/cancel`, {
+      cancellation_reason: cancellationReason
+    }).pipe(
+      tap(response => {
+        this.updateTask(taskId, { status: 'cancelled' });
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error cancelling task');
+        return of(null);
+      })
+    );
   }
 }

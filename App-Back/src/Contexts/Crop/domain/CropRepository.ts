@@ -12,4 +12,5 @@ export interface CropRepository {
   count(filters?: { category?: string; family?: string; search?: string }): Promise<number>;
   save(crop: Crop): Promise<void>;
   delete(id: string): Promise<void>;
+  findByNameOrScientific(name: string, scientificName?: string, excludeId?: string): Promise<{ exists: boolean; field: string } | null>;
 }

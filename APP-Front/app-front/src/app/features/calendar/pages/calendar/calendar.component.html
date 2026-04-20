@@ -1,72 +1,398 @@
 <div class="calendar-page">
-  <header class="header">
-    <h1 id="title">Calendario de Tareas</h1>
-  </header>
+  <div class="calendar-layout">
+    <!-- Main Calendar Area -->
+    <main class="calendar-main">
+      <header class="header">
+        <h1 id="title">{{ 'calendar.title' | t }}</h1>
+        
+        <div class="view-toggle">
+          <button 
+            class="toggle-btn" 
+            [class.active]="viewMode() === 'month'"
+            (click)="setViewMode('month')">
+            {{ 'calendar.month' | t }}
+          </button>
+          <button 
+            class="toggle-btn" 
+            [class.active]="viewMode() === 'week'"
+            (click)="setViewMode('week')">
+            {{ 'calendar.week' | t }}
+          </button>
+          <button 
+            class="toggle-btn" 
+            [class.active]="viewMode() === 'crop'"
+            (click)="setViewMode('crop')">
+            {{ 'calendar.crop' | t }}
+          </button>
+        </div>
+      </header>
 
-  <div class="calendar-nav">
-    <button class="nav-btn" (click)="calendarService.previousMonth()" aria-label="Mes anterior">
-      ←
-    </button>
-    <h2 class="current-month">{{ calendarService.monthName() }}</h2>
-    <button class="nav-btn" (click)="calendarService.nextMonth()" aria-label="Mes siguiente">
-      →
-    </button>
-    <button class="today-btn" (click)="calendarService.goToToday()">Hoy</button>
-  </div>
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="filter-group">
+          <label for="garden-filter">{{ 'calendar.garden' | t }}:</label>
+          <select 
+            id="garden-filter" 
+            [ngModel]="selectedGardenId()" 
+            (ngModelChange)="selectedGardenId.set($event); onGardenChange()">
+            <option value="">{{ 'calendar.allGardens' | t }}</option>
+            <option *ngFor="let garden of gardens()" [value]="garden.id">
+              {{ garden.name }}
+            </option>
+          </select>
+        </div>
 
-  <div class="calendar-grid">
-    <div class="weekday-header" *ngFor="let day of weekDays">
-      {{ day }}
-    </div>
+        <div class="filter-group">
+          <label for="crop-filter">{{ 'calendar.crop' | t }}:</label>
+          <select 
+            id="crop-filter" 
+            [ngModel]="selectedCropId()" 
+            (ngModelChange)="selectedCropId.set($event); onCropChange()">
+            <option value="">{{ 'calendar.allCrops' | t }}</option>
+            <option *ngFor="let crop of crops()" [value]="crop.id">
+              {{ crop.name }}
+            </option>
+          </select>
+        </div>
 
-    @for (day of calendarService.calendarDays(); track day.date.toISOString()) {
-      <div 
-        class="calendar-day" 
-        [class.other-month]="!day.isCurrentMonth"
-        [class.today]="day.isToday"
-        (click)="selectDate(day.date)"
-      >
-        <span class="day-number">{{ day.date.getDate() }}</span>
-        <div class="day-tasks">
-          @for (task of day.tasks.slice(0, 3); track task.id) {
-            <div class="task-dot" [class]="'task-' + task.type" [title]="task.title"></div>
+        <div class="filter-group">
+          <label for="tasktype-filter">{{ 'calendar.type' | t }}:</label>
+          <select 
+            id="tasktype-filter" 
+            [ngModel]="selectedTaskType()" 
+            (ngModelChange)="selectedTaskType.set($event); onTaskTypeChange()">
+            <option value="">{{ 'calendar.allTypes' | t }}</option>
+            <option *ngFor="let type of taskTypes()" [value]="type">
+              {{ getTaskTypeLabel(type) }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="calendar-nav">
+        <button class="nav-btn" (click)="calendarService.previousMonth()" aria-label="Mes anterior">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15,18 9,12 15,6"/>
+          </svg>
+        </button>
+        <h2 class="current-month">{{ calendarService.monthName() }}</h2>
+        <button class="nav-btn" (click)="calendarService.nextMonth()" aria-label="Mes siguiente">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9,18 15,12 9,6"/>
+          </svg>
+        </button>
+        <button class="today-btn" (click)="calendarService.goToToday()">{{ 'calendar.today' | t }}</button>
+      </div>
+
+      <!-- Month View -->
+      @if (viewMode() === 'month') {
+        <div class="calendar-grid">
+          <div class="weekday-header" *ngFor="let day of weekDays">
+            {{ day }}
+          </div>
+
+          @for (day of calendarService.calendarDays(); track day.date.toISOString()) {
+            <div 
+              class="calendar-day" 
+              [class.other-month]="!day.isCurrentMonth"
+              [class.today]="day.isToday"
+              [class.selected]="selectedDate()?.toDateString() === day.date.toDateString()"
+              (click)="selectDate(day.date)"
+            >
+              <span class="day-number">{{ day.date.getDate() }}</span>
+              <div class="day-tasks">
+                @for (task of day.tasks.slice(0, 3); track task.id) {
+                  <div class="task-dot" [ngClass]="getTaskTypeClass(task.type)" [title]="task.title"></div>
+                }
+                @if (day.tasks.length > 3) {
+                  <span class="more-tasks">+{{ day.tasks.length - 3 }}</span>
+                }
+              </div>
+            </div>
           }
-          @if (day.tasks.length > 3) {
-            <span class="more-tasks">+{{ day.tasks.length - 3 }}</span>
+        </div>
+      }
+
+      <!-- Week View -->
+      @if (viewMode() === 'week') {
+        <div class="week-view">
+          <div class="week-grid">
+            @for (day of calendarService.calendarDays().slice(0, 7); track day.date.toISOString()) {
+              <div 
+                class="week-day" 
+                [class.today]="day.isToday"
+                [class.selected]="selectedDate()?.toDateString() === day.date.toDateString()"
+                (click)="selectDate(day.date)"
+              >
+                <div class="week-day-header">
+                  <span class="week-day-name">{{ weekDays[day.date.getDay()] }}</span>
+                  <span class="week-day-number" [class.today-number]="day.isToday">{{ day.date.getDate() }}</span>
+                </div>
+                <div class="week-day-tasks">
+                  @for (task of day.tasks.slice(0, 4); track task.id) {
+                    <div class="week-task" [ngClass]="getTaskTypeClass(task.type)">
+                      <span class="week-task-time">{{ task.date | date:'HH:mm' }}</span>
+                      <span class="week-task-title">{{ task.title }}</span>
+                    </div>
+                  }
+                  @if (day.tasks.length > 4) {
+                    <div class="week-more">+{{ day.tasks.length - 4 }} {{ 'calendar.more' | t }}</div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Crop View -->
+      @if (viewMode() === 'crop') {
+        <div class="crop-view">
+          <div class="crop-tasks-list">
+            @for (task of calendarService.tasks(); track task.id) {
+              <div class="crop-task-item" [ngClass]="getTaskTypeClass(task.type)">
+                <div class="crop-task-date">
+                  <span class="date">{{ task.date | date:'dd MMM' }}</span>
+                  <span class="time">{{ task.date | date:'HH:mm' }}</span>
+                </div>
+                <div class="crop-task-info">
+                  <strong>{{ task.title }}</strong>
+                  <span class="task-type">{{ getTaskTypeLabel(task.type) }}</span>
+                  <span class="task-status" [ngClass]="task.status">{{ getStatusLabel(task.status) }}</span>
+                </div>
+              </div>
+            } @empty {
+              <div class="no-tasks">
+                <p>{{ 'calendar.noTasksForFilters' | t }}</p>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Selected Day Panel -->
+      @if (selectedDate()) {
+        <div class="selected-day-panel">
+          <h3>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            {{ 'calendar.tasksFor' | t }} {{ selectedDate() | date:'fullDate':'es-ES' }}
+          </h3>
+          @if (getTasksForDate(selectedDate()!).length === 0) {
+            <div class="no-tasks">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                <line x1="9" y1="9" x2="9.01" y2="9"/>
+                <line x1="15" y1="9" x2="15.01" y2="9"/>
+              </svg>
+              <p>{{ 'calendar.noTasksForDay' | t }}</p>
+            </div>
+          } @else {
+            <ul class="task-list">
+              @for (task of getTasksForDate(selectedDate()!); track task.id) {
+                <li class="task-item" [ngClass]="getTaskTypeClass(task.type)">
+                  <div class="task-time">
+                    {{ task.date | date:'HH:mm' }}
+                  </div>
+                  <div class="task-content">
+                    <strong>{{ task.title }}</strong>
+                    @if (task.description) {
+                      <p>{{ task.description }}</p>
+                    }
+                    @if (task.garden_name) {
+                      <span class="task-location">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                          <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        {{ task.garden_name }}
+                      </span>
+                    }
+                  </div>
+                  <span class="task-status" [ngClass]="task.status">
+                    {{ getStatusLabel(task.status) }}
+                  </span>
+                  @if (task.status === 'pending') {
+                    <div class="task-actions">
+                      <button class="btn-action btn-complete" (click)="openCompleteModal(task)" title="Completar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="20,6 9,17 4,12"/>
+                        </svg>
+                      </button>
+                      <button class="btn-action btn-postpone" (click)="openPostponeModal(task)" title="Aplazar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"/>
+                          <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                      </button>
+                      <button class="btn-action btn-cancel" (click)="cancelTask(task)" title="Cancelar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <line x1="18" y1="6" x2="6" y2="18"/>
+                          <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
+                    </div>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      }
+    </main>
+
+    <!-- Sidebar Right -->
+    <aside class="calendar-sidebar">
+      <!-- Mini Calendar -->
+      <div class="mini-calendar card">
+        <div class="mini-cal-header">
+          <span class="mini-cal-month">{{ calendarService.monthName() }}</span>
+          <span class="mini-cal-year">{{ getMiniCalendarYear() }}</span>
+        </div>
+        <div class="mini-cal-grid">
+          @for (day of calendarService.calendarDays().slice(0, 35); track day.date.toISOString()) {
+            <button 
+              class="mini-day" 
+              [class.other-month]="!day.isCurrentMonth"
+              [class.today]="day.isToday"
+              [class.has-tasks]="day.tasks.length > 0"
+              [class.selected]="selectedDate()?.toDateString() === day.date.toDateString()"
+              (click)="selectDate(day.date)"
+            >
+              {{ day.date.getDate() }}
+              @if (day.tasks.length > 0) {
+                <span class="mini-dot"></span>
+              }
+            </button>
           }
         </div>
       </div>
-    }
+
+      <!-- Today's Tasks -->
+      <div class="today-tasks card">
+        <h3>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12,6 12,12 16,14"/>
+          </svg>
+          {{ 'calendar.today' | t }}
+        </h3>
+        @if (getTodayTasks().length === 0) {
+          <p class="empty-text">{{ 'calendar.noTasksToday' | t }}</p>
+        } @else {
+          <ul class="sidebar-task-list">
+            @for (task of getTodayTasks().slice(0, 3); track task.id) {
+              <li class="sidebar-task" [ngClass]="getTaskTypeClass(task.type)">
+                <span class="sidebar-task-title">{{ task.title }}</span>
+                <span class="sidebar-task-time">{{ task.date | date:'HH:mm' }}</span>
+              </li>
+            }
+            @if (getTodayTasks().length > 3) {
+              <li class="sidebar-more">+{{ getTodayTasks().length - 3 }} {{ 'calendar.more' | t }}</li>
+            }
+          </ul>
+        }
+      </div>
+
+      <!-- Week Tasks -->
+      <div class="week-tasks card">
+        <h3>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          {{ 'calendar.thisWeek' | t }}
+        </h3>
+        @if (getWeekTasks().length === 0) {
+          <p class="empty-text">{{ 'calendar.noTasksThisWeek' | t }}</p>
+        } @else {
+          <div class="week-stats">
+            <div class="stat">
+              <span class="stat-value">{{ getWeekTasks().length }}</span>
+              <span class="stat-label">{{ 'calendar.total' | t }}</span>
+            </div>
+            <div class="stat pending">
+              <span class="stat-value">{{ getWeekPendingCount() }}</span>
+              <span class="stat-label">{{ 'calendar.pending' | t }}</span>
+            </div>
+            <div class="stat completed">
+              <span class="stat-value">{{ getWeekCompletedCount() }}</span>
+              <span class="stat-label">{{ 'calendar.completed' | t }}</span>
+            </div>
+          </div>
+          <ul class="sidebar-task-list">
+            @for (task of getWeekTasks().slice(0, 5); track task.id) {
+              <li class="sidebar-task" [ngClass]="getTaskTypeClass(task.type)">
+                <span class="sidebar-task-date">{{ task.date | date:'EEE d' }}</span>
+                <span class="sidebar-task-title">{{ task.title }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </aside>
   </div>
 
-  @if (selectedDate()) {
-    <div class="selected-day-panel">
-      <h3>Tareas para {{ selectedDate() | date:'fullDate':'es-ES' }}</h3>
-      @if (getTasksForDate(selectedDate()!).length === 0) {
-        <p class="no-tasks">No hay tareas para este día</p>
-      } @else {
-        <ul class="task-list">
-          @for (task of getTasksForDate(selectedDate()!); track task.id) {
-            <li class="task-item" [class]="'task-' + task.type">
-              <div class="task-time">
-                {{ task.date | date:'HH:mm' }}
-              </div>
-              <div class="task-content">
-                <strong>{{ task.title }}</strong>
-                @if (task.description) {
-                  <p>{{ task.description }}</p>
-                }
-                @if (task.garden_name) {
-                  <span class="task-location">{{ task.garden_name }}</span>
-                }
-              </div>
-              <span class="task-status" [class]="task.status">
-                {{ getStatusLabel(task.status) }}
-              </span>
-            </li>
-          }
-        </ul>
-      }
+  <!-- Modals -->
+  @if (showCompleteModal()) {
+    <div class="modal-overlay" (click)="closeCompleteModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h3>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20,6 9,17 4,12"/>
+          </svg>
+          {{ 'calendar.completeTask' | t }}
+        </h3>
+        <p class="modal-task-title">{{ selectedTask()?.title }}</p>
+        <textarea 
+          [(ngModel)]="completionNotes" 
+          placeholder="{{ 'calendar.completionNotesPlaceholder' | t }}"
+          rows="3"
+        ></textarea>
+        <div class="modal-actions">
+          <button class="btn-confirm" (click)="completeTask()">{{ 'calendar.confirm' | t }}</button>
+          <button class="btn-cancel-modal" (click)="closeCompleteModal()">{{ 'calendar.cancel' | t }}</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showPostponeModal()) {
+    <div class="modal-overlay" (click)="closePostponeModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h3>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12,6 12,12 16,14"/>
+          </svg>
+          {{ 'calendar.postponeTask' | t }}
+        </h3>
+        <p class="modal-task-title">{{ selectedTask()?.title }}</p>
+        <div class="form-group">
+          <label>{{ 'calendar.newDate' | t }}</label>
+          <input 
+            type="date" 
+            [(ngModel)]="postponeDate"
+            class="form-input"
+          />
+        </div>
+        <textarea 
+          [(ngModel)]="postponeReason" 
+          placeholder="{{ 'calendar.postponeReasonPlaceholder' | t }}"
+          rows="2"
+        ></textarea>
+        <div class="modal-actions">
+          <button class="btn-confirm" (click)="postponeTask()">{{ 'calendar.confirm' | t }}</button>
+          <button class="btn-cancel-modal" (click)="closePostponeModal()">{{ 'calendar.cancel' | t }}</button>
+        </div>
+      </div>
     </div>
   }
 </div>

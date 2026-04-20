@@ -5,11 +5,13 @@ import { ThemeToggleComponent } from './core/components/theme-toggle/theme-toggl
 import { ThemeService } from './core/services/theme.service';
 import { AuthService } from './core/services/auth.service';
 import { ToastComponent } from './shared/components/toast/toast.component';
+import { LunarIndicatorComponent } from './shared/components/lunar-indicator/lunar-indicator.component';
+import { TranslatePipe } from './core/services/i18n/translate.pipe';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggleComponent, ToastComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggleComponent, ToastComponent, LunarIndicatorComponent, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

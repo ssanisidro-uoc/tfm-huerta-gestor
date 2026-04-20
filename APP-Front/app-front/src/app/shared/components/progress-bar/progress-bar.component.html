@@ -1,0 +1,19 @@
+<div class="progress-bar" [ngClass]="size">
+  @if (label || showValue) {
+    <div class="progress-header">
+      @if (label) {
+        <span class="progress-label">{{ label }}</span>
+      }
+      @if (showValue) {
+        <span class="progress-value">{{ percentage }}%</span>
+      }
+    </div>
+  }
+  <div class="progress-track">
+    <div 
+      class="progress-fill" 
+      [style.width.%]="percentage"
+      [ngClass]="colorClass">
+    </div>
+  </div>
+</div>

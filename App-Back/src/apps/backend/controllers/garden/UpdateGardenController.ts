@@ -10,15 +10,15 @@ interface UpdateGardenBody {
   surface_m2?: number | null;
   climate_zone?: string;
   hardiness_zone?: string | null;
-  location?: {
+  location: {
     address?: string;
-    city?: string;
+    city: string;
     region?: string;
     country?: string;
     latitude?: number;
     longitude?: number;
     timezone?: string;
-  } | null;
+  };
   is_active?: boolean;
 }
 

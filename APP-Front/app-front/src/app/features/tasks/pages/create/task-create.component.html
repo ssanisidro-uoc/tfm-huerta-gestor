@@ -1,0 +1,144 @@
+<div class="task-create">
+  <div class="form-container">
+    <h1 id="title">{{ 'tasks.createTask' | t }}</h1>
+
+    @if (error()) {
+      <div class="error-message" role="alert">{{ error() }}</div>
+    }
+
+    @if (success()) {
+      <div class="success-message" role="status">{{ 'tasks.successMessage' | t }}</div>
+    }
+
+    <form (ngSubmit)="onSubmit()" aria-labelledby="title">
+      <div class="form-group">
+        <label for="title">{{ 'tasks.titleField' | t }} *</label>
+        <input 
+          type="text" 
+          id="title" 
+          [(ngModel)]="title" 
+          name="title" 
+          required 
+          aria-required="true" 
+          [disabled]="loading()"
+          placeholder="ej: Regar tomates"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="description">{{ 'tasks.description' | t }}</label>
+        <textarea 
+          id="description" 
+          [(ngModel)]="description" 
+          name="description" 
+          rows="3" 
+          [disabled]="loading()"
+          placeholder="Detalles adicionales sobre la tarea..."
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="garden_id">{{ 'menu.gardens' | t }} *</label>
+          <select 
+            id="garden_id" 
+            [(ngModel)]="garden_id" 
+            name="garden_id" 
+            required 
+            aria-required="true" 
+            [disabled]="loading()"
+            (change)="onGardenChange()"
+          >
+            <option value="">{{ 'tasks.selectGarden' | t }}</option>
+            @for (garden of gardens(); track garden.id) {
+              <option [value]="garden.id">{{ garden.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="plot_id">{{ 'tasks.plot' | t }}</label>
+          <select 
+            id="plot_id" 
+            [(ngModel)]="plot_id" 
+            name="plot_id" 
+            [disabled]="loading() || !garden_id"
+          >
+            <option value="">{{ 'tasks.noSpecificPlot' | t }}</option>
+            @for (plot of plots(); track plot.id) {
+              <option [value]="plot.id">{{ plot.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="task_type">{{ 'tasks.type' | t }}</label>
+          <select 
+            id="task_type" 
+            [(ngModel)]="task_type" 
+            name="task_type" 
+            [disabled]="loading()"
+          >
+            <option value="">{{ 'tasks.selectTaskType' | t }}</option>
+            @for (type of taskTypes; track type.value) {
+              <option [value]="type.value">{{ type.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="priority">{{ 'tasks.priority' | t }}</label>
+          <select 
+            id="priority" 
+            [(ngModel)]="priority" 
+            name="priority" 
+            [disabled]="loading()"
+          >
+            @for (p of priorities; track p.value) {
+              <option [value]="p.value">{{ p.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="scheduled_date">{{ 'tasks.scheduledDate' | t }}</label>
+          <input 
+            type="date" 
+            id="scheduled_date" 
+            [(ngModel)]="scheduled_date" 
+            name="scheduled_date" 
+            [disabled]="loading()"
+          />
+          <app-lunar-date-suggestions></app-lunar-date-suggestions>
+        </div>
+
+        <div class="form-group">
+          <label for="due_date">{{ 'tasks.dueDate' | t }}</label>
+          <input 
+            type="date" 
+            id="due_date" 
+            [(ngModel)]="due_date" 
+            name="due_date" 
+            [disabled]="loading()"
+          />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" [disabled]="loading()" [attr.aria-busy]="loading()">
+          @if (loading()) {
+            <span class="spinner" aria-hidden="true"></span>
+            <span>{{ 'tasks.creating' | t }}</span>
+          } @else {
+            {{ 'tasks.createTask' | t }}
+          }
+        </button>
+        <button type="button" class="btn-secondary" (click)="onCancel()">{{ 'app.cancel' | t }}</button>
+      </div>
+    </form>
+  </div>
+</div>

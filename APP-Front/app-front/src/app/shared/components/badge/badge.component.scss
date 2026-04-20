@@ -1,36 +1,74 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.25rem 0.625rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
   text-transform: capitalize;
+  white-space: nowrap;
+  transition: all var(--transition-base);
 
   &.badge-success {
     background: rgba(46, 125, 50, 0.15);
-    color: #2e7d32;
+    color: var(--color-success);
   }
 
   &.badge-warning {
     background: rgba(245, 124, 0, 0.15);
-    color: #f57c00;
+    color: var(--color-warning);
   }
 
   &.badge-error {
     background: rgba(198, 40, 40, 0.15);
-    color: #c62828;
+    color: var(--color-error);
   }
 
   &.badge-info {
-    background: rgba(33, 150, 243, 0.15);
-    color: #1976d2;
+    background: rgba(25, 118, 210, 0.15);
+    color: var(--color-info);
   }
 
   &.badge-neutral {
-    background: rgba(96, 125, 139, 0.15);
-    color: #607d8b;
+    background: var(--bg-surface);
+    color: var(--text-muted);
+  }
+
+  /* Task type badges */
+  &.badge-watering {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--color-watering);
+  }
+
+  &.badge-harvest {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--color-harvest);
+  }
+
+  &.badge-nutrition {
+    background: rgba(120, 53, 15, 0.15);
+    color: var(--color-nutrition);
+  }
+
+  &.badge-maintenance {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--color-maintenance);
+  }
+
+  &.badge-pest_disease {
+    background: rgba(168, 85, 247, 0.15);
+    color: var(--color-pest_disease);
+  }
+
+  &.badge-planting {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--color-planting);
+  }
+
+  &.badge-observation {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--color-observation);
   }
 }
 
@@ -39,4 +77,10 @@
   height: 6px;
   border-radius: 50%;
   background: currentColor;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }

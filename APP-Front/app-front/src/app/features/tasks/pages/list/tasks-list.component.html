@@ -1,0 +1,169 @@
+<div class="tasks-list">
+  <header class="header">
+    <h1 id="title">{{ 'tasks.title' | t }}</h1>
+    <div class="header-actions">
+      <a routerLink="/tareas/create" class="btn-primary" [attr.aria-label]="'tasks.newTask' | t">+ {{ 'tasks.newTask' | t }}</a>
+    </div>
+  </header>
+
+  <app-lunar-banner></app-lunar-banner>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-value">{{ stats()?.pendientes_hoy || 0 }}</span>
+      <span class="stat-label">{{ 'tasks.pendingToday' | t }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats()?.completadas_semana || 0 }}</span>
+      <span class="stat-label">{{ 'tasks.completedWeek' | t }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats()?.postponidas || 0 }}</span>
+      <span class="stat-label">{{ 'tasks.postponedStatusLabel' | t }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats()?.total_mes || 0 }}</span>
+      <span class="stat-label">{{ 'tasks.totalMonth' | t }}</span>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label for="garden-filter" class="sr-only">{{ 'tasks.garden' | t }}</label>
+      <select id="garden-filter" [ngModel]="selectedGardenId()" (ngModelChange)="selectedGardenId.set($event); onGardenChange()">
+        <option value="">{{ 'tasks.allGardens' | t }}</option>
+        @for (garden of gardens(); track garden.id) {
+          <option [value]="garden.id">{{ garden.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="status-filter" class="sr-only">{{ 'tasks.status' | t }}</label>
+      <select id="status-filter" [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event); onStatusChange()">
+        @for (option of statusOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="type-filter" class="sr-only">{{ 'tasks.type' | t }}</label>
+      <select id="type-filter" [ngModel]="selectedType()" (ngModelChange)="selectedType.set($event); onTypeChange()">
+        @for (option of typeOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="search-group">
+      <label for="search-input" class="sr-only">{{ 'tasks.search' | t }}</label>
+      <input 
+        type="text" 
+        id="search-input"
+        [placeholder]="'tasks.search' | t" 
+        [ngModel]="searchQuery()" 
+        (ngModelChange)="searchQuery.set($event)"
+      />
+    </div>
+
+    <button class="sort-btn" (click)="toggleSort()" [attr.aria-label]="'tasks.sortByDate' | t">
+      <span class="sort-icon">{{ sortOrder() === 'asc' ? '↑' : '↓' }}</span>
+      {{ 'tasks.sortByDate' | t }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading" role="status" aria-live="polite">
+      <span class="spinner"></span>
+      <span>{{ 'app.loading' | t }}</span>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-message" role="alert" aria-live="assertive">{{ error() }}</div>
+  }
+
+  @if (!loading() && filteredTasks().length === 0) {
+    <div class="empty-state">
+      <p>{{ 'tasks.noTasks' | t }}</p>
+    </div>
+  }
+
+  @if (filteredTasks().length > 0) {
+    <div class="table-container">
+      <table class="tasks-table" role="table" [attr.aria-label]="'tasks.list' | t">
+        <thead>
+          <tr>
+            <th scope="col">{{ 'tasks.status' | t }}</th>
+            <th scope="col">{{ 'tasks.titleField' | t }}</th>
+            <th scope="col">{{ 'tasks.gardenPlot' | t }}</th>
+            <th scope="col">{{ 'tasks.date' | t }}</th>
+            <th scope="col">{{ 'tasks.type' | t }}</th>
+            <th scope="col">{{ 'tasks.actions' | t }}</th>
+          </tr>
+        </thead>
+          <tbody>
+            @for (task of filteredTasks(); track task.id) {
+              <tr [class.urgent]="isUrgent(task)" [class.completed]="isCompleted(task)" [class]="getIntelligenceClass(task.id)">
+                <td>
+                  <span class="status-indicator" [attr.aria-label]="getStatusLabel(task.status)"></span>
+                </td>
+                <td>
+                  <span class="task-title" [class.strikethrough]="isCompleted(task)">{{ task.title }}</span>
+                  @if (task.description) {
+                    <span class="task-description">{{ task.description }}</span>
+                  }
+                  @if (getIntelligenceForTask(task.id); as intel) {
+                    <div class="task-intelligence">
+                      <span class="intel-badge" [class]="'badge-' + intel.priority" [title]="intel.summary">
+                        @if (intel.weather && intel.weather.alerts.length > 0) {
+                          <span class="intel-icon">🌧️</span>
+                        }
+                        @if (intel.lunar) {
+                          <span class="intel-icon">🌙</span>
+                        }
+                        @if (intel.rotation && intel.rotation.previousCrop) {
+                          <span class="intel-icon">🔄</span>
+                        }
+                      </span>
+                    </div>
+                  }
+                </td>
+              <td>
+                <span class="garden-plot">
+                  {{ getGardenName(task.garden_id) }}
+                  @if (task.plot_id) {
+                    / {{ getPlotName(task.plot_id) }}
+                  }
+                </span>
+              </td>
+              <td>
+                <span class="task-date">{{ formatDate(task.scheduled_date) }}</span>
+              </td>
+              <td>
+                @if (task.task_type) {
+                  <span class="type-badge" [attr.data-type]="task.task_type">
+                    {{ getTypeLabel(task.task_type) }}
+                  </span>
+                }
+              </td>
+              <td>
+                <div class="actions">
+                  @if (task.status === 'pending') {
+                    <button class="action-btn complete" (click)="completeTask(task.id)" [attr.aria-label]="'tasks.completeTask' | t" [title]="'tasks.completeTask' | t">
+                      ✓
+                    </button>
+                    <button class="action-btn postpone" (click)="postponeTask(task.id)" [attr.aria-label]="'tasks.postponeTask' | t" [title]="'tasks.postponeTask' | t">
+                      ⏰
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

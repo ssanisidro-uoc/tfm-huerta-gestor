@@ -1,23 +1,23 @@
 <div class="crop-list">
   <header class="header">
-    <h1 id="title">Catálogo de Cultivos</h1>
+    <h1 id="title">{{ 'crops.list' | t }}</h1>
     <div class="search-box">
       <input 
         type="text" 
-        placeholder="Buscar cultivos..." 
+        [placeholder]="'crops.searchCrops' | t" 
         [ngModel]="searchTerm()"
         (ngModelChange)="searchTerm.set($event)"
         (keyup.enter)="onSearch()"
         class="search-input"
       />
-      <button (click)="onSearch()" class="search-btn">Buscar</button>
+      <button (click)="onSearch()" class="search-btn">{{ 'crops.searchButton' | t }}</button>
     </div>
   </header>
 
   @if (cropService.loading()) {
     <div class="loading" role="status" aria-live="polite">
       <span class="spinner"></span>
-      <span>Cargando cultivos...</span>
+      <span>{{ 'app.loading' | t }}</span>
     </div>
   }
 
@@ -27,7 +27,7 @@
 
   @if (!cropService.loading() && cropService.crops().length === 0) {
     <div class="empty-state">
-      <p>No hay cultivos disponibles</p>
+      <p>{{ 'crops.noCrops' | t }}</p>
     </div>
   }
 
@@ -44,7 +44,7 @@
               <span class="badge family">{{ crop.family }}</span>
               <span class="badge category">{{ getCategoryLabel(crop.category) }}</span>
             </div>
-            <p class="days">{{ crop.days_to_harvest_min }} - {{ crop.days_to_harvest_max }} días</p>
+            <p class="days">{{ crop.days_to_harvest_min }} - {{ crop.days_to_harvest_max }}</p>
           </a>
         </li>
       }

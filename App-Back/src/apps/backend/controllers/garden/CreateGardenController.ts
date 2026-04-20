@@ -10,9 +10,9 @@ interface CreateGardenBody {
   surface_m2?: number;
   climate_zone: string;
   hardiness_zone?: string;
-  location?: {
+  location: {
     address?: string;
-    city?: string;
+    city: string;
     region?: string;
     country?: string;
     latitude?: number;
@@ -36,6 +36,11 @@ export class CreateGardenController {
 
       logger.debug(`Creating garden for user ${userId}`, 'CreateGardenController');
 
+      if (!body.location?.city) {
+        res.status(400).json({ error: 'City is required' });
+        return;
+      }
+
       const command = new CreateGardenCommand(
         crypto.randomUUID(),
         userId,
@@ -44,7 +49,7 @@ export class CreateGardenController {
         body.surface_m2 ?? null,
         body.climate_zone,
         body.hardiness_zone ?? null,
-        body.location ?? null
+        body.location
       );
 
       await this.commandBus.dispatch(command);

@@ -3,63 +3,61 @@ import { Injectable, signal } from '@angular/core';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
-export interface Tasks {
+export interface Task {
   id: string;
+  title: string;
+  description: string;
   garden_id: string;
-  name: string;
-  code: string | null;
-  description: string | null;
-  surface_m2: number;
-  is_active: boolean;
-}
-
-export interface TasksDetail extends Tasks {
-  irrigation_type: string;
-  has_water_access: boolean;
-  has_greenhouse: boolean;
-  has_raised_bed: boolean;
-  has_mulch: boolean;
+  plot_id: string | null;
+  task_type: string | null;
+  task_category: string | null;
+  status: 'pending' | 'completed' | 'postponed';
+  scheduled_date: Date;
+  due_date: Date | null;
+  priority: string;
   created_at: Date;
-  updated_at: Date;
+  completed_at?: Date;
 }
 
-export interface TasksResponse {
-  tasks: Tasks[];
+export interface TaskStats {
+  pendientes_hoy: number;
+  completadas_semana: number;
+  postponidas: number;
+  total_mes: number;
+}
+
+export interface TaskResponse {
+  success: boolean;
+  data: Task[];
   pagination: {
-    total: number;
     page: number;
     limit: number;
+    total: number;
     total_pages: number;
   };
 }
 
-export interface CreateTasksRequest {
-  name: string;
-  code?: string;
-  surface_m2: number;
+export interface TaskStatsResponse {
+  success: boolean;
+  data: TaskStats;
+}
+
+export interface CreateTaskRequest {
+  title: string;
   description?: string;
-  length_m?: number;
-  width_m?: number;
-  shape?: string;
-  position_x?: number;
-  position_y?: number;
-  Tasks_order?: number;
-  soil_type?: string;
-  soil_ph?: number;
-  soil_quality?: string;
-  soil_notes?: string;
-  irrigation_type?: string;
-  irrigation_flow_rate?: number;
-  irrigation_notes?: string;
-  has_water_access?: boolean;
-  orientation?: string;
-  sun_exposure_hours?: number;
-  shade_level?: string;
-  has_greenhouse?: boolean;
-  has_raised_bed?: boolean;
-  has_mulch?: boolean;
-  accessibility?: string;
-  restrictions?: string;
+  garden_id: string;
+  plot_id?: string;
+  task_type?: string;
+  task_category?: string;
+  scheduled_date?: Date;
+  due_date?: Date;
+  priority?: string;
+}
+
+export interface Plot {
+  id: string;
+  name: string;
+  garden_id: string;
 }
 
 @Injectable({
@@ -68,11 +66,11 @@ export interface CreateTasksRequest {
 export class TasksService {
   private readonly API_URL = environment.apiUrl;
 
-  private TaskssSignal = signal<Tasks[]>([]);
+  private tasksSignal = signal<Task[]>([]);
   private loadingSignal = signal(false);
   private errorSignal = signal<string | null>(null);
 
-  readonly Taskss = this.TaskssSignal.asReadonly();
+  readonly tasks = this.tasksSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
 
@@ -86,106 +84,124 @@ export class TasksService {
     this.errorSignal.set(null);
   }
 
-  getTasksByGarden(
-    gardenId: string,
+  getAllTasks(
     page = 1,
     limit = 20,
-  ): Observable<TasksResponse | null> {
+    garden_id?: string,
+    status?: string,
+    task_type?: string
+  ): Observable<TaskResponse | null> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http
-      .get<TasksResponse>(`${this.API_URL}/api/gardens/${gardenId}/tasks`, {
-        params: { page: page.toString(), limit: limit.toString() },
-      })
-      .pipe(
-        tap((response) => {
-          this.TaskssSignal.set(response.tasks);
-          this.loadingSignal.set(false);
-        }),
-        catchError((err: HttpErrorResponse) => {
-          this.loadingSignal.set(false);
-          this.errorSignal.set(err.error?.message || 'Error loading tasks');
-          return of(null);
-        }),
-      );
-  }
+    const params: any = {
+      page: page.toString(),
+      limit: limit.toString(),
+    };
+    if (garden_id) params.garden_id = garden_id;
+    if (status) params.status = status;
+    if (task_type) params.task_type = task_type;
 
-  getTasksById(id: string): Observable<TasksDetail | null> {
-    this.loadingSignal.set(true);
-    this.errorSignal.set(null);
-
-    return this.http.get<TasksDetail>(`${this.API_URL}/api/tasks/${id}`).pipe(
-      tap(() => {
+    return this.http.get<TaskResponse>(`${this.API_URL}/api/tasks`, { params }).pipe(
+      tap((response) => {
+        this.tasksSignal.set(response.data);
         this.loadingSignal.set(false);
       }),
       catchError((err: HttpErrorResponse) => {
         this.loadingSignal.set(false);
-        this.errorSignal.set(err.error?.message || 'Error loading Tasks');
+        this.errorSignal.set(err.error?.message || 'Error loading tasks');
         return of(null);
       }),
     );
   }
 
-  createTasks(
-    gardenId: string,
-    data: CreateTasksRequest,
-  ): Observable<{ message: string } | null> {
+  getTaskStats(): Observable<TaskStatsResponse | null> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    return this.http.get<TaskStatsResponse>(`${this.API_URL}/api/tasks/stats`).pipe(
+      tap(() => {
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error loading task stats');
+        return of(null);
+      }),
+    );
+  }
+
+  completeTask(taskId: string): Observable<{ success: boolean; message?: string } | null> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
     return this.http
-      .post<{
-        message: string;
-      }>(`${this.API_URL}/api/gardens/${gardenId}/tasks`, data)
+      .patch<{ success: boolean; message?: string }>(`${this.API_URL}/api/tasks/${taskId}/complete`, {})
       .pipe(
         tap(() => {
           this.loadingSignal.set(false);
         }),
         catchError((err: HttpErrorResponse) => {
           this.loadingSignal.set(false);
-          this.errorSignal.set(err.error?.message || 'Error creating Tasks');
+          this.errorSignal.set(err.error?.message || 'Error completing task');
           return of(null);
         }),
       );
   }
 
-  updateTasks(
-    id: string,
-    data: Partial<CreateTasksRequest>,
-  ): Observable<{ message: string } | null> {
+  postponeTask(taskId: string, newDate?: Date): Observable<{ success: boolean; message?: string } | null> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
+    const body = newDate ? { scheduled_date: newDate } : {};
+
     return this.http
-      .put<{ message: string }>(`${this.API_URL}/api/tasks/${id}`, data)
+      .patch<{ success: boolean; message?: string }>(`${this.API_URL}/api/tasks/${taskId}/postpone`, body)
       .pipe(
         tap(() => {
           this.loadingSignal.set(false);
         }),
         catchError((err: HttpErrorResponse) => {
           this.loadingSignal.set(false);
-          this.errorSignal.set(err.error?.message || 'Error updating Tasks');
+          this.errorSignal.set(err.error?.message || 'Error postponing task');
           return of(null);
         }),
       );
   }
 
-  deleteTasks(id: string): Observable<{ message: string } | null> {
+  createTask(data: CreateTaskRequest): Observable<{ success: boolean; message?: string } | null> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
     return this.http
-      .delete<{ message: string }>(`${this.API_URL}/api/tasks/${id}`)
+      .post<{ success: boolean; message?: string }>(`${this.API_URL}/api/tasks`, data)
       .pipe(
         tap(() => {
           this.loadingSignal.set(false);
         }),
         catchError((err: HttpErrorResponse) => {
           this.loadingSignal.set(false);
-          this.errorSignal.set(err.error?.message || 'Error deleting Tasks');
+          this.errorSignal.set(err.error?.message || 'Error creating task');
           return of(null);
         }),
       );
+  }
+
+  getTasksByGarden(gardenId: string): Observable<{ tasks: any[] } | null> {
+    return this.http.get<{ tasks: any[] }>(`${this.API_URL}/api/gardens/${gardenId}/tasks`).pipe(
+      catchError((err: HttpErrorResponse) => {
+        this.errorSignal.set(err.error?.message || 'Error loading tasks');
+        return of(null);
+      }),
+    );
+  }
+
+  getTasksByPlanting(plantingId: string): Observable<any | null> {
+    return this.http.get<any>(`${this.API_URL}/api/plantings/${plantingId}/tasks`).pipe(
+      catchError((err: HttpErrorResponse) => {
+        this.errorSignal.set(err.error?.message || 'Error loading task history');
+        return of(null);
+      }),
+    );
   }
 }

@@ -1,0 +1,74 @@
+<div class="history-container">
+  <div class="header">
+    <a routerLink="/plantings/{{ plantingId }}" class="btn-back">{{ 'tasks.backToCrop' | t }}</a>
+    <h1>{{ 'tasks.taskHistory' | t }}</h1>
+    <div class="crop-info" *ngIf="history()">
+      <span class="crop-name">{{ history()?.crop_name }}</span>
+      <span class="plot-name">{{ history()?.plot_name }}</span>
+      <span class="garden-name">{{ history()?.garden_name }}</span>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="loading()">
+    <div class="spinner"></div>
+    <p>{{ 'plots.loadingHistory' | t }}</p>
+  </div>
+
+  <div class="error" *ngIf="error() as errorMsg">
+    <p class="error-message">{{ errorMsg }}</p>
+    <button class="btn-retry" (click)="loadHistory()">{{ 'plots.retry' | t }}</button>
+  </div>
+
+  <div class="tasks-list" *ngIf="history() && !loading()">
+    <div class="tasks-summary">
+      <div class="stat completed">
+        <span class="count">{{ getCompletedCount() }}</span>
+        <span class="label">{{ 'tasks.completedCount' | t }}</span>
+      </div>
+      <div class="stat pending">
+        <span class="count">{{ getPendingCount() }}</span>
+        <span class="label">{{ 'tasks.pendingCount' | t }}</span>
+      </div>
+      <div class="stat postponed">
+        <span class="count">{{ getPostponedCount() }}</span>
+        <span class="label">{{ 'tasks.postponedCount' | t }}</span>
+      </div>
+      <div class="stat cancelled">
+        <span class="count">{{ getCancelledCount() }}</span>
+        <span class="label">{{ 'tasks.cancelledCount' | t }}</span>
+      </div>
+    </div>
+
+    <div class="task-items">
+      <div 
+        class="task-item" 
+        *ngFor="let task of history()?.tasks"
+        [ngClass]="task.status">
+        <div class="task-header">
+          <span class="task-type">{{ getTaskTypeLabel(task.task_type) }}</span>
+          <span class="task-status" [ngClass]="task.status">{{ getStatusLabel(task.status) }}</span>
+        </div>
+        <h3 class="task-title">{{ task.title }}</h3>
+        <div class="task-dates">
+          <span class="date scheduled">{{ 'tasks.scheduled' | t }}: {{ formatDate(task.scheduled_date) }}</span>
+          <span class="date due" *ngIf="task.due_date">{{ 'tasks.dueDatePrefix' | t }}: {{ formatDate(task.due_date!) }}</span>
+        </div>
+        <div class="task-completion" *ngIf="task.completed_at">
+          <span class="completed-date">{{ 'tasks.completedCount' | t }}: {{ formatDate(task.completed_at) }}</span>
+          <span class="completed-by" *ngIf="task.completed_by">{{ 'tasks.completedBy' | t:{user: task.completed_by} }}</span>
+        </div>
+        <div class="task-postponed" *ngIf="task.postponed_at">
+          <span class="postponed-info">{{ 'tasks.postponedCount' | t }}: {{ task.postponed_until ? formatDate(task.postponed_until) : '' }}</span>
+          <span class="postponed-reason" *ngIf="task.postponed_reason">{{ 'tasks.postponedReason' | t:{reason: task.postponed_reason} }}</span>
+        </div>
+        <div class="task-cancelled" *ngIf="task.cancellation_reason">
+          <span class="cancelled-reason">{{ 'tasks.cancelledCount' | t }}: {{ task.cancellation_reason }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-tasks" *ngIf="history()?.tasks?.length === 0">
+      <p>{{ 'tasks.noTasksForCrop' | t }}</p>
+    </div>
+  </div>
+</div>

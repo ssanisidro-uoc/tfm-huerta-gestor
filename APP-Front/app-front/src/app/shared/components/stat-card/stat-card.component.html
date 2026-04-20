@@ -1,0 +1,15 @@
+<div class="stat-card" [ngClass]="variant">
+  <div class="stat-icon">
+    <span class="icon" [innerHTML]="icon"></span>
+  </div>
+  <div class="stat-content">
+    <span class="stat-value">{{ value }}</span>
+    <span class="stat-label">{{ label }}</span>
+  </div>
+  @if (trend !== undefined) {
+    <div class="stat-trend" [ngClass]="{'positive': trend > 0, 'negative': trend < 0}">
+      <span class="trend-icon">{{ trend > 0 ? '↑' : trend < 0 ? '↓' : '→' }}</span>
+      <span class="trend-value">{{ trend > 0 ? '+' : '' }}{{ trend }}%</span>
+    </div>
+  }
+</div>

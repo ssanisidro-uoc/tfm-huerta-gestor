@@ -10,7 +10,7 @@
           <path d="M12 22c4-4 8-7.5 8-12a8 8 0 1 0-16 0c0 4.5 4 8 8 12z" />
           <circle cx="12" cy="10" r="3" />
         </svg>
-        <span class="logo-text">Huerta</span>
+        <span class="logo-text">{{ 'app.name' | t }}</span>
       </div>
     </div>
 
@@ -25,7 +25,7 @@
             <rect x="14" y="12" width="7" height="7"></rect>
             <rect x="3" y="12" width="7" height="7"></rect>
           </svg>
-          <span>Dashboard</span>
+          <span>{{ 'menu.dashboard' | t }}</span>
         </a>
         <a routerLink="/gardens" class="nav-item" routerLinkActive="active">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
@@ -35,7 +35,7 @@
             <rect x="3" y="13" width="8" height="8"></rect>
             <rect x="13" y="13" width="8" height="8"></rect>
           </svg>
-          <span>Huertas</span>
+          <span>{{ 'menu.gardens' | t }}</span>
         </a>
         <a routerLink="/calendar" class="nav-item" routerLinkActive="active">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
@@ -45,7 +45,15 @@
             <line x1="8" y1="2" x2="8" y2="6"></line>
             <line x1="3" y1="10" x2="21" y2="10"></line>
           </svg>
-          <span>Calendario</span>
+          <span>{{ 'menu.calendar' | t }}</span>
+        </a>
+        <a routerLink="/tareas" class="nav-item" routerLinkActive="active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <path d="M9 11l3 3L22 4"></path>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+          <span>{{ 'menu.tasks' | t }}</span>
         </a>
         <a routerLink="/crops" class="nav-item" routerLinkActive="active">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
@@ -54,36 +62,20 @@
             <path d="M2 17l10 5 10-5"></path>
             <path d="M2 12l10 5 10-5"></path>
           </svg>
-          <span>Cultivos</span>
+          <span>{{ 'menu.crops' | t }}</span>
         </a>
       </div>
 
       <div class="nav-group">
-        <div class="nav-group-title">Gestión</div>
-        <a routerLink="/tareas" class="nav-item" routerLinkActive="active">
+        <div class="nav-group-title">Administración</div>
+        <a routerLink="/admin/crops" class="nav-item" routerLinkActive="active">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2">
-            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-            <polyline points="2 17 12 22 22 17"></polyline>
-            <polyline points="2 12 12 17 22 12"></polyline>
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
           </svg>
-          <span>Tareas</span>
-        </a>
-        <a routerLink="/rotaciones" class="nav-item" routerLinkActive="active">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2">
-            <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-          </svg>
-          <span>Rotaciones</span>
-        </a>
-        <a routerLink="/meteorologia" class="nav-item" routerLinkActive="active">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2">
-            <path
-              d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-            <circle cx="12" cy="12" r="4" />
-          </svg>
-          <span>Meteorología</span>
+          <span>{{ 'crops.admin' | t }}</span>
         </a>
       </div>
     </nav>
@@ -119,6 +111,9 @@
   <main class="main-content" [class.no-sidebar]="!authService.isAuthenticated()">
     @if (authService.isAuthenticated()) {
     <header class="topbar">
+      <div class="topbar-left">
+        <app-lunar-indicator></app-lunar-indicator>
+      </div>
       <div class="topbar-right">
         <app-theme-toggle></app-theme-toggle>
       </div>

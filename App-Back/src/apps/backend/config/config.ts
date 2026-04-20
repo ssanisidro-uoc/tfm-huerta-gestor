@@ -1,5 +1,4 @@
 import convict from 'convict';
-import path from 'path';
 
 const config = convict({
   env: {
@@ -70,7 +69,7 @@ const config = convict({
   }
 });
 
-const configDir = path.join(__dirname, 'config');
+const configDir = __dirname;
 config.loadFile([`${configDir}/default.json`, `${configDir}/${config.get('env')}.json`]);
 
 config.validate({ allowed: 'strict' });

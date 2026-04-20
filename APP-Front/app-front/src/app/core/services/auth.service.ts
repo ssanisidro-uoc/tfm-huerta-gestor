@@ -43,6 +43,25 @@ export interface UpdateProfileResponse {
   message?: string;
 }
 
+export interface UserPreferences {
+  id: string;
+  user_id: string;
+  language: string;
+  theme: string;
+  notifications_enabled: boolean;
+}
+
+export interface UpdatePreferencesRequest {
+  language?: string;
+  theme?: string;
+  notifications_enabled?: boolean;
+}
+
+export interface PreferencesResponse {
+  success: boolean;
+  data: UserPreferences | null;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -141,6 +160,21 @@ export class AuthService {
           }
         }),
       );
+  }
+
+  getPreferences(headers: { [key: string]: string }): Observable<PreferencesResponse> {
+    return this.http.get<PreferencesResponse>(`${this.API_URL}/api/users/preferences`, {
+      headers,
+    });
+  }
+
+  updatePreferences(
+    data: UpdatePreferencesRequest,
+    headers: { [key: string]: string },
+  ): Observable<PreferencesResponse> {
+    return this.http.put<PreferencesResponse>(`${this.API_URL}/api/users/preferences`, data, {
+      headers,
+    });
   }
 
   getToken(): string | null {

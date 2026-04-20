@@ -166,4 +166,52 @@ export class PostgresCropRepository extends PostgresRepository implements CropRe
       throw new Error(`Error deleting crop: ${error}`);
     }
   }
+
+  async findByNameOrScientific(name: string, scientificName?: string, excludeId?: string): Promise<{ exists: boolean; field: string } | null> {
+    let query: string = 'SELECT id, common_name, scientific_name FROM crop_catalog WHERE is_active = true';
+    const conditions: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
+
+    if (name) {
+      conditions.push(`(common_name ILIKE $${paramIndex} OR common_name = $${paramIndex})`);
+      values.push(name);
+      paramIndex++;
+    }
+
+    if (scientificName) {
+      conditions.push(`(scientific_name ILIKE $${paramIndex} OR scientific_name = $${paramIndex})`);
+      values.push(scientificName);
+      paramIndex++;
+    }
+
+    if (excludeId) {
+      conditions.push(`id <> $${paramIndex}`);
+      values.push(excludeId);
+    }
+
+    if (conditions.length > 0) {
+      query += ' AND (' + conditions.join(' OR ') + ')';
+    }
+
+    query += ' LIMIT 1';
+
+    try {
+      const result = await this.query(query, values);
+      if (result.rows.length === 0) {
+        return null;
+      }
+
+      const row = result.rows[0];
+      const foundName = row.common_name?.toLowerCase() === name.toLowerCase();
+      const foundScientific = scientificName && row.scientific_name?.toLowerCase() === scientificName.toLowerCase();
+
+      return {
+        exists: true,
+        field: foundName ? 'common_name' : foundScientific ? 'scientific_name' : 'common_name'
+      };
+    } catch (error) {
+      throw new Error(`Error checking duplicate crop: ${error}`);
+    }
+  }
 }

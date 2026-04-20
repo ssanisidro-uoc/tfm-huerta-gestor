@@ -128,6 +128,15 @@ export class PostgresUserRepository extends PostgresRepository implements UserRe
     return this.search_by_email(email);
   }
 
+  async find_role_id_by_name(name: string): Promise<string | null> {
+    const query: string = 'SELECT id FROM roles WHERE name = $1';
+    const result = await this.query<any>(query, [name]);
+    if (result.rows.length === 0) {
+      return null;
+    }
+    return result.rows[0].id;
+  }
+
   async update(user: User): Promise<void> {
     const user_data = user.to_persistence();
 

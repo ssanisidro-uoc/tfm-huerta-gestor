@@ -140,4 +140,20 @@ export class CropService {
   clearError(): void {
     this.errorSignal.set(null);
   }
+
+  deleteCrop(id: string): Observable<{ success: boolean; message?: string } | null> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    return this.http.delete<{ success: boolean; message?: string }>(`${this.API_URL}/api/admin/crops/${id}`).pipe(
+      tap(() => {
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error deleting crop');
+        return of(null);
+      })
+    );
+  }
 }

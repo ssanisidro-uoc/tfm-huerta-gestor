@@ -1,0 +1,234 @@
+.history-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  .header {
+    margin-bottom: 2rem;
+
+    .btn-back {
+      display: inline-block;
+      color: #3498db;
+      text-decoration: none;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
+
+    .crop-info {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-size: 0.95rem;
+      color: #7f8c8d;
+
+      .crop-name {
+        font-weight: 600;
+        color: #27ae60;
+      }
+    }
+  }
+
+  .loading {
+    text-align: center;
+    padding: 3rem;
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+  }
+
+  .error {
+    text-align: center;
+    padding: 2rem;
+    background: #fee;
+    border-radius: 8px;
+
+    .error-message {
+      color: #c0392b;
+      margin-bottom: 1rem;
+    }
+
+    .btn-retry {
+      padding: 0.5rem 1.5rem;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:hover {
+        background: #2980b9;
+      }
+    }
+  }
+
+  .tasks-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+
+    .stat {
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px;
+      background: #f8f9fa;
+
+      .count {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .label {
+        font-size: 0.8rem;
+        color: #7f8c8d;
+      }
+
+      &.completed {
+        background: #d4edda;
+        .count { color: #28a745; }
+      }
+
+      &.pending {
+        background: #fff3cd;
+        .count { color: #ffc107; }
+      }
+
+      &.postponed {
+        background: #d1ecf1;
+        .count { color: #17a2b8; }
+      }
+
+      &.cancelled {
+        background: #f8d7da;
+        .count { color: #dc3545; }
+      }
+    }
+  }
+
+  .task-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .task-item {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+
+    &.completed {
+      border-left: 4px solid #28a745;
+    }
+
+    &.pending {
+      border-left: 4px solid #ffc107;
+    }
+
+    &.postponed {
+      border-left: 4px solid #17a2b8;
+    }
+
+    &.cancelled {
+      border-left: 4px solid #dc3545;
+      opacity: 0.7;
+    }
+
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+
+      .task-type {
+        font-size: 0.8rem;
+        color: #7f8c8d;
+        text-transform: uppercase;
+      }
+
+      .task-status {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-weight: 500;
+
+        &.completed { background: #d4edda; color: #28a745; }
+        &.pending { background: #fff3cd; color: #856404; }
+        &.postponed { background: #d1ecf1; color: #0c5460; }
+        &.cancelled { background: #f8d7da; color: #721c24; }
+      }
+    }
+
+    .task-title {
+      font-size: 1rem;
+      color: #2c3e50;
+      margin: 0 0 0.5rem;
+    }
+
+    .task-dates {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      margin-bottom: 0.5rem;
+    }
+
+    .task-completion,
+    .task-postponed,
+    .task-cancelled {
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .task-completion {
+      color: #28a745;
+    }
+
+    .task-postponed {
+      color: #17a2b8;
+    }
+
+    .task-cancelled {
+      color: #dc3545;
+    }
+  }
+
+  .empty-tasks {
+    text-align: center;
+    padding: 3rem;
+    color: #7f8c8d;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+  .history-container {
+    .tasks-summary {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
