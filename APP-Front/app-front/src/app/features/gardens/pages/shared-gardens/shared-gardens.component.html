@@ -1,13 +1,13 @@
 <div class="shared-gardens">
   <header class="header">
-    <h1 id="title">Huertas Compartidas</h1>
-    <a routerLink="/gardens" class="btn-secondary">Mis Huertas</a>
+    <h1 id="title">{{ 'gardens.sharedGardens' | t }}</h1>
+    <a routerLink="/gardens" class="btn-secondary">{{ 'gardens.myGardens' | t }}</a>
   </header>
 
   @if (gardenService.loading()) {
     <div class="loading" role="status" aria-live="polite">
       <span class="spinner"></span>
-      <span>Cargando huertas compartidas...</span>
+      <span>{{ 'gardens.loadingShared' | t }}</span>
     </div>
   }
 
@@ -19,8 +19,8 @@
 
   @if (!gardenService.loading() && sharedGardens().length === 0) {
     <div class="empty-state">
-      <p>No tienes huertas compartidas todavía</p>
-      <p class="hint">Las huertas que otros compartan contigo aparecerán aquí</p>
+      <p>{{ 'gardens.noSharedGardens' | t }}</p>
+      <p class="hint">{{ 'gardens.sharedGardensHint' | t }}</p>
     </div>
   }
 
@@ -39,17 +39,17 @@
               <div class="garden-info">
                 @if (shared.garden?.climate_zone) {
                   <span class="climate">
-                    <span class="label">Clima:</span> {{ getClimateLabel(shared.garden!.climate_zone) }}
+                    <span class="label">{{ 'gardens.climate' | t }}:</span> {{ getClimateLabel(shared.garden!.climate_zone) }}
                   </span>
                 }
                 @if (shared.garden?.location?.city) {
                   <span class="location">
-                    <span class="label">Ubicación:</span> {{ shared.garden?.location?.city }}
+                    <span class="label">{{ 'gardens.location' | t }}:</span> {{ shared.garden?.location?.city }}
                   </span>
                 }
                 <span class="status">
                   @if (shared.invitation_accepted_at) {
-                    <span class="accepted">Aceptada el {{ formatDate(shared.invitation_accepted_at) }}</span>
+                    <span class="accepted">{{ 'gardens.acceptedOn' | t }} {{ formatDate(shared.invitation_accepted_at) }}</span>
                   }
                 </span>
               </div>
@@ -65,25 +65,25 @@
               <div class="garden-info">
                 @if (shared.garden?.climate_zone) {
                   <span class="climate">
-                    <span class="label">Clima:</span> {{ getClimateLabel(shared.garden!.climate_zone) }}
+                    <span class="label">{{ 'gardens.climate' | t }}:</span> {{ getClimateLabel(shared.garden!.climate_zone) }}
                   </span>
                 }
                 @if (shared.garden?.location?.city) {
                   <span class="location">
-                    <span class="label">Ubicación:</span> {{ shared.garden?.location?.city }}
+                    <span class="label">{{ 'gardens.location' | t }}:</span> {{ shared.garden?.location?.city }}
                   </span>
                 }
                 <span class="status">
-                  <span class="pending">⏳ Invitación pendiente</span>
+                  <span class="pending">⏳ {{ 'gardens.pendingInvitation' | t }}</span>
                   @if (processingId() === shared.garden_id) {
-                    <span class="processing">Procesando...</span>
+                    <span class="processing">{{ 'gardens.processing' | t }}</span>
                   } @else {
                     <div class="invitation-actions">
                       <button class="btn-accept" (click)="acceptInvitation(shared.garden_id); $event.stopPropagation()">
-                        Aceptar
+                        {{ 'gardens.accept' | t }}
                       </button>
                       <button class="btn-reject" (click)="rejectInvitation(shared.garden_id); $event.stopPropagation()">
-                        Rechazar
+                        {{ 'gardens.reject' | t }}
                       </button>
                     </div>
                   }

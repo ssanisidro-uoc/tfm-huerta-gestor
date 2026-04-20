@@ -46,15 +46,46 @@ export interface CreateGardenRequest {
   surface_m2?: number;
   climate_zone: string;
   hardiness_zone?: string;
-  location?: {
+  location: {
     address?: string;
-    city?: string;
+    city: string;
     region?: string;
     country?: string;
     latitude?: number;
     longitude?: number;
     timezone?: string;
   };
+}
+
+export interface LocationValidation {
+  valid: boolean;
+  location?: {
+    city: string;
+    region?: string;
+    country: string;
+    latitude: number;
+    longitude: number;
+    displayName: string;
+  };
+  error?: string;
+}
+
+export interface UpdateGardenRequest {
+  name?: string;
+  description?: string | null;
+  surface_m2?: number | null;
+  climate_zone?: string;
+  hardiness_zone?: string | null;
+  location: {
+    address?: string;
+    city: string;
+    region?: string;
+    country?: string;
+    latitude?: number;
+    longitude?: number;
+    timezone?: string;
+  };
+  is_active?: boolean;
 }
 
 export interface SharedGardensResponse {
@@ -160,7 +191,7 @@ export class GardenService {
     );
   }
 
-  updateGarden(id: string, data: Partial<CreateGardenRequest>): Observable<{ message: string } | null> {
+  updateGarden(id: string, data: Partial<UpdateGardenRequest>): Observable<{ message: string } | null> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
@@ -171,6 +202,18 @@ export class GardenService {
       catchError((err: HttpErrorResponse) => {
         this.loadingSignal.set(false);
         this.errorSignal.set(err.error?.message || 'Error updating garden');
+        return of(null);
+      })
+    );
+  }
+
+  validateLocation(city: string, region?: string, country?: string): Observable<LocationValidation | null> {
+    const params = new URLSearchParams({ city });
+    if (region) params.append('region', region);
+    if (country) params.append('country', country);
+
+    return this.http.get<LocationValidation>(`${this.API_URL}/api/gardens/validate-location?${params.toString()}`).pipe(
+      catchError((err: HttpErrorResponse) => {
         return of(null);
       })
     );
@@ -252,6 +295,15 @@ export class GardenService {
       catchError((err: HttpErrorResponse) => {
         this.loadingSignal.set(false);
         this.errorSignal.set(err.error?.message || 'Error rejecting invitation');
+        return of(null);
+      })
+    );
+  }
+
+  getGardenCollaborators(gardenId: string): Observable<{ collaborators: any[] } | null> {
+    return this.http.get<{ collaborators: any[] }>(`${this.API_URL}/api/gardens/${gardenId}/collaborators`).pipe(
+      catchError((err: HttpErrorResponse) => {
+        this.errorSignal.set(err.error?.message || 'Error loading collaborators');
         return of(null);
       })
     );

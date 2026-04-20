@@ -1,12 +1,13 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../../../core/services/i18n/translate.pipe';
 import { GardenService, SharedGarden } from '../../services/garden.service';
 
 @Component({
   selector: 'app-shared-gardens',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './shared-gardens.component.html',
   styleUrl: './shared-gardens.component.scss'

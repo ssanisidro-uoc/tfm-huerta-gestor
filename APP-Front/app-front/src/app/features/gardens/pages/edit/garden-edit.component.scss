@@ -1,4 +1,4 @@
-.garden-create {
+.garden-edit {
   min-height: 100vh;
   background: var(--bg-primary);
   padding: var(--spacing-8) var(--spacing-4);
@@ -228,4 +228,48 @@ textarea {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.validation-loading, .validation-success, .validation-error {
+  display: block;
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-1);
+}
+
+.validation-loading {
+  color: var(--text-secondary);
+}
+
+.validation-success {
+  color: var(--color-success);
+}
+
+.validation-error {
+  color: var(--color-error);
+}
+
+.coordinates-info {
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-3);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+
+  .coord-label {
+    color: var(--text-secondary);
+    margin-right: var(--spacing-2);
+  }
+
+  .coord-value {
+    color: var(--text-primary);
+    font-family: monospace;
+  }
+
+  .coord-pending {
+    color: var(--text-muted);
+  }
+}
+
+input.invalid {
+  border-color: var(--color-error) !important;
 }

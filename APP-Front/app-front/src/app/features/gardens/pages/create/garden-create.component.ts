@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { GardenService, CreateGardenRequest } from '../../services/garden.service';
+import { TranslationService } from '../../../../core/services/i18n/translation.service';
+import { TranslatePipe } from '../../../../core/services/i18n/translate.pipe';
 
 const CLIMATE_ZONES = [
   { value: 'mediterranean_coast', label: 'Costa Mediterránea' },
@@ -32,7 +34,7 @@ const COUNTRIES = [
 @Component({
   selector: 'app-garden-create',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './garden-create.component.html',
   styleUrl: './garden-create.component.scss'
@@ -40,6 +42,7 @@ const COUNTRIES = [
 export class GardenCreateComponent {
   gardenService = inject(GardenService);
   private router = inject(Router);
+  private translationService = inject(TranslationService);
 
   name = '';
   description = '';
@@ -60,17 +63,22 @@ export class GardenCreateComponent {
     this.gardenService.clearError();
     
     if (!this.name || !this.climate_zone) {
-      this.gardenService.setError('Por favor, completa los campos obligatorios');
+      this.gardenService.setError(this.translationService.t('app.required'));
       return;
     }
 
     if (this.name.length < 2) {
-      this.gardenService.setError('El nombre debe tener al menos 2 caracteres');
+      this.gardenService.setError(this.translationService.t('profile.nameMinLength'));
+      return;
+    }
+
+    if (!this.location_city) {
+      this.gardenService.setError('La ciudad es obligatoria para las recomendaciones climáticas');
       return;
     }
 
     if (this.surface_m2 !== null && this.surface_m2 <= 0) {
-      this.gardenService.setError('La superficie debe ser un número positivo');
+      this.gardenService.setError(this.translationService.t('gardens.invalidSurface'));
       return;
     }
 
@@ -78,17 +86,14 @@ export class GardenCreateComponent {
       name: this.name,
       description: this.description || undefined,
       climate_zone: this.climate_zone,
-      surface_m2: this.surface_m2 ?? undefined
-    };
-
-    if (this.location_city || this.location_region || this.location_address || this.location_country) {
-      data.location = {
-        city: this.location_city || undefined,
+      surface_m2: this.surface_m2 ?? undefined,
+      location: {
+        city: this.location_city,
         region: this.location_region || undefined,
         address: this.location_address || undefined,
         country: this.location_country || 'ES'
-      };
-    }
+      }
+    };
 
     this.gardenService.createGarden(data).subscribe({
       next: (response) => {

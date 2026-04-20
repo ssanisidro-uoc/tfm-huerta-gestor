@@ -7,6 +7,8 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../../../core/services/i18n/translate.pipe';
+import { TranslationService } from '../../../../core/services/i18n/translation.service';
 import {
   BreadcrumbComponent,
   BreadcrumbItem,
@@ -38,11 +40,12 @@ interface PlotWithCrops {
 
 interface GardenTask {
   id: string;
-  crop_name: string;
-  plot_name: string;
+  title?: string;
+  crop_name?: string | null;
+  plot_name?: string | null;
   type: string;
   scheduled_date: Date;
-  status: 'Pendiente' | 'Urgente' | 'Lista' | 'Programada';
+  status: 'Pendiente' | 'Urgente' | 'Lista' | 'Programada' | 'Completada';
   completed: boolean;
 }
 
@@ -58,7 +61,7 @@ interface HarvestHistoryItem {
 @Component({
   selector: 'app-garden-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, BreadcrumbComponent],
+  imports: [CommonModule, FormsModule, RouterLink, BreadcrumbComponent, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './garden-detail.component.html',
   styleUrl: './garden-detail.component.scss'
@@ -68,6 +71,7 @@ export class GardenDetailComponent implements OnInit {
   plots = signal<PlotWithCrops[]>([]);
   tasks = signal<GardenTask[]>([]);
   harvestHistory = signal<HarvestHistoryItem[]>([]);
+  collaborators = signal<any[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
 
@@ -92,6 +96,8 @@ export class GardenDetailComponent implements OnInit {
     canary_islands: 'Islas Canarias',
   };
 
+  climateLabelsArray = Object.entries(this.climateLabels).map(([key, value]) => ({ key, value }));
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -99,7 +105,12 @@ export class GardenDetailComponent implements OnInit {
     public plotService: PlotService,
     private tasksService: TasksService,
     private plantingService: PlantingService,
+    private translationService: TranslationService,
   ) {}
+
+  t(key: string): string {
+    return this.translationService.t(key);
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -108,7 +119,21 @@ export class GardenDetailComponent implements OnInit {
       this.loadPlots(id);
       this.loadTasks(id);
       this.loadHarvestHistory(id);
+      this.loadCollaborators(id);
     }
+  }
+
+  loadCollaborators(gardenId: string): void {
+    this.gardenService.getGardenCollaborators(gardenId).subscribe({
+      next: (response) => {
+        if (response && response.collaborators) {
+          this.collaborators.set(response.collaborators);
+        }
+      },
+      error: (err) => {
+        console.error('Error loading collaborators:', err);
+      },
+    });
   }
 
   loadGarden(id: string): void {
@@ -120,6 +145,7 @@ export class GardenDetailComponent implements OnInit {
             { label: 'Huertas', routerLink: '/gardens' },
             { label: garden.name },
           ]);
+          this.loading.set(false);
         }
       },
     });
@@ -187,10 +213,13 @@ export class GardenDetailComponent implements OnInit {
         }
 
         let tasksArray: any[] = [];
-        if (Array.isArray(response)) {
-          tasksArray = response;
+        // Handle response format: { success, data, pagination } or { tasks: [] } or []
+        if (response.data && Array.isArray(response.data)) {
+          tasksArray = response.data;
         } else if (response.tasks && Array.isArray(response.tasks)) {
           tasksArray = response.tasks;
+        } else if (Array.isArray(response)) {
+          tasksArray = response;
         } else {
           console.warn(
             'Formato de respuesta de tareas no reconocido',
@@ -202,12 +231,13 @@ export class GardenDetailComponent implements OnInit {
 
         const adaptedTasks: GardenTask[] = tasksArray.map((task) => ({
           id: task.id,
-          crop_name: task.crop_name,
-          plot_name: task.plot_name,
-          type: task.type,
+          title: task.title,
+          type: task.task_type || task.type || 'Tarea',
+          crop_name: task.description ? task.description.split(' de ')[1]?.split('.')[0] : null,
+          plot_name: null,
           scheduled_date: new Date(task.scheduled_date),
-          status: task.status || 'Pendiente',
-          completed: task.completed ?? false,
+          status: task.status === 'completed' ? 'Completada' : task.status === 'pending' ? 'Pendiente' : task.status,
+          completed: task.status === 'completed',
         }));
 
         this.tasks.set(adaptedTasks);
@@ -248,17 +278,55 @@ export class GardenDetailComponent implements OnInit {
     return this.climateLabels[zone] || zone;
   }
 
+  getTotalCrops(): number {
+    return this.plots().reduce((total, plot) => total + plot.crops.length, 0);
+  }
+
+  getTaskTypeClass(type: string): string {
+    const map: Record<string, string> = {
+      'watering': 'type-watering',
+      'fertilizing': 'type-nutrition',
+      'sowing': 'type-planting',
+      'harvesting': 'type-harvest',
+      'maintenance': 'type-maintenance',
+      'treatment': 'type-pest',
+      'weeding': 'type-maintenance',
+      'Riego': 'type-watering',
+      'Fitosanitario': 'type-pest',
+      'Cosecha': 'type-harvest',
+      'Abonado': 'type-nutrition',
+      'Mantenimiento': 'type-maintenance',
+    };
+    return map[type] || 'type-default';
+  }
+
+  getTaskTypeLabel(type: string): string {
+    const labels: Record<string, string> = {
+      'watering': 'Riego',
+      'fertilizing': 'Fertilización',
+      'sowing': 'Siembra',
+      'harvesting': 'Cosecha',
+      'maintenance': 'Mantenimiento',
+      'treatment': 'Tratamiento',
+      'weeding': 'Desmaleze',
+    };
+    return labels[type] || type;
+  }
+
+  getStatusClass(status: string): string {
+    const map: Record<string, string> = {
+      'Pendiente': 'status-pending',
+      'Urgente': 'status-urgent',
+      'Lista': 'status-ready',
+      'Programada': 'status-scheduled',
+    };
+    return map[status] || 'status-pending';
+  }
+
   startEdit(): void {
     const g = this.garden();
     if (g) {
-      this.editForm = {
-        name: g.name,
-        description: g.description || undefined,
-        climate_zone: g.climate_zone,
-        surface_m2: g.surface_m2 || undefined,
-        hardiness_zone: g.hardiness_zone || undefined,
-      };
-      this.isEditing.set(true);
+      this.router.navigate(['/gardens', g.id, 'edit']);
       this.editMessage.set('');
     }
   }

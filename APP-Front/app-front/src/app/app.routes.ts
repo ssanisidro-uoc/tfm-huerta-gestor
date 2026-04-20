@@ -66,6 +66,13 @@ export const routes: Routes = [
             (m) => m.GardenDetailComponent,
           ),
       },
+      {
+        path: ':id/edit',
+        loadComponent: () =>
+          import('./features/gardens/pages/edit/garden-edit.component').then(
+            (m) => m.GardenEditComponent,
+          ),
+      },
     ],
   },
   {
@@ -85,6 +92,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'plots/:id/rotations',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/plots/pages/rotation-history/rotation-history.component').then(
+        (m) => m.RotationHistoryComponent,
+      ),
+  },
+  {
     path: 'crops',
     canActivate: [authGuard],
     children: [
@@ -101,6 +116,38 @@ export const routes: Routes = [
           import('./features/crops/pages/detail/crop-detail.component').then(
             (m) => m.CropDetailComponent,
           ),
+      },
+    ],
+  },
+  {
+    path: 'admin',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'crops',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/crops/pages/admin-list/admin-list.component').then(
+                (m) => m.CropAdminListComponent,
+              ),
+          },
+          {
+            path: 'create',
+            loadComponent: () =>
+              import('./features/crops/pages/admin-form/admin-form.component').then(
+                (m) => m.CropAdminFormComponent,
+              ),
+          },
+          {
+            path: 'edit/:id',
+            loadComponent: () =>
+              import('./features/crops/pages/admin-form/admin-form.component').then(
+                (m) => m.CropAdminFormComponent,
+              ),
+          },
+        ],
       },
     ],
   },
@@ -129,6 +176,13 @@ export const routes: Routes = [
             (m) => m.PlantingDetailComponent,
           ),
       },
+      {
+        path: ':id/tasks',
+        loadComponent: () =>
+          import('./features/tasks/pages/history/task-history.component').then(
+            (m) => m.TaskHistoryComponent,
+          ),
+      },
     ],
   },
   {
@@ -137,6 +191,34 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/calendar/pages/calendar/calendar.component').then(
         (m) => m.CalendarComponent,
+      ),
+  },
+  {
+    path: 'tareas',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/tasks/pages/list/tasks-list.component').then(
+            (m) => m.TasksListComponent,
+          ),
+      },
+      {
+        path: 'create',
+        loadComponent: () =>
+          import('./features/tasks/pages/create/task-create.component').then(
+            (m) => m.TaskCreateComponent,
+          ),
+      },
+    ],
+  },
+  {
+    path: 'meteorologia',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/weather/pages/weather/weather.component').then(
+        (m) => m.WeatherComponent,
       ),
   },
   {

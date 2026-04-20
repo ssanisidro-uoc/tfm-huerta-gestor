@@ -1,16 +1,16 @@
 <div class="garden-list">
   <header class="header">
-    <h1 id="title">Mis Huertas</h1>
+    <h1 id="title">{{ 'gardens.title' | t }}</h1>
     <div class="header-actions">
-      <a routerLink="/gardens/shared" class="btn-secondary" aria-label="Ver huertas compartidas">Compartidas</a>
-      <a routerLink="/gardens/create" class="btn-primary" aria-label="Crear nueva huerta">+ Nueva Huerta</a>
+      <a routerLink="/gardens/shared" class="btn-secondary" aria-label="Ver huertas compartidas">{{ 'gardens.sharedGardens' | t }}</a>
+      <a routerLink="/gardens/create" class="btn-primary" aria-label="Crear nueva huerta">+ {{ 'gardens.create' | t }}</a>
     </div>
   </header>
 
   @if (gardenService.loading()) {
     <div class="loading" role="status" aria-live="polite">
       <span class="spinner"></span>
-      <span>Cargando huertas...</span>
+      <span>{{ 'app.loading' | t }}</span>
     </div>
   }
 
@@ -20,8 +20,8 @@
 
   @if (!gardenService.loading() && gardenService.gardens().length === 0) {
     <div class="empty-state">
-      <p>No tienes huertas todavía</p>
-      <a routerLink="/gardens/create" class="btn-primary">Crear tu primera huerta</a>
+      <p>{{ 'gardens.noGardens' | t }}</p>
+      <a routerLink="/gardens/create" class="btn-primary">{{ 'gardens.createFirst' | t }}</a>
     </div>
   }
 
@@ -33,19 +33,19 @@
             <div class="card-header">
               <h2>{{ garden.name }}</h2>
               @if (garden.is_active) {
-                <span class="status-badge active">Activa</span>
+                <span class="status-badge active">{{ 'gardens.active' | t }}</span>
               }
             </div>
             @if (garden.description) {
               <p class="description">{{ garden.description }}</p>
             }
             <div class="garden-info">
-              <span class="climate"><span class="label">Clima:</span> {{ getClimateLabel(garden.climate_zone) }}</span>
+              <span class="climate"><span class="label">{{ 'gardens.climateZone' | t }}:</span> {{ getClimateLabel(garden.climate_zone) }}</span>
               @if (garden.surface_m2) {
-                <span class="surface"><span class="label">Superficie:</span> {{ garden.surface_m2 }} m²</span>
+                <span class="surface"><span class="label">{{ 'gardens.surface' | t }}:</span> {{ garden.surface_m2 }} {{ 'gardens.surfaceUnit' | t }}</span>
               }
               @if (garden.location.city) {
-                <span class="location"><span class="label">Ubicación:</span> {{ garden.location.city }}</span>
+                <span class="location"><span class="label">{{ 'gardens.location' | t }}:</span> {{ garden.location.city }}</span>
               }
             </div>
           </a>

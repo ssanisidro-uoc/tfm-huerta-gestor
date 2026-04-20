@@ -1,8 +1,15 @@
 <div class="dashboard">
   <div class="dashboard-header">
     <div class="header-text">
-      <h1>Dashboard general</h1>
+      <h1>{{ 'dashboard.title' | t }}</h1>
       <p>{{ today | date: "EEEE, d 'de' MMMM 'de' yyyy" : '' : 'es-ES' }}</p>
+    </div>
+    <div class="header-actions">
+      <select id="garden-select" [ngModel]="selectedGardenId()" (ngModelChange)="onGardenChange($event)" class="garden-select">
+        @for (garden of gardens(); track garden.id) {
+          <option [value]="garden.id">{{ garden.name }}</option>
+        }
+      </select>
     </div>
   </div>
 
@@ -14,11 +21,11 @@
           <line x1="12" y1="9" x2="12" y2="13" />
           <line x1="12" y1="17" x2="12.01" y2="17" />
         </svg>
-        <span class="alert-label">Tratamiento preventivo pendiente</span>
+        <span class="alert-label">{{ 'dashboard.preventiveTreatment' | t }}</span>
         <span class="alert-separator">—</span>
         <span class="alert-text">{{ alert.message }}</span>
       </div>
-      <button class="btn-alert-action" routerLink="/calendar">Ver tarea</button>
+      <button class="btn-alert-action" routerLink="/calendar">{{ 'dashboard.viewTask' | t }}</button>
     </div>
   }
 
@@ -26,45 +33,59 @@
     <div class="stats-grid">
       <div class="stat-card stat-green">
         <div class="stat-value">{{ dashboardService.stats()?.parcelas_activas || dashboardService.stats()?.total_parcelas || 0 }}</div>
-        <div class="stat-label">Parcelas activas</div>
+        <div class="stat-label">{{ 'dashboard.activePlots' | t }}</div>
         @if (dashboardService.stats()?.parcelas_nuevas_mes) {
-          <div class="stat-trend trend-up">↑ +{{ dashboardService.stats()?.parcelas_nuevas_mes }} este mes</div>
+          <div class="stat-trend trend-up">↑ +{{ dashboardService.stats()?.parcelas_nuevas_mes }} {{ 'dashboard.thisMonth' | t }}</div>
         } @else {
-          <div class="stat-trend trend-neutral">Sin cambios este mes</div>
+          <div class="stat-trend trend-neutral">{{ 'dashboard.noChangeThisMonth' | t }}</div>
         }
       </div>
 
       <div class="stat-card stat-blue">
         <div class="stat-value">{{ dashboardService.stats()?.cultivos_en_curso || 0 }}</div>
-        <div class="stat-label">Cultivos en curso</div>
-        <div class="stat-trend trend-up">↑ Temporada {{ dashboardService.stats()?.cultivos_temporada || 'primavera' }}</div>
+        <div class="stat-label">{{ 'dashboard.cropsInProgress' | t }}</div>
+        <div class="stat-trend trend-up">↑ {{ 'dashboard.season' | t }} {{ dashboardService.stats()?.cultivos_temporada || 'primavera' }}</div>
       </div>
 
       <div class="stat-card stat-orange">
         <div class="stat-value">{{ dashboardService.stats()?.tareas_completadas || 0 }}</div>
-        <div class="stat-label">Tareas completadas</div>
+        <div class="stat-label">{{ 'dashboard.completedTasks' | t }}</div>
         @if (dashboardService.stats()?.porcentaje_tareas_semana !== undefined) {
-          <div class="stat-trend trend-neutral">de {{ (dashboardService.stats()?.tareas_completadas || 0) + (dashboardService.stats()?.tareas_pendientes || 0) }} esta semana ({{ dashboardService.stats()?.porcentaje_tareas_semana }}%)</div>
+          <div class="stat-trend trend-neutral">{{ 'dashboard.of' | t }} {{ (dashboardService.stats()?.tareas_completadas || 0) + (dashboardService.stats()?.tareas_pendientes || 0) }} {{ 'dashboard.thisWeek' | t }} ({{ dashboardService.stats()?.porcentaje_tareas_semana }}%)</div>
         }
       </div>
 
       <div class="stat-card stat-red">
         <div class="stat-value">{{ dashboardService.stats()?.cosechas_proximas || 0 }}</div>
-        <div class="stat-label">Cosechas próximas</div>
+        <div class="stat-label">{{ 'dashboard.upcomingHarvests' | t }}</div>
         @if (dashboardService.stats()?.cosechas_esta_semana) {
-          <div class="stat-trend trend-up">↑ Esta semana</div>
+          <div class="stat-trend trend-up">↑ {{ 'dashboard.thisWeek' | t }}</div>
         }
       </div>
     </div>
   </section>
 
+  @if (weatherRecommendations().length > 0) {
+    <section class="weather-summary-section">
+      <h3 class="section-title">🌤️ {{ 'dashboard.weatherForecast' | t }}</h3>
+      <div class="weather-cards">
+        @for (rec of weatherRecommendations().slice(0, 3); track rec.id) {
+          <div class="weather-day-card" [class]="'weather-' + rec.severity">
+            <div class="weather-icon">{{ rec.severity === 'warning' ? '⚠️' : '☀️' }}</div>
+            <div class="weather-message">{{ rec.message }}</div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
   <section class="section">
     <div class="section-header">
       <div class="section-title-row">
         <span class="section-icon">▦</span>
-        <h2 class="section-title">Estado de parcelas y cultivos</h2>
+        <h2 class="section-title">{{ 'dashboard.plotsAndCropsStatus' | t }}</h2>
       </div>
-      <a routerLink="/gardens" class="link-ver-todas">Ver todas →</a>
+      <a routerLink="/gardens" class="link-ver-todas">{{ 'dashboard.viewAll' | t }} →</a>
     </div>
 
     @if (dashboardService.plots().length > 0) {
@@ -74,7 +95,7 @@
             <div class="plot-card-header">
               <div class="plot-info">
                 <span class="plot-name">{{ plot.name }}</span>
-                <span class="plot-meta">{{ plot.surface_m2 }}m² · {{ plot.soil_type || 'Suelo' }}</span>
+                <span class="plot-meta">{{ plot.surface_m2 }}m² · {{ plot.soil_type || ('plots.soil' | t) }}</span>
               </div>
               <span class="plot-status-dot" [class]="getPlotStatusClass(plot)"></span>
             </div>
@@ -88,28 +109,28 @@
                       <span class="crop-name">{{ crop.name }}</span>
                     </div>
                     <div class="crop-dates">
-                      <span>Siembra: {{ crop.planted_at | date: 'd MMM' : '' : 'es-ES' }}</span>
-                      <span class="crop-day-badge">· Día {{ getDaysSincePlanting(crop) }}</span>
+                      <span>{{ 'dashboard.sowing' | t }}: {{ crop.planted_at | date: 'd MMM' : '' : 'es-ES' }}</span>
+                      <span class="crop-day-badge">· {{ 'dashboard.day' | t }} {{ getDaysSincePlanting(crop) }}</span>
                     </div>
                   </div>
                   <div class="crop-progress-row">
                     <div class="progress-bar">
                       <div class="progress-fill" [style.width.%]="crop.growth_percentage || 0" [class]="getCropProgressClass(crop)"></div>
                     </div>
-                    <span class="progress-label">Crecimiento {{ crop.growth_percentage || 0 }}%</span>
-                    <span class="harvest-label">Cosecha: {{ crop.harvest_month || (crop.expected_harvest | date: 'MMM' : '' : 'es-ES') }}</span>
+                    <span class="progress-label">{{ 'dashboard.growth' | t }} {{ crop.growth_percentage || 0 }}%</span>
+                    <span class="harvest-label">{{ 'dashboard.harvest' | t }}: {{ crop.harvest_month || (crop.expected_harvest | date: 'MMM' : '' : 'es-ES') }}</span>
                   </div>
                 </div>
               }
               @if (getCropsForPlot(plot.id).length === 0) {
-                <p class="no-crops">Sin cultivos activos</p>
+                <p class="no-crops">{{ 'dashboard.noActiveCrops' | t }}</p>
               }
             </div>
 
             @if (getNextTaskForPlot(plot.id); as nextTask) {
               <div class="plot-next-task" [class]="'task-' + nextTask.type">
                 <span class="task-type-icon">{{ getTaskIcon(nextTask.type) }}</span>
-                <span>Próx: {{ nextTask.title }}</span>
+                <span>{{ 'dashboard.next' | t }}: {{ nextTask.title }}</span>
                 <span class="task-date">· {{ nextTask.scheduled_time }}</span>
               </div>
             }
@@ -118,7 +139,7 @@
       </div>
     } @else {
       <div class="empty-state">
-        <p>No hay parcelas todavía</p>
+        <p>{{ 'dashboard.noPlotsYet' | t }}</p>
       </div>
     }
   </section>
@@ -128,10 +149,10 @@
       <div class="section-header">
         <div class="section-title-row">
           <span class="section-icon-check">✅</span>
-          <h2 class="section-title">Tareas de hoy</h2>
+          <h2 class="section-title">{{ 'dashboard.todayTasks' | t }}</h2>
         </div>
         @if (pendingCount() > 0) {
-          <span class="badge-pending">{{ pendingCount() }} pendientes</span>
+          <span class="badge-pending">{{ pendingCount() }} {{ 'dashboard.pending' | t }}</span>
         }
       </div>
 
@@ -165,7 +186,7 @@
           }
         } @else {
           <div class="empty-tasks">
-            <p>No hay tareas para hoy 🎉</p>
+            <p>{{ 'dashboard.noTasksToday' | t }} 🎉</p>
           </div>
         }
       </div>
@@ -174,7 +195,7 @@
     <div class="right-panel">
       <div class="card mb-1">
         <div class="card-header-row">
-          <h3 class="card-title"><span class="card-title-icon">📊</span> Tareas por tipo · {{ currentMonth }}</h3>
+          <h3 class="card-title"><span class="card-title-icon">📊</span> {{ 'dashboard.tasksByType' | t }} · {{ currentMonth }}</h3>
         </div>
         @if (dashboardService.taskStats().length > 0) {
           <div class="donut-section">
@@ -197,14 +218,14 @@
             </div>
           </div>
         } @else {
-          <p class="empty-text">Sin datos de tareas</p>
+          <p class="empty-text">{{ 'dashboard.noTaskData' | t }}</p>
         }
       </div>
 
       <div class="card">
         <div class="card-header-row">
-          <h3 class="card-title"><span class="card-title-icon">🕐</span> Actividad reciente</h3>
-          <a routerLink="/history" class="link-ver-todas">Ver todo →</a>
+          <h3 class="card-title"><span class="card-title-icon">🕐</span> {{ 'dashboard.recentActivity' | t }}</h3>
+          <a routerLink="/history" class="link-ver-todas">{{ 'dashboard.viewAll' | t }} →</a>
         </div>
         <div class="activity-list">
           @if (dashboardService.activities().length > 0) {
@@ -218,10 +239,55 @@
               </div>
             }
           } @else {
-            <p class="empty-text">Sin actividad reciente</p>
+            <p class="empty-text">{{ 'dashboard.noRecentActivity' | t }}</p>
           }
         </div>
       </div>
+
+      @if (weatherAlerts().length > 0 || weatherRecommendations().length > 0) {
+        <div class="card">
+          <div class="card-header-row">
+            <h3 class="card-title"><span class="card-title-icon">🌤️</span> {{ 'dashboard.weatherAlerts' | t }}</h3>
+          </div>
+          
+          @if (weatherAlerts().length > 0) {
+            <div class="weather-alerts-list">
+              @for (alert of weatherAlerts().slice(0, 3); track alert.id) {
+                <div class="weather-alert-item" [class]="'alert-severity-' + alert.severity">
+                  <div class="alert-header">
+                    <span class="alert-type">{{ alert.alertType }}</span>
+                    <span class="alert-badge" [class]="'badge-' + alert.severity">{{ alert.severity | t }}</span>
+                  </div>
+                  <p class="alert-description">{{ alert.description }}</p>
+                  @if (alert.recommendedActions.length > 0) {
+                    <ul class="alert-actions">
+                      @for (action of alert.recommendedActions.slice(0, 2); track action) {
+                        <li>{{ action }}</li>
+                      }
+                    </ul>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          @if (weatherRecommendations().length > 0) {
+            <div class="weather-recommendations">
+              <h4 class="recommendations-title">{{ 'dashboard.weatherRecommendations' | t }}</h4>
+              @for (rec of weatherRecommendations().slice(0, 3); track rec.id) {
+                <div class="recommendation-item" [class]="'rec-' + rec.severity">
+                  <span class="rec-icon">💡</span>
+                  <span class="rec-message">{{ rec.message }}</span>
+                </div>
+              }
+            </div>
+          }
+
+          @if (weatherAlerts().length === 0 && weatherRecommendations().length === 0) {
+            <p class="empty-text">{{ 'dashboard.noWeatherAlerts' | t }}</p>
+          }
+        </div>
+      }
     </div>
   </div>
 </div>

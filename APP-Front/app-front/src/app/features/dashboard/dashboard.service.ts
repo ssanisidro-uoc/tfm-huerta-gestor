@@ -1,7 +1,8 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
-import { catchError, of, tap } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { WeatherAlert } from '../weather/services/weather-intelligence.service';
 
 export interface DashboardStats {
   total_parcelas: number;
@@ -113,136 +114,71 @@ export class DashboardService {
 
   constructor(private http: HttpClient) {}
 
-  loadDashboardData(): void {
+  loadDashboardData(onComplete?: () => void): void {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    this.loadStats();
-    this.loadPlotsSummary();
-    this.loadCropsSummary();
-    this.loadRecentActivity();
-    this.loadTodayTasks();
-    this.loadTaskStats();
-    this.loadAlerts();
-  }
-
-  private loadStats(): void {
-    this.http
-      .get<{ success: boolean; data: DashboardStats }>(
-        `${this.API_URL}/api/dashboard/stats`,
+    forkJoin({
+      stats: this.http.get<{ success: boolean; data: DashboardStats }>(`${this.API_URL}/api/dashboard/stats`).pipe(
+        catchError(err => {
+          this.errorSignal.set(err.error?.message || 'Error loading stats');
+          return of({ success: false, data: null });
+        })
+      ),
+      plots: this.http.get<{ success: boolean; data: { plots: PlotSummary[] } }>(`${this.API_URL}/api/dashboard/plots-summary`).pipe(
+        catchError(() => of({ success: false, data: { plots: [] } }))
+      ),
+      crops: this.http.get<{ success: boolean; data: { crops: CropSummary[] } }>(`${this.API_URL}/api/dashboard/crops-summary`).pipe(
+        catchError(() => of({ success: false, data: { crops: [] } }))
+      ),
+      activities: this.http.get<{ success: boolean; data: { activities: ActivityItem[] } }>(`${this.API_URL}/api/dashboard/recent-activity`).pipe(
+        catchError(() => of({ success: false, data: { activities: [] } }))
+      ),
+      todayTasks: this.http.get<{ success: boolean; data: { tasks: TaskItem[] } }>(`${this.API_URL}/api/dashboard/today-tasks`).pipe(
+        catchError(() => of({ success: false, data: { tasks: [] } }))
+      ),
+      taskStats: this.http.get<{ success: boolean; data: { stats: TaskTypeStats[] } }>(`${this.API_URL}/api/dashboard/task-stats`).pipe(
+        catchError(() => of({ success: false, data: { stats: [] } }))
+      ),
+      alerts: this.http.get<{ success: boolean; data: AlertBanner | null }>(`${this.API_URL}/api/dashboard/alerts`).pipe(
+        catchError(() => of({ success: false, data: null }))
       )
-      .pipe(
-        tap((response) => {
-          if (response.success) {
-            this.statsSignal.set(response.data);
-          }
-          this.loadingSignal.set(false);
-        }),
-        catchError((err: HttpErrorResponse) => {
-          this.loadingSignal.set(false);
-          this.errorSignal.set(
-            err.error?.message || 'Error loading dashboard stats',
-          );
-          return of(null);
-        }),
-      )
-      .subscribe();
-  }
-
-  private loadPlotsSummary(): void {
-    this.http
-      .get<{ success: boolean; data: { plots: PlotSummary[] } }>(
-        `${this.API_URL}/api/dashboard/plots-summary`,
-      )
-      .pipe(
-        tap((response) => {
-          if (response.success) {
-            this.plotsSignal.set(response.data.plots);
-          }
-        }),
-        catchError(() => of(null)),
-      )
-      .subscribe();
-  }
-
-  private loadCropsSummary(): void {
-    this.http
-      .get<{ success: boolean; data: { crops: CropSummary[] } }>(
-        `${this.API_URL}/api/dashboard/crops-summary`,
-      )
-      .pipe(
-        tap((response) => {
-          if (response.success) {
-            this.cropsSignal.set(response.data.crops);
-          }
-        }),
-        catchError(() => of(null)),
-      )
-      .subscribe();
-  }
-
-  private loadRecentActivity(): void {
-    this.http
-      .get<{ success: boolean; data: { activities: ActivityItem[] } }>(
-        `${this.API_URL}/api/dashboard/recent-activity`,
-      )
-      .pipe(
-        tap((response) => {
-          if (response.success) {
-            this.activitiesSignal.set(response.data.activities);
-          }
-        }),
-        catchError(() => of(null)),
-      )
-      .subscribe();
-  }
-
-  private loadTodayTasks(): void {
-    this.http
-      .get<{ success: boolean; data: { tasks: TaskItem[] } }>(
-        `${this.API_URL}/api/dashboard/today-tasks`,
-      )
-      .pipe(
-        tap((response) => {
-          if (response.success) {
-            this.todayTasksSignal.set(response.data.tasks);
-          }
-        }),
-        catchError(() => of(null)),
-      )
-      .subscribe();
-  }
-
-  private loadTaskStats(): void {
-    this.http
-      .get<{ success: boolean; data: { stats: TaskTypeStats[] } }>(
-        `${this.API_URL}/api/dashboard/task-stats`,
-      )
-      .pipe(
-        tap((response) => {
-          if (response.success) {
-            this.taskStatsSignal.set(response.data.stats);
-          }
-        }),
-        catchError(() => of(null)),
-      )
-      .subscribe();
-  }
-
-  private loadAlerts(): void {
-    this.http
-      .get<{ success: boolean; data: AlertBanner | null }>(
-        `${this.API_URL}/api/dashboard/alerts`,
-      )
-      .pipe(
-        tap((response) => {
-          if (response.success) {
-            this.alertSignal.set(response.data);
-          }
-        }),
-        catchError(() => of(null)),
-      )
-      .subscribe();
+    }).subscribe({
+      next: (results) => {
+        if (results.stats.success && results.stats.data) {
+          this.statsSignal.set(results.stats.data);
+        }
+        if (results.plots.success) {
+          this.plotsSignal.set(results.plots.data.plots);
+        }
+        if (results.crops.success) {
+          this.cropsSignal.set(results.crops.data.crops);
+        }
+        if (results.activities.success) {
+          this.activitiesSignal.set(results.activities.data.activities);
+        }
+        if (results.todayTasks.success) {
+          this.todayTasksSignal.set(results.todayTasks.data.tasks);
+        }
+        if (results.taskStats.success) {
+          this.taskStatsSignal.set(results.taskStats.data.stats);
+        }
+        if (results.alerts.success) {
+          this.alertSignal.set(results.alerts.data);
+        }
+        this.loadingSignal.set(false);
+        if (onComplete) {
+          onComplete();
+        }
+      },
+      error: (err) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set('Error loading dashboard data');
+        if (onComplete) {
+          onComplete();
+        }
+      }
+    });
   }
 
   clearError(): void {

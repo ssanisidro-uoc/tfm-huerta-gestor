@@ -1,6 +1,6 @@
-<div class="garden-create">
+<div class="garden-edit">
   <div class="form-container">
-    <h1 id="title">{{ 'gardens.create' | t }}</h1>
+    <h1 id="title">{{ 'gardens.edit' | t }}</h1>
     
     @if (gardenService.error()) {
       <div class="error-message" role="alert" aria-live="assertive">
@@ -21,7 +21,6 @@
             aria-required="true"
             [disabled]="gardenService.loading()"
             autocomplete="name"
-            [placeholder]="'gardens.namePlaceholder' | t"
           />
         </div>
 
@@ -48,20 +47,7 @@
           type="button" 
           class="expand-toggle"
           (click)="showBasicFields.set(!showBasicFields())"
-          [attr.aria-expanded]="showBasicFields()"
         >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="20" 
-            height="20" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            stroke-width="2"
-            [class.rotated]="showBasicFields()"
-          >
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
           <span>{{ (showBasicFields() ? 'gardens.lessOptions' : 'gardens.moreOptions') | t }}</span>
         </button>
 
@@ -75,7 +61,6 @@
                 name="description"
                 rows="2"
                 [disabled]="gardenService.loading()"
-                [placeholder]="'gardens.descriptionPlaceholder' | t"
               ></textarea>
             </div>
 
@@ -87,9 +72,6 @@
                 [(ngModel)]="surface_m2"
                 name="surface_m2"
                 min="1"
-                max="1000000"
-                [disabled]="gardenService.loading()"
-                [placeholder]="'gardens.surfacePlaceholder' | t"
               />
             </div>
           </div>
@@ -99,7 +81,6 @@
       <div class="form-section location-section">
         <fieldset class="location-fieldset">
           <legend>{{ 'gardens.location' | t }} *</legend>
-          <p class="field-hint">{{ 'gardens.locationHint' | t }}</p>
           
           <div class="form-row">
             <div class="form-group">
@@ -110,11 +91,20 @@
                 [(ngModel)]="location_city"
                 name="location_city"
                 required
-                aria-required="true"
                 [disabled]="gardenService.loading()"
-                autocomplete="address-level2"
-                [placeholder]="'gardens.cityPlaceholder' | t"
+                (blur)="onCityChange()"
+                (input)="locationValid.set(null)"
+                [class.invalid]="locationError()"
               />
+              @if (locationValidating()) {
+                <span class="validation-loading">Validando...</span>
+              }
+              @if (locationValid(); as valid) {
+                <span class="validation-success">✓ {{ valid.location?.displayName }}</span>
+              }
+              @if (locationError()) {
+                <span class="validation-error">{{ locationError() }}</span>
+              }
             </div>
 
             <div class="form-group">
@@ -125,7 +115,6 @@
                 [(ngModel)]="location_region"
                 name="location_region"
                 [disabled]="gardenService.loading()"
-                autocomplete="address-level1"
               />
             </div>
           </div>
@@ -138,23 +127,33 @@
               [(ngModel)]="location_address"
               name="location_address"
               [disabled]="gardenService.loading()"
-              autocomplete="street-address"
             />
           </div>
 
-          <div class="form-group">
-            <label for="location_country">{{ 'gardens.country' | t }}</label>
-            <select
-              id="location_country"
-              [(ngModel)]="location_country"
-              name="location_country"
-              [disabled]="gardenService.loading()"
-            >
-              <option value="">{{ 'gardens.selectCountry' | t }}</option>
-              @for (country of countries; track country.value) {
-                <option [value]="country.value">{{ country.label }}</option>
-              }
-            </select>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="location_country">{{ 'gardens.country' | t }}</label>
+              <select
+                id="location_country"
+                [(ngModel)]="location_country"
+                name="location_country"
+                [disabled]="gardenService.loading()"
+              >
+                <option value="">{{ 'gardens.selectCountry' | t }}</option>
+                @for (country of countries; track country.value) {
+                  <option [value]="country.value">{{ country.label }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="coordinates-info">
+            <span class="coord-label">Coordenadas:</span>
+            @if (location_latitude && location_longitude) {
+              <span class="coord-value">{{ location_latitude }}, {{ location_longitude }}</span>
+            } @else {
+              <span class="coord-value coord-pending">No disponibles</span>
+            }
           </div>
         </fieldset>
       </div>
@@ -164,16 +163,15 @@
           type="submit" 
           class="btn-primary"
           [disabled]="gardenService.loading()"
-          [attr.aria-busy]="gardenService.loading()"
         >
           @if (gardenService.loading()) {
-            <span class="spinner" aria-hidden="true"></span>
-            <span>{{ 'gardens.creating' | t }}</span>
+            <span class="spinner"></span>
+            <span>{{ 'gardens.saving' | t }}</span>
           } @else {
-            {{ 'gardens.create' | t }}
+            {{ 'gardens.save' | t }}
           }
         </button>
-        <a routerLink="/gardens" class="btn-secondary">{{ 'app.cancel' | t }}</a>
+        <a [routerLink]="['/gardens', gardenId]" class="btn-secondary">{{ 'app.cancel' | t }}</a>
       </div>
     </form>
   </div>
