@@ -59,7 +59,6 @@ export async function register_user_routes(router: Router): Promise<void> {
   router.get(
     '/api/users/preferences',
     require_auth,
-    validate_user_preferences,
     async_handler((req: Request, res: Response, next: NextFunction) =>
       get_preferences_controller.run(req, res, next)
     )
@@ -68,7 +67,6 @@ export async function register_user_routes(router: Router): Promise<void> {
   router.put(
     '/api/users/preferences',
     require_auth,
-    validate_user_preferences,
     async_handler((req: Request, res: Response, next: NextFunction) =>
       update_preferences_controller.run(req, res, next)
     )
