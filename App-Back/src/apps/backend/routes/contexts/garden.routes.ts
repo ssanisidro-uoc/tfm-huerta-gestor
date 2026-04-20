@@ -10,6 +10,8 @@ import { InviteCollaboratorController } from '../../controllers/garden/InviteCol
 import { AcceptInvitationController } from '../../controllers/garden/AcceptInvitationController';
 import { RejectInvitationController } from '../../controllers/garden/RejectInvitationController';
 import { ListSharedGardensController } from '../../controllers/garden/ListSharedGardensController';
+import { FindGardenCollaboratorsController } from '../../controllers/garden/FindGardenCollaboratorsController';
+import { ValidateLocationController } from '../../controllers/garden/ValidateLocationController';
 
 export async function register_garden_routes(router: Router): Promise<void> {
   const createGardenController = await container.get('Backend.Garden.controllers.CreateGardenController') as CreateGardenController;
@@ -21,6 +23,8 @@ export async function register_garden_routes(router: Router): Promise<void> {
   const acceptInvitationController = await container.get('Backend.Garden.controllers.AcceptInvitationController') as AcceptInvitationController;
   const rejectInvitationController = await container.get('Backend.Garden.controllers.RejectInvitationController') as RejectInvitationController;
   const listSharedGardensController = await container.get('Backend.Garden.controllers.ListSharedGardensController') as ListSharedGardensController;
+  const findGardenCollaboratorsController = await container.get('Backend.Garden.controllers.FindGardenCollaboratorsController') as FindGardenCollaboratorsController;
+  const validateLocationController = await container.get('Backend.Garden.controllers.ValidateLocationController') as ValidateLocationController;
 
   router.post('/api/gardens', require_auth, (req, res, next) => createGardenController.run(req, res, next));
   
@@ -33,6 +37,9 @@ export async function register_garden_routes(router: Router): Promise<void> {
   router.delete('/api/gardens/:id', require_auth, (req, res, next) => deleteGardenController.run(req, res, next));
 
   router.post('/api/gardens/:gardenId/collaborators', require_auth, (req, res, next) => inviteCollaboratorController.run(req, res, next));
+  router.get('/api/gardens/:gardenId/collaborators', require_auth, (req, res, next) => findGardenCollaboratorsController.run(req, res, next));
   router.post('/api/gardens/:gardenId/accept', require_auth, (req, res, next) => acceptInvitationController.run(req, res, next));
   router.post('/api/gardens/:gardenId/reject', require_auth, (req, res, next) => rejectInvitationController.run(req, res, next));
+
+  router.get('/api/gardens/validate-location', (req, res, next) => validateLocationController.validateCity(req, res, next));
 };

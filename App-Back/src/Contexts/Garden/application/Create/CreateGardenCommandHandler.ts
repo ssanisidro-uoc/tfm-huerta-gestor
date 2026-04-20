@@ -19,7 +19,7 @@ export class CreateGardenCommandHandler implements CommandHandler<CreateGardenCo
       surface_m2: command.surface_m2,
       climate_zone: command.climate_zone,
       hardiness_zone: command.hardiness_zone,
-      location: command.location ?? undefined
+      location: command.location
     });
   }
 }

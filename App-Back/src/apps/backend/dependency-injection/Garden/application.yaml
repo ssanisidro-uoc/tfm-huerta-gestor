@@ -6,11 +6,11 @@ services:
   Backend.Garden.application.GardenCreator:
     class: ../../../../Contexts/Garden/application/Create/GardenCreator
     arguments:
-      ['@Backend.Garden.domain.GardenRepository', '@Backend.Garden.domain.UserGardenRepository']
+      ['@Backend.Garden.domain.GardenRepository', '@Backend.Garden.domain.UserGardenRepository', '@Backend.Shared.NominatimClient']
 
   Backend.Garden.application.GardenUpdater:
     class: ../../../../Contexts/Garden/application/Update/GardenUpdater
-    arguments: ['@Backend.Garden.domain.GardenRepository']
+    arguments: ['@Backend.Garden.domain.GardenRepository', '@Backend.Shared.NominatimClient']
 
   Backend.Garden.application.GardenDeleter:
     class: ../../../../Contexts/Garden/application/Delete/GardenDeleter
@@ -95,5 +95,11 @@ services:
     class: ../../../../Contexts/Garden/application/ListSharedGardens/ListSharedGardensQueryHandler
     arguments:
       ['@Backend.Garden.domain.UserGardenRepository', '@Backend.Garden.domain.GardenRepository']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Garden.application.FindGardenCollaboratorsQueryHandler:
+    class: ../../../../Contexts/Garden/application/FindGardenCollaborators/FindGardenCollaboratorsQueryHandler
+    arguments: ['@Backend.Garden.domain.UserGardenRepository']
     tags:
       - { name: 'queryHandler' }

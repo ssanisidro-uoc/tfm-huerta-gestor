@@ -6,9 +6,23 @@ import { GardenClimateZone } from '../../domain/value-objects/GardenClimateZone'
 import { GardenSurface } from '../../domain/value-objects/GardenSurface';
 import { GardenLocation } from '../../domain/value-objects/GardenLocation';
 import { GardenHardinessZone } from '../../domain/value-objects/GardenHardinessZone';
+import { NominatimClient } from '../../../Shared/infrastructure/NominatimClient';
+
+interface UpdateLocationData {
+  address?: string;
+  city: string;
+  region?: string;
+  country?: string;
+  latitude?: number;
+  longitude?: number;
+  timezone?: string;
+}
 
 export class GardenUpdater {
-  constructor(private repository: GardenRepository) {}
+  constructor(
+    private repository: GardenRepository,
+    private nominatimClient: NominatimClient
+  ) {}
 
   async run(
     id: string,
@@ -18,15 +32,7 @@ export class GardenUpdater {
       climate_zone?: string;
       surface_m2?: number | null;
       hardiness_zone?: string | null;
-      location?: {
-        address?: string;
-        city?: string;
-        region?: string;
-        country?: string;
-        latitude?: number;
-        longitude?: number;
-        timezone?: string;
-      } | null;
+      location?: UpdateLocationData | null;
       is_active?: boolean;
     }
   ): Promise<Garden> {
@@ -34,6 +40,41 @@ export class GardenUpdater {
     
     if (!garden) {
       throw new GardenNotFoundError(id);
+    }
+
+    let locationData: UpdateLocationData | undefined;
+    
+    if (data.location !== undefined) {
+      if (data.location) {
+        const currentLocation = garden.location;
+        
+        locationData = {
+          address: data.location.address ?? currentLocation.getAddress(),
+          city: data.location.city,
+          region: data.location.region ?? currentLocation.getRegion(),
+          country: data.location.country ?? currentLocation.getCountry(),
+          latitude: data.location.latitude,
+          longitude: data.location.longitude,
+          timezone: data.location.timezone ?? currentLocation.getTimezone()
+        };
+
+        if (!locationData.latitude || !locationData.longitude) {
+          const geocoded = await this.nominatimClient.geocode(
+            locationData.city,
+            locationData.region,
+            locationData.country || 'Spain'
+          );
+
+          if (geocoded) {
+            locationData.latitude = geocoded.latitude;
+            locationData.longitude = geocoded.longitude;
+          } else {
+            throw new Error('Ciudad no encontrada. Verifica que el nombre sea correcto.');
+          }
+        }
+      } else {
+        locationData = undefined;
+      }
     }
 
     const updatedGarden = garden.update({
@@ -44,8 +85,8 @@ export class GardenUpdater {
       hardiness_zone: data.hardiness_zone !== undefined 
         ? (data.hardiness_zone ? new GardenHardinessZone(data.hardiness_zone) : null)
         : undefined,
-      location: data.location !== undefined 
-        ? (data.location ? GardenLocation.create(data.location) : undefined)
+      location: locationData !== undefined 
+        ? GardenLocation.create(locationData)
         : undefined,
       is_active: data.is_active
     });

@@ -11,12 +11,12 @@ export class CreateGardenCommand implements Command {
     readonly hardiness_zone: string | null,
     readonly location: {
       address?: string;
-      city?: string;
+      city: string;
       region?: string;
       country?: string;
       latitude?: number;
       longitude?: number;
       timezone?: string;
-    } | null
+    }
   ) {}
 }

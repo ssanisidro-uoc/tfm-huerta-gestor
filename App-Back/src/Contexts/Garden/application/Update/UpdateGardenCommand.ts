@@ -11,13 +11,13 @@ export class UpdateGardenCommand extends Command {
       hardiness_zone?: string | null;
       location?: {
         address?: string;
-        city?: string;
+        city: string;
         region?: string;
         country?: string;
         latitude?: number;
         longitude?: number;
         timezone?: string;
-      } | null;
+      };
       is_active?: boolean;
     }
   ) {

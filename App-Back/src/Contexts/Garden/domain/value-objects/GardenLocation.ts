@@ -4,7 +4,7 @@ import { InvalidGardenCountryCodeError } from '../errors/GardenErrors';
 
 interface GardenLocationProps {
   address?: string;
-  city?: string;
+  city: string;
   region?: string;
   country: string;
   latitude?: number;
@@ -23,6 +23,10 @@ export class GardenLocation extends ValueObject<GardenLocationProps> {
   }
 
   private validate(props: GardenLocationProps): void {
+    if (!props.city || props.city.trim() === '') {
+      throw new InvalidArgumentError('City is required for weather recommendations', { field: 'city' });
+    }
+
     if (props.country && !GardenLocation.VALID_COUNTRIES.includes(props.country)) {
       throw new InvalidGardenCountryCodeError(props.country);
     }
@@ -44,7 +48,10 @@ export class GardenLocation extends ValueObject<GardenLocationProps> {
     }
   }
 
-  static create(props: Partial<GardenLocationProps>): GardenLocation {
+  static create(props?: { city?: string; address?: string; region?: string; country?: string; latitude?: number; longitude?: number; timezone?: string }): GardenLocation {
+    if (!props || !props.city) {
+      throw new Error('City is required');
+    }
     return new GardenLocation({
       address: props.address,
       city: props.city,
@@ -65,9 +72,10 @@ export class GardenLocation extends ValueObject<GardenLocationProps> {
     location_longitude?: number | null;
     location_timezone?: string | null;
   }): GardenLocation {
+    const city = raw.location_city || 'Unknown';
     return new GardenLocation({
       address: raw.location_address ?? undefined,
-      city: raw.location_city ?? undefined,
+      city,
       region: raw.location_region ?? undefined,
       country: raw.location_country ?? GardenLocation.DEFAULT_COUNTRY,
       latitude: raw.location_latitude ?? undefined,
@@ -92,6 +100,34 @@ export class GardenLocation extends ValueObject<GardenLocationProps> {
       this.value.country
     ].filter(Boolean);
     return parts.join(', ');
+  }
+
+  getCity(): string {
+    return this.value.city;
+  }
+
+  getRegion(): string | undefined {
+    return this.value.region;
+  }
+
+  getCountry(): string {
+    return this.value.country;
+  }
+
+  getLatitude(): number | undefined {
+    return this.value.latitude;
+  }
+
+  getLongitude(): number | undefined {
+    return this.value.longitude;
+  }
+
+  getTimezone(): string {
+    return this.value.timezone;
+  }
+
+  getAddress(): string | undefined {
+    return this.value.address;
   }
 
   to_persistence(): {

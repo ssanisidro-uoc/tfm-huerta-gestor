@@ -60,12 +60,15 @@ export class Garden extends AggregateRoot {
     hardiness_zone?: GardenHardinessZone | null;
   }): Garden {
     const now = new Date();
+    if (!data.location) {
+      throw new Error('Location with city is required');
+    }
     return new Garden({
       id: data.id,
       owner_id: data.owner_id,
       name: data.name,
       description: data.description ?? null,
-      location: data.location ?? GardenLocation.create({}),
+      location: data.location,
       surface_m2: data.surface_m2 ?? GardenSurface.create(null),
       climate_zone: data.climate_zone,
       hardiness_zone: data.hardiness_zone ?? null,

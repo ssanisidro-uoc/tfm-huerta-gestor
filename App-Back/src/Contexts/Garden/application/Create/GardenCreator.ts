@@ -8,6 +8,7 @@ import { GardenHardinessZone } from '../../domain/value-objects/GardenHardinessZ
 import { GardenRepository } from '../../domain/GardenRepository';
 import { UserGardenRepository } from '../../../UserGarden/domain/UserGardenRepository';
 import { UserId } from '../../../User/domain/UserId';
+import { NominatimClient } from '../../../Shared/infrastructure/NominatimClient';
 
 interface CreateGardenData {
   id: string;
@@ -17,9 +18,9 @@ interface CreateGardenData {
   surface_m2?: number | null;
   climate_zone: string;
   hardiness_zone?: string | null;
-  location?: {
+  location: {
     address?: string;
-    city?: string;
+    city: string;
     region?: string;
     country?: string;
     latitude?: number;
@@ -31,10 +32,30 @@ interface CreateGardenData {
 export class GardenCreator {
   constructor(
     private repository: GardenRepository,
-    private userGardenRepository: UserGardenRepository
+    private userGardenRepository: UserGardenRepository,
+    private nominatimClient: NominatimClient
   ) {}
 
   async run(data: CreateGardenData): Promise<Garden> {
+    let locationData = data.location;
+
+    if (!locationData.latitude || !locationData.longitude) {
+      const geocoded = await this.nominatimClient.geocode(
+        locationData.city,
+        locationData.region,
+        locationData.country || 'Spain'
+      );
+
+      if (geocoded) {
+        locationData = {
+          ...locationData,
+          latitude: geocoded.latitude,
+          longitude: geocoded.longitude,
+          city: geocoded.city || locationData.city
+        };
+      }
+    }
+
     const garden = Garden.create({
       id: new GardenId(data.id),
       owner_id: new UserId(data.owner_id),
@@ -43,7 +64,7 @@ export class GardenCreator {
       surface_m2: data.surface_m2 !== undefined ? GardenSurface.create(data.surface_m2) : GardenSurface.create(null),
       climate_zone: new GardenClimateZone(data.climate_zone),
       hardiness_zone: data.hardiness_zone ? new GardenHardinessZone(data.hardiness_zone) : null,
-      location: data.location ? GardenLocation.create(data.location) : undefined
+      location: GardenLocation.create(locationData)
     });
 
     await this.repository.save(garden);

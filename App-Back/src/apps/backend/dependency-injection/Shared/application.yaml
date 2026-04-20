@@ -4,6 +4,9 @@ services:
       class: ../../../../Contexts/Shared/infrastructure/persistence/postgres/PostgresGarderingConfigFactory
       method: createConfig
 
+  Backend.Shared.NominatimClient:
+    class: ../../../../Contexts/Shared/infrastructure/NominatimClient
+
   Backend.Shared.PostgresConnection:
     factory:
       class: ../../../../Contexts/Shared/infrastructure/persistence/postgres/PostgresClientFactory

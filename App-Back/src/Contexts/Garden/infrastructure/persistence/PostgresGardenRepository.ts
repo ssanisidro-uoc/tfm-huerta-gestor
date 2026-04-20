@@ -89,7 +89,7 @@ export class PostgresGardenRepository extends PostgresRepository implements Gard
     const query: string = `
       UPDATE gardens SET
         name = $2,
-        surface_m3 = $3,
+        surface_m2 = $3,
         climate_zone = $4,
         is_active = $5,
         updated_at = $6
