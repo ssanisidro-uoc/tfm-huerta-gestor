@@ -15,13 +15,23 @@ services:
     class: ../../../controllers/user/UpdateProfileController
     arguments: ['@Backend.Shared.domain.CommandBus']
 
+  Backend.User.controllers.GetUserPreferencesController:
+    class: ../../../controllers/user/GetUserPreferencesController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.User.controllers.UpdateUserPreferencesController:
+    class: ../../../controllers/user/UpdateUserPreferencesController
+    arguments:
+      ['@Backend.Shared.domain.CommandBus', '@Backend.Shared.domain.QueryBus']
+
   Backend.Auth.controllers.RegisterController:
     class: ../../../controllers/auth/RegisterController
     arguments:
       [
         '@Backend.Shared.domain.CommandBus',
         '@Backend.Shared.PasswordHasher',
-        '@Backend.Shared.JwtHandler'
+        '@Backend.Shared.JwtHandler',
+        '@Backend.User.domain.UserRepository'
       ]
 
   Backend.Auth.controllers.MeController:

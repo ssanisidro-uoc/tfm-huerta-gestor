@@ -6,5 +6,7 @@ export interface PlantingRepository {
   search_by_garden(garden_id: string): Promise<Planting[]>;
   search_by_plot(plot_id: string): Promise<Planting[]>;
   search_active_by_garden(garden_id: string): Promise<Planting[]>;
+  search_active_by_plot(plot_id: string): Promise<Planting[]>;
   search_archived_by_garden(garden_id: string): Promise<Planting[]>;
+  findRecentByPlot(plotId: string, limit: number): Promise<any[]>;
 }

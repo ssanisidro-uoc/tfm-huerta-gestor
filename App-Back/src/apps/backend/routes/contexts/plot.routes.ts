@@ -6,6 +6,8 @@ import { FindPlotsController } from '../../controllers/plot/FindPlotsController'
 import { FindPlotByIdController } from '../../controllers/plot/FindPlotByIdController';
 import { UpdatePlotController } from '../../controllers/plot/UpdatePlotController';
 import { DeletePlotController } from '../../controllers/plot/DeletePlotController';
+import { GetRotationCheckController } from '../../controllers/plot/GetRotationCheckController';
+import { GetCompanionSuggestionsController } from '../../controllers/plot/GetCompanionSuggestionsController';
 
 export async function register_plot_routes(router: Router): Promise<void> {
   const createPlotController = await container.get('Backend.Plot.controllers.CreatePlotController') as CreatePlotController;
@@ -13,10 +15,15 @@ export async function register_plot_routes(router: Router): Promise<void> {
   const findPlotByIdController = await container.get('Backend.Plot.controllers.FindPlotByIdController') as FindPlotByIdController;
   const updatePlotController = await container.get('Backend.Plot.controllers.UpdatePlotController') as UpdatePlotController;
   const deletePlotController = await container.get('Backend.Plot.controllers.DeletePlotController') as DeletePlotController;
+  const rotationCheckController = await container.get('Backend.Plot.controllers.GetRotationCheckController') as GetRotationCheckController;
+  const companionSuggestionsController = await container.get('Backend.Plot.controllers.GetCompanionSuggestionsController') as GetCompanionSuggestionsController;
 
   router.post('/api/gardens/:gardenId/plots', require_auth, (req, res, next) => createPlotController.run(req, res, next));
   router.get('/api/gardens/:gardenId/plots', require_auth, (req, res, next) => findPlotsController.run(req, res, next));
   router.get('/api/plots/:id', require_auth, (req, res, next) => findPlotByIdController.run(req, res, next));
   router.put('/api/plots/:id', require_auth, (req, res, next) => updatePlotController.run(req, res, next));
   router.delete('/api/plots/:id', require_auth, (req, res, next) => deletePlotController.run(req, res, next));
+
+  router.get('/api/plots/:id/rotation/check', require_auth, (req, res, next) => rotationCheckController.run(req, res, next));
+  router.get('/api/plots/:id/companion-suggestions', require_auth, (req, res, next) => companionSuggestionsController.run(req, res, next));
 };

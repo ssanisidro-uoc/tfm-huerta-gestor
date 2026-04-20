@@ -1,0 +1,4 @@
+services:
+  Backend.Rotation.controllers.GetPlotRotationHistoryController:
+    class: ../../../controllers/rotation/GetPlotRotationHistoryController
+    arguments: ['@Backend.Shared.PostgresConnection']

@@ -1,0 +1,28 @@
+services:
+  Backend.Weather.controllers.GetWeatherForecastController:
+    class: ../../../controllers/weather/GetWeatherForecastController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Weather.controllers.GetGardenWeatherController:
+    class: ../../../controllers/weather/GetGardenWeatherController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Weather.controllers.GetWeatherLocationsController:
+    class: ../../../controllers/weather/GetWeatherLocationsController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Weather.controllers.SyncWeatherController:
+    class: ../../../controllers/weather/SyncWeatherController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Weather.controllers.WeatherObservationsController:
+    class: ../../../controllers/weather/WeatherObservationsController
+    arguments: ['@Backend.Shared.domain.QueryBus', '@Backend.Shared.domain.CommandBus']
+
+  Backend.Weather.controllers.WeatherAlertsController:
+    class: ../../../controllers/weather/WeatherAlertsController
+    arguments: ['@Backend.Shared.domain.QueryBus', '@Backend.Shared.domain.CommandBus']
+
+  Backend.Weather.controllers.GetWeatherRecommendationsController:
+    class: ../../../controllers/weather/GetWeatherRecommendationsController
+    arguments: ['@Backend.Shared.domain.QueryBus', '@Backend.Weather.WeatherService']

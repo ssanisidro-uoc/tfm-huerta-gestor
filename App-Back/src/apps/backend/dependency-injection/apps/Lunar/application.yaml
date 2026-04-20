@@ -1,0 +1,12 @@
+services:
+  Backend.Lunar.controllers.GetTodayLunarController:
+    class: ../../../controllers/lunar/GetTodayLunarController
+    arguments: ['@Backend.Lunar.LunarService']
+
+  Backend.Lunar.controllers.GetLunarRecommendationsController:
+    class: ../../../controllers/lunar/GetLunarRecommendationsController
+    arguments: ['@Backend.Lunar.LunarService']
+
+  Backend.Lunar.controllers.LunarTaskRecommendationController:
+    class: ../../../controllers/lunar/LunarTaskRecommendationController
+    arguments: ['@Backend.Lunar.LunarTaskRecommendationService']

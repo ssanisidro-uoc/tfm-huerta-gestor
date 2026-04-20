@@ -26,3 +26,7 @@ services:
   Backend.Planting.controllers.FindPlantingsByPlotController:
     class: ../../../controllers/planting/FindPlantingsByPlotController
     arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Planting.controllers.PlantingAssociationsController:
+    class: ../../../controllers/planting/PlantingAssociationsController
+    arguments: ['@Backend.Planting.application.PlantingAssociationsService']

@@ -34,3 +34,11 @@ services:
   Backend.Garden.controllers.ListSharedGardensController:
     class: ../../../controllers/garden/ListSharedGardensController
     arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Garden.controllers.FindGardenCollaboratorsController:
+    class: ../../../controllers/garden/FindGardenCollaboratorsController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Garden.controllers.ValidateLocationController:
+    class: ../../../controllers/garden/ValidateLocationController
+    arguments: ['@Backend.Shared.NominatimClient']

@@ -59,3 +59,50 @@ services:
     arguments: ['@Backend.Dashboard.application.DashboardRecentActivityFinder']
     tags:
       - { name: 'queryHandler' }
+
+  Backend.Dashboard.application.DashboardTodayTasksFinder:
+    class: ../../../../Contexts/Dashboard/application/TodayTasks/DashboardTodayTasksFinder
+    arguments:
+      [
+        '@Backend.Garden.domain.UserGardenRepository',
+        '@Backend.Task.domain.TaskRepository',
+        '@Backend.Garden.domain.GardenRepository',
+        '@Backend.Plot.domain.PlotRepository'
+      ]
+
+  Backend.Dashboard.application.GetDashboardTodayTasksQueryHandler:
+    class: ../../../../Contexts/Dashboard/application/TodayTasks/GetDashboardTodayTasksQueryHandler
+    arguments: ['@Backend.Dashboard.application.DashboardTodayTasksFinder']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Dashboard.application.TaskStatsFinder:
+    class: ../../../../Contexts/Dashboard/application/TaskStats/TaskStatsFinder
+    arguments:
+      [
+        '@Backend.Garden.domain.UserGardenRepository',
+        '@Backend.Task.domain.TaskRepository'
+      ]
+
+  Backend.Dashboard.application.GetTaskStatsQueryHandler:
+    class: ../../../../Contexts/Dashboard/application/TaskStats/GetTaskStatsQueryHandler
+    arguments: ['@Backend.Dashboard.application.TaskStatsFinder']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Dashboard.application.DashboardAlertsFinder:
+    class: ../../../../Contexts/Dashboard/application/Alerts/DashboardAlertsFinder
+    arguments:
+      [
+        '@Backend.Garden.domain.UserGardenRepository',
+        '@Backend.Task.domain.TaskRepository',
+        '@Backend.Planting.domain.PlantingRepository',
+        '@Backend.Garden.domain.GardenRepository',
+        '@Backend.Plot.domain.PlotRepository'
+      ]
+
+  Backend.Dashboard.application.GetDashboardAlertsQueryHandler:
+    class: ../../../../Contexts/Dashboard/application/Alerts/GetDashboardAlertsQueryHandler
+    arguments: ['@Backend.Dashboard.application.DashboardAlertsFinder']
+    tags:
+      - { name: 'queryHandler' }

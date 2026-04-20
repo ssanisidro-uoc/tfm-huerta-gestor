@@ -18,3 +18,11 @@ services:
   Backend.Plot.controllers.DeletePlotController:
     class: ../../../controllers/plot/DeletePlotController
     arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Plot.controllers.GetRotationCheckController:
+    class: ../../../controllers/plot/GetRotationCheckController
+    arguments: []
+
+  Backend.Plot.controllers.GetCompanionSuggestionsController:
+    class: ../../../controllers/plot/GetCompanionSuggestionsController
+    arguments: []

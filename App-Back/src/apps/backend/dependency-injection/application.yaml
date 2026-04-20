@@ -5,6 +5,8 @@ imports:
   - { resource: ./Garden/application.yaml }
   - { resource: ./Plot/application.yaml }
   - { resource: ./Crop/application.yaml }
+  - { resource: ./Lunar/application.yaml }
+  - { resource: ./Weather/application.yaml }
   - { resource: ./Planting/application.yaml }
   - { resource: ./Task/application.yaml }
   - { resource: ./Dashboard/application.yaml }

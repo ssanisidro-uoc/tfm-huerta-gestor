@@ -14,3 +14,15 @@ services:
   Backend.Dashboard.controllers.GetDashboardRecentActivityController:
     class: ../../../controllers/dashboard/GetDashboardRecentActivityController
     arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Dashboard.controllers.GetDashboardTodayTasksController:
+    class: ../../../controllers/dashboard/GetDashboardTodayTasksController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Dashboard.controllers.GetDashboardTaskStatsController:
+    class: ../../../controllers/dashboard/GetDashboardTaskStatsController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Dashboard.controllers.GetDashboardAlertsController:
+    class: ../../../controllers/dashboard/GetDashboardAlertsController
+    arguments: ['@Backend.Shared.domain.QueryBus']

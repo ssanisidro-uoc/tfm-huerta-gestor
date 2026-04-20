@@ -3,6 +3,10 @@ services:
     class: ../../../../Contexts/User/infrastructure/persistence/PostgresUserRepository
     arguments: ['@Backend.Shared.PostgresConnection', '@Backend.Shared.PostgresGarderingConfig']
 
+  Backend.User.domain.UserPreferencesRepository:
+    class: ../../../../Contexts/User/infrastructure/persistence/PostgresUserPreferencesRepository
+    arguments: ['@Backend.Shared.PostgresConnection', '@Backend.Shared.PostgresGarderingConfig']
+
   Backend.User.application.UserCreator:
     class: ../../../../Contexts/User/application/Create/UserCreator
     arguments: ['@Backend.User.domain.UserRepository']
@@ -51,5 +55,17 @@ services:
   Backend.User.application.LogoutCommandHandler:
     class: ../../../../Contexts/User/application/Logout/LogoutCommandHandler
     arguments: ['@Backend.Shared.JwtHandler']
+    tags:
+      - { name: 'commandHandler' }
+
+  Backend.User.application.FindUserPreferencesQueryHandler:
+    class: ../../../../Contexts/User/application/FindUserPreferences/FindUserPreferencesQueryHandler
+    arguments: ['@Backend.User.domain.UserPreferencesRepository']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.User.application.UpdatePreferencesCommandHandler:
+    class: ../../../../Contexts/User/application/UpdatePreferences/UpdatePreferencesCommandHandler
+    arguments: ['@Backend.User.domain.UserPreferencesRepository']
     tags:
       - { name: 'commandHandler' }

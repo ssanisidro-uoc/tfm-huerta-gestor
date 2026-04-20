@@ -1,0 +1,36 @@
+services:
+  Backend.Lunar.domain.LunarCalendarRepository:
+    class: ../../../../Contexts/Lunar/infrastructure/persistence/PostgresLunarCalendarRepository
+    arguments: ['@Backend.Shared.PostgresConnection']
+
+  Backend.Lunar.domain.LunarAgriculturalRuleRepository:
+    class: ../../../../Contexts/Lunar/infrastructure/persistence/PostgresLunarAgriculturalRuleRepository
+    arguments: ['@Backend.Shared.PostgresConnection']
+
+  Backend.Lunar.LunarService:
+    class: ../../../../Contexts/Lunar/application/LunarService
+    arguments: ['@Backend.Shared.PostgresConnection']
+
+  Backend.Lunar.LunarTaskRecommendationService:
+    class: ../../../../Contexts/Lunar/application/LunarTaskRecommendationService
+    arguments: ['@Backend.Shared.PostgresConnection']
+
+  Backend.Lunar.controllers.GetTodayLunarController:
+    class: ../../controllers/lunar/GetTodayLunarController
+    arguments: ['@Backend.Lunar.LunarService']
+
+  Backend.Lunar.controllers.GetLunarRecommendationsController:
+    class: ../../controllers/lunar/GetLunarRecommendationsController
+    arguments: ['@Backend.Lunar.LunarService']
+
+  Backend.Lunar.controllers.LunarTaskRecommendationController:
+    class: ../../controllers/lunar/LunarTaskRecommendationController
+    arguments: ['@Backend.Lunar.LunarTaskRecommendationService']
+
+  Backend.Lunar.LunarMonthlyCalendarService:
+    class: ../../../../Contexts/Lunar/application/LunarMonthlyCalendarService
+    arguments: ['@Backend.Shared.PostgresConnection']
+
+  Backend.Lunar.controllers.LunarCalendarController:
+    class: ../../controllers/lunar/LunarCalendarController
+    arguments: ['@Backend.Lunar.LunarMonthlyCalendarService']

@@ -34,9 +34,21 @@ export class GetPlantingStatusFinder {
 
     const daysToMaturity = crop.days_to_harvest_max;
     const now = new Date();
-    const daysElapsed = Math.floor((now.getTime() - new Date(planting.planted_at).getTime()) / (1000 * 60 * 60 * 24));
-    const daysToHarvest = Math.max(0, daysToMaturity - daysElapsed);
-    const progress = Math.min(100, Math.round((daysElapsed / daysToMaturity) * 100));
+    const plantedAt = new Date(planting.planted_at);
+    const expectedHarvestAt = planting.expected_harvest_at ? new Date(planting.expected_harvest_at) : null;
+    
+    const daysElapsed = Math.floor((now.getTime() - plantedAt.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Calculate using expected_harvest_at if available, otherwise use crop days_to_harvest_max
+    const totalDays = expectedHarvestAt 
+      ? Math.floor((expectedHarvestAt.getTime() - plantedAt.getTime()) / (1000 * 60 * 60 * 24))
+      : daysToMaturity;
+    
+    const daysToHarvest = expectedHarvestAt
+      ? Math.max(0, Math.floor((expectedHarvestAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+      : Math.max(0, daysToMaturity - daysElapsed);
+    
+    const progress = Math.min(100, Math.round((daysElapsed / totalDays) * 100));
 
     let phase: string;
     let description: string;

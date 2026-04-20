@@ -3,6 +3,8 @@ import { CreateUserController } from '../../controllers/user/CreateUserControlle
 import { FindUserByIdController } from '../../controllers/user/FindUserByIdController';
 import { LoginController } from '../../controllers/user/LoginController';
 import { UpdateProfileController } from '../../controllers/user/UpdateProfileController';
+import { GetUserPreferencesController } from '../../controllers/user/GetUserPreferencesController';
+import { UpdateUserPreferencesController } from '../../controllers/user/UpdateUserPreferencesController';
 import container from '../../dependency-injection';
 import { async_handler, handle_validation_errors, require_auth } from '../../middleware';
 import { validate_login } from '../../validators/login.validator';
@@ -13,6 +15,8 @@ export async function register_user_routes(router: Router): Promise<void> {
   const find_user_controller: FindUserByIdController = await container.get('Backend.User.controllers.FindUserByIdController');
   const login_controller: LoginController = await container.get('Backend.User.controllers.LoginController');
   const update_profile_controller: UpdateProfileController = await container.get('Backend.User.controllers.UpdateProfileController');
+  const get_preferences_controller: GetUserPreferencesController = await container.get('Backend.User.controllers.GetUserPreferencesController');
+  const update_preferences_controller: UpdateUserPreferencesController = await container.get('Backend.User.controllers.UpdateUserPreferencesController');
 
   router.post(
     '/api/users',
@@ -49,6 +53,22 @@ export async function register_user_routes(router: Router): Promise<void> {
     handle_validation_errors,
     async_handler((req: Request, res: Response, next: NextFunction) =>
       update_profile_controller.run(req, res, next)
+    )
+  );
+
+  router.get(
+    '/api/users/preferences',
+    require_auth,
+    async_handler((req: Request, res: Response, next: NextFunction) =>
+      get_preferences_controller.run(req, res, next)
+    )
+  );
+
+  router.put(
+    '/api/users/preferences',
+    require_auth,
+    async_handler((req: Request, res: Response, next: NextFunction) =>
+      update_preferences_controller.run(req, res, next)
     )
   );
 }

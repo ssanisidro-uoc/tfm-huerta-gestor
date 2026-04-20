@@ -8,6 +8,8 @@ export class CreatePlantingCommand implements Command {
     readonly plot_id: string,
     readonly planted_at: Date,
     readonly expected_harvest_at: Date,
-    readonly quantity: number
+    readonly quantity: number,
+    readonly crop_name?: string,
+    readonly days_to_maturity?: number
   ) {}
 }

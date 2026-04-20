@@ -89,4 +89,27 @@ export class PostgresPlantingRepository extends PostgresRepository implements Pl
     const result = await this.query<any>(query, [plot_id]);
     return result.rows.map(row => Planting.from_persistence(row));
   }
+
+  async search_active_by_plot(plot_id: string): Promise<Planting[]> {
+    const query: string = 'SELECT * FROM plantings WHERE plot_id = $1 AND is_active = true ORDER BY actual_planting_date DESC';
+
+    const result = await this.query<any>(query, [plot_id]);
+    return result.rows.map(row => Planting.from_persistence(row));
+  }
+
+  async findRecentByPlot(plotId: string, limit: number): Promise<any[]> {
+    const query = `
+      SELECT p.id, p.crop_catalog_id, p.plot_id, p.actual_planting_date, p.first_harvest_date, p.status, cc.common_name as crop_name
+      FROM plantings p
+      LEFT JOIN crop_catalog cc ON p.crop_catalog_id = cc.id
+      WHERE p.plot_id = $1
+        AND p.is_active = true
+        AND p.actual_planting_date IS NOT NULL
+      ORDER BY p.actual_planting_date DESC
+      LIMIT $2
+    `;
+
+    const result = await this.query<any>(query, [plotId, limit]);
+    return result.rows;
+  }
 }

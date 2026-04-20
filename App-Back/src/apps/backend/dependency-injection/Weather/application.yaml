@@ -1,0 +1,32 @@
+services:
+  Backend.Weather.OpenMeteoClient:
+    class: ../../../../Contexts/Shared/infrastructure/OpenMeteoClient
+
+  Backend.Weather.WeatherService:
+    class: ../../../../Contexts/Weather/application/WeatherService
+    arguments: ['@Backend.Shared.PostgresConnection', '@Backend.Weather.OpenMeteoClient']
+
+  Backend.Weather.WeatherAgriculturalRulesRepository:
+    class: ../../../../Contexts/Weather/infrastructure/persistence/PostgresWeatherAgriculturalRulesRepository
+    arguments: ['@Backend.Shared.PostgresConnection', '@Backend.Shared.PostgresGarderingConfig']
+
+  Backend.Weather.WeatherIntelligenceService:
+    class: ../../../../Contexts/Weather/application/WeatherIntelligenceService
+    arguments:
+      ['@Backend.Shared.PostgresConnection', '@Backend.Weather.WeatherAgriculturalRulesRepository']
+
+  Backend.Weather.WeatherAlertsRepository:
+    class: ../../../../Contexts/Weather/application/WeatherAlertsService
+    arguments: ['@Backend.Shared.PostgresConnection']
+
+  Backend.Weather.WeatherAlertCreator:
+    class: ../../../../Contexts/Weather/application/WeatherAlertsService
+    arguments: ['@Backend.Shared.PostgresConnection']
+
+  Backend.Weather.WeatherObservationsRepository:
+    class: ../../../../Contexts/Weather/application/WeatherObservationsService
+    arguments: ['@Backend.Shared.PostgresConnection']
+
+  Backend.Weather.WeatherApiRequestsRepository:
+    class: ../../../../Contexts/Weather/application/WeatherObservationsService
+    arguments: ['@Backend.Shared.PostgresConnection']

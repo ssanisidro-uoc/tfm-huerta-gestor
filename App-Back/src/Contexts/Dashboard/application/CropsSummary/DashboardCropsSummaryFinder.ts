@@ -1,6 +1,6 @@
-import { PlantingRepository } from '../../../Planting/domain/PlantingRepository';
-import { UserGardenRepository } from '../../../Garden/infrastructure/persistence/UserGardenRepository';
 import { CropRepository } from '../../../Crop/domain/CropRepository';
+import { UserGardenRepository } from '../../../Garden/infrastructure/persistence/UserGardenRepository';
+import { PlantingRepository } from '../../../Planting/domain/PlantingRepository';
 import { PlotRepository } from '../../../Plot/domain/PlotRepository';
 
 export interface CropSummary {
@@ -12,6 +12,7 @@ export interface CropSummary {
   expected_harvest: Date;
   days_to_harvest: number;
   status: string;
+  growth_percentage: number;
 }
 
 export interface DashboardCropsSummaryResponse {
@@ -28,7 +29,7 @@ export class DashboardCropsSummaryFinder {
 
   async run(userId: string): Promise<DashboardCropsSummaryResponse> {
     const userGardens = await this.userGardenRepository.find_by_user(userId);
-    const gardenIds = userGardens.map(ug => ug.garden_id);
+    const gardenIds = userGardens.map((ug) => ug.garden_id);
 
     if (gardenIds.length === 0) {
       return { crops: [] };
@@ -43,9 +44,21 @@ export class DashboardCropsSummaryFinder {
       for (const planting of plantings) {
         const crop = await this.cropRepository.search_by_id(planting.crop_id.get_value());
         const plot = await this.plotRepository.search_by_id(planting.plot_id);
-        
+
         const harvestDate = new Date(planting.expected_harvest_at);
-        const daysToHarvest = Math.max(0, Math.ceil((harvestDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+        const plantedAt = new Date(planting.planted_at);
+        const daysToHarvest = Math.max(
+          0,
+          Math.ceil((harvestDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+        );
+        const totalDays = Math.ceil(
+          (harvestDate.getTime() - plantedAt.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        const daysElapsed = Math.ceil(
+          (today.getTime() - plantedAt.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        const growthPercentage =
+          totalDays > 0 ? Math.min(100, Math.round((daysElapsed / totalDays) * 100)) : 0;
 
         let status = 'active';
         if (harvestDate < today) {
@@ -60,7 +73,8 @@ export class DashboardCropsSummaryFinder {
           planted_at: planting.planted_at,
           expected_harvest: planting.expected_harvest_at,
           days_to_harvest: daysToHarvest,
-          status
+          status,
+          growth_percentage: growthPercentage
         });
       }
     }

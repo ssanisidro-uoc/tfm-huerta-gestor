@@ -65,3 +65,13 @@ services:
   Backend.Task.application.CalendarTasksFinder:
     class: ../../../../Contexts/Task/application/GetCalendarTasks/CalendarTasksFinder
     arguments: ['@Backend.Task.domain.TaskRepository']
+
+  Backend.Task.application.AllTasksFinder:
+    class: ../../../../Contexts/Task/application/FindAllTasks/AllTasksFinder
+    arguments: ['@Backend.Task.domain.TaskRepository']
+
+  Backend.Task.application.FindAllTasksQueryHandler:
+    class: ../../../../Contexts/Task/application/FindAllTasks/FindAllTasksQueryHandler
+    arguments: ['@Backend.Task.application.AllTasksFinder']
+    tags:
+      - { name: 'queryHandler' }

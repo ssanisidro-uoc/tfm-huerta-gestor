@@ -23,7 +23,8 @@ services:
 
   Backend.Plot.application.FindAllPlotsQueryHandler:
     class: ../../../../Contexts/Plot/application/FindAllPlots/FindAllPlotsQueryHandler
-    arguments: ['@Backend.Plot.application.AllPlotsFinder']
+    arguments: 
+      ['@Backend.Plot.application.AllPlotsFinder', '@Backend.Planting.domain.PlantingRepository', '@Backend.Crop.domain.CropRepository']
     tags:
       - { name: 'queryHandler' }
 

@@ -5,7 +5,8 @@ services:
 
   Backend.Planting.application.PlantingCreator:
     class: ../../../../Contexts/Planting/application/Create/PlantingCreator
-    arguments: ['@Backend.Planting.domain.PlantingRepository']
+    arguments: 
+      ['@Backend.Planting.domain.PlantingRepository', '@Backend.Task.domain.TaskRepository', '@Backend.Task.application.TaskGenerator']
 
   Backend.Planting.application.CreatePlantingCommandHandler:
     class: ../../../../Contexts/Planting/application/Create/CreatePlantingCommandHandler
@@ -80,3 +81,12 @@ services:
     arguments: ['@Backend.Planting.application.PlantingsByPlotFinder']
     tags:
       - { name: 'queryHandler' }
+
+  Backend.Planting.application.PlantingAssociationsService:
+    class: ../../../../Contexts/Planting/application/PlantingAssociationsService
+    arguments:
+      ['@Backend.Planting.domain.PlantingRepository', '@Backend.Planting.infrastructure.persistence.PostgresPlantingAssociationsRepository']
+
+  Backend.Planting.infrastructure.persistence.PostgresPlantingAssociationsRepository:
+    class: ../../../../Contexts/Planting/infrastructure/persistence/PostgresPlantingAssociationsRepository
+    arguments: ['@Backend.Shared.PostgresConnection', '@Backend.Shared.PostgresGarderingConfig']
