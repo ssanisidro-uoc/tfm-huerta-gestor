@@ -33,6 +33,8 @@ export const validate_find_user_by_email = [
   param('email').isEmail().withMessage('Email must be valid').normalizeEmail()
 ];
 
+export const validate_user_preferences = [];
+
 export const validate_login_user = [
   body('email').isEmail().withMessage('Email must be valid').normalizeEmail(),
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
