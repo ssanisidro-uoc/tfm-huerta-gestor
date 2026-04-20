@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PlotService, CreatePlotRequest } from '../../services/plot.service';
+import { TranslatePipe } from '../../../../core/services/i18n/translate.pipe';
 
 const SOIL_TYPES = [
   { value: 'clay', label: 'Arcilloso' },
@@ -29,7 +30,7 @@ const IRRIGATION_TYPES = [
 @Component({
   selector: 'app-plot-create',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './plot-create.component.html',
   styleUrl: './plot-create.component.scss'

@@ -1,6 +1,6 @@
 <div class="plot-create">
   <div class="form-container">
-    <h1 id="title">Crear Nueva Parcela</h1>
+    <h1 id="title">{{ 'plots.create' | t }}</h1>
     
     @if (plotService.error()) {
       <div class="error-message" role="alert">{{ plotService.error() }}</div>
@@ -8,45 +8,45 @@
 
     <form (ngSubmit)="onSubmit()" aria-labelledby="title">
       <div class="form-group">
-        <label for="name">Nombre *</label>
+        <label for="name">{{ 'plots.name' | t }} *</label>
         <input type="text" id="name" [(ngModel)]="name" name="name" required aria-required="true" [disabled]="plotService.loading()" />
       </div>
 
       <div class="form-group">
-        <label for="code">Código</label>
+        <label for="code">{{ 'plots.code' | t }}</label>
         <input type="text" id="code" [(ngModel)]="code" name="code" placeholder="ej: P1, A-01" [disabled]="plotService.loading()" />
       </div>
 
       <div class="form-group">
-        <label for="surface_m2">Superficie (m²) *</label>
+        <label for="surface_m2">{{ 'plots.surface' | t }} (m²) *</label>
         <input type="number" id="surface_m2" [(ngModel)]="surface_m2" name="surface_m2" required min="1" aria-required="true" [disabled]="plotService.loading()" />
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="length_m">Largo (m)</label>
+          <label for="length_m">{{ 'plots.length' | t }} (m)</label>
           <input type="number" id="length_m" [(ngModel)]="length_m" name="length_m" min="0.1" step="0.1" [disabled]="plotService.loading()" />
         </div>
 
         <div class="form-group">
-          <label for="width_m">Ancho (m)</label>
+          <label for="width_m">{{ 'plots.width' | t }} (m)</label>
           <input type="number" id="width_m" [(ngModel)]="width_m" name="width_m" min="0.1" step="0.1" [disabled]="plotService.loading()" />
         </div>
       </div>
 
       <div class="form-group">
-        <label for="description">Descripción</label>
+        <label for="description">{{ 'plots.description' | t }}</label>
         <textarea id="description" [(ngModel)]="description" name="description" rows="2" [disabled]="plotService.loading()"></textarea>
       </div>
 
       <fieldset class="soil-fieldset">
-        <legend>Suelo</legend>
+        <legend>{{ 'plots.soil' | t }}</legend>
         
         <div class="form-row">
           <div class="form-group">
-            <label for="soil_type">Tipo de Suelo</label>
+            <label for="soil_type">{{ 'plots.soilType' | t }}</label>
             <select id="soil_type" [(ngModel)]="soil_type" name="soil_type" [disabled]="plotService.loading()">
-              <option value="">Selecciona tipo</option>
+              <option value="">{{ 'plots.selectType' | t }}</option>
               @for (type of soilTypes; track type.value) {
                 <option [value]="type.value">{{ type.label }}</option>
               }
@@ -54,17 +54,17 @@
           </div>
 
           <div class="form-group">
-            <label for="soil_ph">pH del Suelo</label>
+            <label for="soil_ph">{{ 'plots.soilPh' | t }}</label>
             <input type="number" id="soil_ph" [(ngModel)]="soil_ph" name="soil_ph" min="0" max="14" step="0.1" [disabled]="plotService.loading()" />
           </div>
         </div>
       </fieldset>
 
       <fieldset class="irrigation-fieldset">
-        <legend>Riego</legend>
+        <legend>{{ 'plots.irrigation' | t }}</legend>
         
         <div class="form-group">
-          <label for="irrigation_type">Tipo de Riego</label>
+          <label for="irrigation_type">{{ 'plots.irrigationType' | t }}</label>
           <select id="irrigation_type" [(ngModel)]="irrigation_type" name="irrigation_type" [disabled]="plotService.loading()">
             @for (type of irrigationTypes; track type.value) {
               <option [value]="type.value">{{ type.label }}</option>
@@ -75,26 +75,26 @@
         <div class="form-group checkbox-group">
           <label>
             <input type="checkbox" [(ngModel)]="has_water_access" name="has_water_access" [disabled]="plotService.loading()" />
-            Acceso a agua
+            {{ 'plots.waterAccess' | t }}
           </label>
         </div>
       </fieldset>
 
       <fieldset class="features-fieldset">
-        <legend>Características</legend>
+        <legend>{{ 'plots.features' | t }}</legend>
         
         <div class="checkbox-group">
           <label>
             <input type="checkbox" [(ngModel)]="has_greenhouse" name="has_greenhouse" [disabled]="plotService.loading()" />
-            Invernadero
+            {{ 'plots.greenhouse' | t }}
           </label>
           <label>
             <input type="checkbox" [(ngModel)]="has_raised_bed" name="has_raised_bed" [disabled]="plotService.loading()" />
-            Bancal Elevado
+            {{ 'plots.raisedBed' | t }}
           </label>
           <label>
             <input type="checkbox" [(ngModel)]="has_mulch" name="has_mulch" [disabled]="plotService.loading()" />
-            Acolchado
+            {{ 'plots.mulch' | t }}
           </label>
         </div>
       </fieldset>
@@ -103,12 +103,12 @@
         <button type="submit" class="btn-primary" [disabled]="plotService.loading()" [attr.aria-busy]="plotService.loading()">
           @if (plotService.loading()) {
             <span class="spinner" aria-hidden="true"></span>
-            <span>Creando...</span>
+            <span>{{ 'plots.creating' | t }}</span>
           } @else {
-            Crear Parcela
+            {{ 'plots.create' | t }}
           }
         </button>
-        <a [routerLink]="['/gardens', gardenId]" class="btn-secondary">Cancelar</a>
+        <a [routerLink]="['/gardens', gardenId]" class="btn-secondary">{{ 'app.cancel' | t }}</a>
       </div>
     </form>
   </div>

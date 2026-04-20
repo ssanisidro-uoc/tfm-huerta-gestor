@@ -168,4 +168,13 @@ export class PlotService {
       })
     );
   }
+
+  getRotationHistory(plotId: string): Observable<any | null> {
+    return this.http.get<any>(`${this.API_URL}/api/plots/${plotId}/rotations`).pipe(
+      catchError((err: HttpErrorResponse) => {
+        this.errorSignal.set(err.error?.message || 'Error loading rotation history');
+        return of(null);
+      })
+    );
+  }
 }

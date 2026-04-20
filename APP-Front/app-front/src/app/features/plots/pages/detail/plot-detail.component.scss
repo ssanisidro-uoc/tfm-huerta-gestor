@@ -1,22 +1,22 @@
 .plot-detail {
-  padding: 1.5rem;
-  max-width: 800px;
-  margin: 0 auto;
+  padding: var(--spacing-6);
+  min-height: 100vh;
+  background: var(--bg-primary);
 }
 
 .loading {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 2rem;
-  color: #666;
+  gap: var(--spacing-3);
+  padding: var(--spacing-8);
+  color: var(--text-secondary);
 }
 
 .spinner {
   width: 24px;
   height: 24px;
-  border: 3px solid #ddd;
-  border-top-color: #007bff;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -26,268 +26,534 @@
 }
 
 .error-message {
-  background: #fee;
-  color: #c00;
-  padding: 1rem;
-  border-radius: 6px;
+  background: rgba(198, 40, 40, 0.1);
+  color: var(--color-error);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-error-light);
 }
 
-.plot-header {
-  margin-bottom: 2rem;
-}
+/* Layout */
+.plot-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--spacing-6);
+  max-width: 1400px;
+  margin: 0 auto;
 
-.back-link {
-  color: #007bff;
-  text-decoration: none;
-  font-size: 0.9rem;
-  
-  &:hover {
-    text-decoration: underline;
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
   }
 }
 
-h1 {
-  margin: 0.5rem 0;
-  color: #333;
-}
+/* Sidebar */
+.plot-sidebar {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-5);
+  height: fit-content;
+  position: sticky;
+  top: var(--spacing-6);
 
-.plot-code {
-  display: inline-block;
-  background: #e9ecef;
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  color: #666;
-}
+  .back-link {
+    display: inline-block;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-4);
+    transition: color var(--transition-base);
+    
+    &:hover {
+      color: var(--color-primary-hover);
+      text-decoration: underline;
+    }
+  }
 
-.plot-info, .plot-features, .plot-description, .plot-plantings {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  .sidebar-header {
+    margin-bottom: var(--spacing-5);
+    padding-bottom: var(--spacing-4);
+    border-bottom: 1px solid var(--border-color);
 
-  h2 {
-    margin: 0 0 1rem;
-    font-size: 1.1rem;
-    color: #333;
+    h1 {
+      margin: 0 0 var(--spacing-2);
+      color: var(--text-primary);
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+    }
+
+    .plot-code {
+      display: inline-block;
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      padding: var(--spacing-1) var(--spacing-2);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-xs);
+      font-family: monospace;
+    }
   }
 }
 
-.plot-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.btn-add-planting {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 0.6rem 1rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-
-  &:hover {
-    background: #059669;
-  }
-}
-
-.loading-plantings {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  color: #666;
-}
-
-.spinner-small {
-  width: 16px;
-  height: 16px;
-  border: 2px solid #ddd;
-  border-top-color: #007bff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-.empty-plantings {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-
-  p {
-    margin: 0 0 1rem;
-  }
-}
-
-.btn-add-first {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 0.6rem 1rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  cursor: pointer;
-
-  &:hover {
-    background: #059669;
-  }
-}
-
-.plantings-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.planting-card {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    border-color: #10b981;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
-  }
-}
-
-.planting-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+.sidebar-section {
+  margin-bottom: var(--spacing-5);
 
   h3 {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 var(--spacing-3);
+  }
+
+  .description {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    line-height: 1.6;
     margin: 0;
-    font-size: 1rem;
-    color: #333;
   }
 }
 
-.planting-status {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-weight: 500;
-
-  &.planted {
-    background: #dcfce7;
-    color: #166534;
-  }
-
-  &.harvested {
-    background: #dbeafe;
-    color: #1e40af;
-  }
-
-  &.archived {
-    background: #f3f4f6;
-    color: #6b7280;
-  }
-}
-
-.planting-dates {
-  display: flex;
-  gap: 1.5rem;
-  font-size: 0.85rem;
-  color: #666;
-  margin-bottom: 0.5rem;
-
-  .label {
-    font-weight: 500;
-  }
-}
-
-.planting-progress {
-  margin: 0.75rem 0;
-
-  .progress-bar {
-    height: 8px;
-    background: #e5e7eb;
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 0.25rem;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #10b981, #34d399);
-    border-radius: 4px;
-    transition: width 0.3s ease;
-  }
-
-  .progress-text {
-    font-size: 0.8rem;
-    color: #666;
-  }
-}
-
-.planting-quantity {
-  font-size: 0.85rem;
-  color: #666;
-
-  .label {
-    font-weight: 500;
-  }
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
+.info-list {
   margin: 0;
-}
+  padding: 0;
+  list-style: none;
 
-.info-item {
-  dt {
-    color: #888;
-    font-size: 0.85rem;
-    margin-bottom: 0.25rem;
-  }
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--border-color);
 
-  dd {
-    margin: 0;
-    color: #333;
-    font-weight: 500;
+    &:last-child {
+      border-bottom: none;
+    }
+
+    dt {
+      font-size: var(--font-size-sm);
+      color: var(--text-muted);
+    }
+
+    dd {
+      font-size: var(--font-size-sm);
+      color: var(--text-primary);
+      font-weight: var(--font-weight-medium);
+      margin: 0;
+    }
   }
 }
 
 .features-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  list-style: none;
-  padding: 0;
+  gap: var(--spacing-2);
   margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .feature-badge {
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+
+  &.greenhouse {
+    background: rgba(156, 39, 176, 0.15);
+    color: #9c27b0;
+  }
+
+  &.raised-bed {
+    background: rgba(33, 150, 243, 0.15);
+    color: #2196f3;
+  }
+
+  &.mulch {
+    background: rgba(139, 195, 74, 0.15);
+    color: #8bc34a;
+  }
+
+  &.none {
+    background: var(--bg-surface);
+    color: var(--text-muted);
+  }
 }
 
-.greenhouse, .raised-bed, .mulch {
-  background: #e3f2fd;
-  color: #1565c0;
+/* Main Content */
+.plot-main {
+  .main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-5);
+
+    h2 {
+      margin: 0;
+      font-size: var(--font-size-xl);
+      color: var(--text-primary);
+      font-weight: var(--font-weight-bold);
+    }
+  }
 }
 
-.none {
-  background: #f5f5f5;
-  color: #666;
+.btn-add-planting {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  background: var(--color-success);
+  color: var(--text-on-primary);
+  border: none;
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-base);
+
+  &:hover {
+    background: var(--color-success-light);
+    transform: translateY(-1px);
+  }
 }
 
-.plot-description p {
-  margin: 0;
-  color: #555;
-  line-height: 1.6;
+/* Collapsible Sections */
+.collapsible-section {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-4);
+  overflow: hidden;
+
+  &.open {
+    .chevron {
+      transform: rotate(90deg);
+    }
+  }
+}
+
+.section-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: var(--spacing-4);
+  cursor: pointer;
+  text-align: left;
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+  }
+
+  .chevron {
+    color: var(--text-muted);
+    transition: transform var(--transition-base);
+
+    &.rotated {
+      transform: rotate(90deg);
+    }
+  }
+
+  .section-title {
+    flex: 1;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+  }
+
+  .section-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 var(--spacing-2);
+    background: var(--color-success);
+    color: var(--text-on-primary);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+
+    &.harvested {
+      background: var(--color-info);
+    }
+  }
+}
+
+.section-content {
+  padding: 0 var(--spacing-4) var(--spacing-4);
+}
+
+/* Loading */
+.loading-plantings {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-6);
+  color: var(--text-muted);
+
+  .spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+/* Empty State */
+.empty-plantings {
+  text-align: center;
+  padding: var(--spacing-8);
+  color: var(--text-muted);
+
+  svg {
+    margin-bottom: var(--spacing-4);
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0 0 var(--spacing-4);
+  }
+
+  &.small {
+    padding: var(--spacing-4);
+    
+    p {
+      margin: 0;
+      font-size: var(--font-size-sm);
+    }
+  }
+}
+
+.btn-add-first {
+  background: var(--color-success);
+  color: var(--text-on-primary);
+  border: none;
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+
+  &:hover {
+    background: var(--color-success-light);
+  }
+}
+
+/* Plantings Grid */
+.plantings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-4);
+}
+
+.planting-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  cursor: pointer;
+  transition: all var(--transition-base);
+
+  &:hover {
+    border-color: var(--color-success);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-4);
+    padding-bottom: var(--spacing-3);
+    border-bottom: 1px solid var(--border-color);
+
+    .crop-icon {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(46, 125, 50, 0.15), rgba(139, 195, 74, 0.15));
+      border-radius: var(--radius-md);
+      color: var(--color-success);
+    }
+
+    .crop-info {
+      flex: 1;
+
+      h3 {
+        margin: 0 0 var(--spacing-1);
+        font-size: var(--font-size-base);
+        color: var(--text-primary);
+        font-weight: var(--font-weight-semibold);
+      }
+
+      .crop-quantity {
+        font-size: var(--font-size-xs);
+        color: var(--text-muted);
+      }
+    }
+
+    .planting-status {
+      font-size: var(--font-size-xs);
+      padding: var(--spacing-1) var(--spacing-2);
+      border-radius: var(--radius-sm);
+      font-weight: var(--font-weight-medium);
+
+      &.growing {
+        background: rgba(46, 125, 50, 0.15);
+        color: var(--color-success);
+      }
+
+      &.planted {
+        background: rgba(33, 150, 243, 0.15);
+        color: var(--color-info);
+      }
+
+      &.harvested {
+        background: rgba(158, 158, 158, 0.15);
+        color: var(--text-muted);
+      }
+    }
+  }
+
+  .card-body {
+    margin-bottom: var(--spacing-4);
+
+    .date-info {
+      display: flex;
+      gap: var(--spacing-4);
+      margin-bottom: var(--spacing-3);
+
+      .date-item {
+        .label {
+          display: block;
+          font-size: var(--font-size-xs);
+          color: var(--text-muted);
+          margin-bottom: var(--spacing-1);
+        }
+
+        .value {
+          font-size: var(--font-size-sm);
+          color: var(--text-primary);
+          font-weight: var(--font-weight-medium);
+        }
+      }
+    }
+
+    .progress-section {
+      .progress-bar {
+        height: 8px;
+        background: var(--bg-primary);
+        border-radius: var(--radius-full);
+        overflow: hidden;
+        margin-bottom: var(--spacing-2);
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, var(--color-success), #8bc34a);
+          border-radius: var(--radius-full);
+          transition: width var(--transition-base);
+        }
+      }
+
+      .progress-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: var(--font-size-xs);
+        color: var(--text-muted);
+
+        .days-remaining {
+          color: var(--color-success);
+          font-weight: var(--font-weight-medium);
+        }
+      }
+    }
+  }
+
+  .card-footer {
+    .btn-view {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      cursor: pointer;
+      padding: 0;
+      transition: all var(--transition-base);
+
+      &:hover {
+        color: var(--color-primary-hover);
+      }
+    }
+  }
+}
+
+/* Harvested List */
+.harvested-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.harvested-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+
+  &:hover {
+    border-color: var(--color-info);
+    background: rgba(33, 150, 243, 0.05);
+  }
+
+  .harvested-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(158, 158, 158, 0.15);
+    border-radius: var(--radius-md);
+    color: var(--text-muted);
+  }
+
+  .harvested-info {
+    flex: 1;
+
+    h4 {
+      margin: 0 0 var(--spacing-1);
+      font-size: var(--font-size-sm);
+      color: var(--text-primary);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .harvest-date {
+      font-size: var(--font-size-xs);
+      color: var(--text-muted);
+    }
+  }
+
+  .harvested-badge {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-1) var(--spacing-2);
+    background: rgba(158, 158, 158, 0.15);
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    font-weight: var(--font-weight-medium);
+  }
 }

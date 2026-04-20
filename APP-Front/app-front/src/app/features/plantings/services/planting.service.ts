@@ -60,6 +60,8 @@ export interface CreatePlantingRequest {
   plot_id: string;
   planted_at: string;
   quantity?: number;
+  crop_name?: string;
+  days_to_maturity?: number;
 }
 
 @Injectable({
@@ -127,11 +129,11 @@ export class PlantingService {
     );
   }
 
-  createPlanting(data: CreatePlantingRequest): Observable<{ success: boolean; data: Planting } | null> {
+  createPlanting(data: CreatePlantingRequest): Observable<{ success: boolean; data: Planting; warnings?: any[] } | null> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.post<{ success: boolean; data: Planting }>(`${this.API_URL}/api/plantings`, data).pipe(
+    return this.http.post<{ success: boolean; data: Planting; warnings?: any[] }>(`${this.API_URL}/api/plantings`, data).pipe(
       tap(() => {
         this.loadingSignal.set(false);
       }),
@@ -201,6 +203,66 @@ export class PlantingService {
       catchError((err: HttpErrorResponse) => {
         this.loadingSignal.set(false);
         this.errorSignal.set(err.error?.message || 'Error loading archived plantings');
+        return of(null);
+      })
+    );
+  }
+
+  checkRotation(plotId: string, newCropId: string): Observable<{
+    success: boolean;
+    data: {
+      isSafe: boolean;
+      severity: 'error' | 'warning' | 'info';
+      message: string;
+      alternatives?: Array<{ cropId: string; cropName: string; rotationType: string }>;
+    };
+  } | null> {
+    return this.http.get<{
+      success: boolean;
+      data: {
+        isSafe: boolean;
+        severity: 'error' | 'warning' | 'info';
+        message: string;
+        alternatives?: Array<{ cropId: string; cropName: string; rotationType: string }>;
+      };
+    }>(`${this.API_URL}/api/plots/${plotId}/rotation/check`, {
+      params: { newCropId }
+    }).pipe(
+      catchError((err: HttpErrorResponse) => {
+        this.errorSignal.set(err.error?.message || 'Error checking rotation');
+        return of(null);
+      })
+    );
+  }
+
+  getRotationRecommendations(plotId: string): Observable<{
+    success: boolean;
+    data: {
+      previousCrop: string;
+      message: string;
+      recommendations: {
+        highly_recommended: any[];
+        recommended: any[];
+        neutral: any[];
+        cautionary: any[];
+      };
+    };
+  } | null> {
+    return this.http.get<{
+      success: boolean;
+      data: {
+        previousCrop: string;
+        message: string;
+        recommendations: {
+          highly_recommended: any[];
+          recommended: any[];
+          neutral: any[];
+          cautionary: any[];
+        };
+      };
+    }>(`${this.API_URL}/api/plots/${plotId}/rotation/recommendations`).pipe(
+      catchError((err: HttpErrorResponse) => {
+        this.errorSignal.set(err.error?.message || 'Error loading recommendations');
         return of(null);
       })
     );

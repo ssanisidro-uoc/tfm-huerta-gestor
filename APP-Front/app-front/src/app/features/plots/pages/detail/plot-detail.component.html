@@ -2,7 +2,7 @@
   @if (plotService.loading()) {
     <div class="loading" role="status">
       <span class="spinner"></span>
-      <span>Cargando...</span>
+      <span>{{ 'app.loading' | t }}</span>
     </div>
   }
 
@@ -11,123 +11,223 @@
   }
 
   @if (plot()) {
-    <header class="plot-header">
-      <div>
-        <a [routerLink]="['/gardens', plot()!.garden_id]" class="back-link">← Volver a la huerta</a>
-        <h1 id="title">{{ plot()!.name }}</h1>
-        @if (plot()!.code) {
-          <span class="plot-code">{{ plot()!.code }}</span>
-        }
-      </div>
-      <button class="btn-add-planting" (click)="addPlanting()">
-        + Añadir Cultivo
-      </button>
-    </header>
+    <div class="plot-layout">
+      <!-- Sidebar -->
+      <aside class="plot-sidebar">
+        <a [routerLink]="['/gardens', plot()!.garden_id]" class="back-link">← {{ 'plots.backToGarden' | t }}</a>
+        
+        <div class="sidebar-header">
+          <h1 id="title">{{ plot()!.name }}</h1>
+          @if (plot()!.code) {
+            <span class="plot-code">{{ plot()!.code }}</span>
+          }
+        </div>
 
-    <section class="plot-info" aria-labelledby="info-title">
-      <h2 id="info-title">Información</h2>
-      <dl class="info-grid">
-        <div class="info-item">
-          <dt>Superficie</dt>
-          <dd>{{ plot()!.surface_m2 }} m²</dd>
+        <div class="sidebar-section">
+          <h3>{{ 'plots.information' | t }}</h3>
+          <dl class="info-list">
+            <div class="info-item">
+              <dt>{{ 'plots.surface' | t }}</dt>
+              <dd>{{ plot()!.surface_m2 }} {{ 'plots.surfaceUnit' | t }}</dd>
+            </div>
+            <div class="info-item">
+              <dt>{{ 'plots.irrigationType' | t }}</dt>
+              <dd>{{ getIrrigationLabel(plot()!.irrigation_type) }}</dd>
+            </div>
+            <div class="info-item">
+              <dt>{{ 'plots.waterAccess' | t }}</dt>
+              <dd>{{ plot()!.has_water_access ? ('plots.yes' | t) : ('plots.no' | t) }}</dd>
+            </div>
+            <div class="info-item">
+              <dt>{{ 'plots.status' | t }}</dt>
+              <dd>{{ plot()!.is_active ? ('plots.active' | t) : ('plots.inactive' | t) }}</dd>
+            </div>
+          </dl>
         </div>
-        <div class="info-item">
-          <dt>Tipo de Riego</dt>
-          <dd>{{ getIrrigationLabel(plot()!.irrigation_type) }}</dd>
-        </div>
-        <div class="info-item">
-          <dt>Acceso a Agua</dt>
-          <dd>{{ plot()!.has_water_access ? 'Sí' : 'No' }}</dd>
-        </div>
-        <div class="info-item">
-          <dt>Estado</dt>
-          <dd>{{ plot()!.is_active ? 'Activa' : 'Inactiva' }}</dd>
-        </div>
-      </dl>
-    </section>
 
-    <section class="plot-features" aria-labelledby="features-title">
-      <h2 id="features-title">Características</h2>
-      <ul class="features-list">
-        @if (plot()!.has_greenhouse) {
-          <li class="feature-badge greenhouse">Invernadero</li>
-        }
-        @if (plot()!.has_raised_bed) {
-          <li class="feature-badge raised-bed">Bancal Elevado</li>
-        }
-        @if (plot()!.has_mulch) {
-          <li class="feature-badge mulch">Acolchado</li>
-        }
-        @if (!plot()!.has_greenhouse && !plot()!.has_raised_bed && !plot()!.has_mulch) {
-          <li class="feature-badge none">Sin características especiales</li>
-        }
-      </ul>
-    </section>
-
-    <section class="plot-plantings" aria-labelledby="plantings-title">
-      <h2 id="plantings-title">Cultivos en esta parcela</h2>
-      
-      @if (loadingPlantings()) {
-        <div class="loading-plantings">
-          <span class="spinner-small"></span>
-          <span>Cargando cultivos...</span>
+        <div class="sidebar-section">
+          <h3>{{ 'plots.features' | t }}</h3>
+          <ul class="features-list">
+            @if (plot()!.has_greenhouse) {
+              <li class="feature-badge greenhouse">{{ 'plots.greenhouse' | t }}</li>
+            }
+            @if (plot()!.has_raised_bed) {
+              <li class="feature-badge raised-bed">{{ 'plots.raisedBed' | t }}</li>
+            }
+            @if (plot()!.has_mulch) {
+              <li class="feature-badge mulch">{{ 'plots.mulch' | t }}</li>
+            }
+            @if (!plot()!.has_greenhouse && !plot()!.has_raised_bed && !plot()!.has_mulch) {
+              <li class="feature-badge none">{{ 'plots.noFeatures' | t }}</li>
+            }
+          </ul>
         </div>
-      }
 
-      @if (!loadingPlantings() && plantings().length === 0) {
-        <div class="empty-plantings">
-          <p>No hay cultivos plantados en esta parcela</p>
-          <button class="btn-add-first" (click)="addPlanting()">
-            + Añadir el primer cultivo
+        @if (plot()!.description) {
+          <div class="sidebar-section">
+            <h3>{{ 'plots.description' | t }}</h3>
+            <p class="description">{{ plot()!.description }}</p>
+          </div>
+        }
+      </aside>
+
+      <!-- Main Content -->
+      <main class="plot-main">
+        <div class="main-header">
+          <h2>{{ 'plots.crops' | t }}</h2>
+          <button class="btn-add-planting" (click)="addPlanting()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            {{ 'plots.addCrop' | t }}
           </button>
         </div>
-      }
 
-      @if (plantings().length > 0) {
-        <div class="plantings-list">
-          @for (planting of plantings(); track planting.id) {
-            <div class="planting-card" (click)="viewPlanting(planting.id)">
-              <div class="planting-header">
-                <h3>{{ planting.crop_name || 'Cultivo #' + planting.crop_id.slice(0, 6) }}</h3>
-                <span class="planting-status" [class]="planting.status">
-                  {{ getStatusLabel(planting.status) }}
-                </span>
-              </div>
-              
-              <div class="planting-dates">
-                <span class="date-item">
-                  <span class="label">Siembra:</span> {{ formatDate(planting.planted_at) }}
-                </span>
-                <span class="date-item">
-                  <span class="label">Cosecha prevista:</span> {{ formatDate(planting.expected_harvest_at) }}
-                </span>
-              </div>
-
-              @if (planting.status === 'growing' && planting.days_elapsed) {
-                <div class="planting-progress">
-                  <div class="progress-bar">
-                    <div class="progress-fill" [style.width.%]="getProgressPercent(planting)"></div>
-                  </div>
-                  <span class="progress-text">
-                    {{ planting.days_elapsed }} días · {{ planting.days_to_harvest || 0 }} días hasta cosecha
-                  </span>
+        <!-- Active Plantings Section -->
+        <div class="collapsible-section" [class.open]="activeSectionOpen()">
+          <button class="section-toggle" (click)="toggleActiveSection()">
+            <div class="section-header">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron" [class.rotated]="activeSectionOpen()">
+                <polyline points="9,18 15,12 9,6"/>
+              </svg>
+              <span class="section-title">{{ 'plots.activeCrops' | t }}</span>
+              <span class="section-count">{{ activePlantings().length }}</span>
+            </div>
+          </button>
+          
+          @if (activeSectionOpen()) {
+            <div class="section-content">
+              @if (loadingPlantings()) {
+                <div class="loading-plantings">
+                  <span class="spinner-small"></span>
+                  <span>{{ 'app.loading' | t }}</span>
                 </div>
               }
 
-              <div class="planting-quantity">
-                <span class="label">Cantidad:</span> {{ planting.quantity }} plantas
-              </div>
+              @if (!loadingPlantings() && activePlantings().length === 0) {
+                <div class="empty-plantings">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 22c4-4 8-7.5 8-12a8 8 0 1 0-16 0c0 4.5 4 8 8 12z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  <p>{{ 'plots.noActiveCrops' | t }}</p>
+                  <button class="btn-add-first" (click)="addPlanting()">
+                    {{ 'plots.addFirstCrop' | t }}
+                  </button>
+                </div>
+              }
+
+              @if (activePlantings().length > 0) {
+                <div class="plantings-grid">
+                  @for (planting of activePlantings(); track planting.id) {
+                    <div class="planting-card" (click)="viewPlanting(planting.id)">
+                      <div class="card-header">
+                        <div class="crop-icon">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22c4-4 8-7.5 8-12a8 8 0 1 0-16 0c0 4.5 4 8 8 12z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                          </svg>
+                        </div>
+                        <div class="crop-info">
+                          <h3>{{ planting.crop_name || ('plots.crop' | t) + ' #' + planting.crop_id.slice(0, 6) }}</h3>
+                          <span class="crop-quantity">{{ planting.quantity }} {{ 'plots.plants' | t }}</span>
+                        </div>
+                        <span class="planting-status growing">
+                          {{ getStatusLabel(planting.status) }}
+                        </span>
+                      </div>
+                      
+                      <div class="card-body">
+                        <div class="date-info">
+                          <div class="date-item">
+                            <span class="label">{{ 'plots.sowing' | t }}</span>
+                            <span class="value">{{ formatDate(planting.planted_at) }}</span>
+                          </div>
+                          <div class="date-item">
+                            <span class="label">{{ 'plots.expectedHarvest' | t }}</span>
+                            <span class="value">{{ formatDate(planting.expected_harvest_at) }}</span>
+                          </div>
+                        </div>
+
+                        @if (planting.days_elapsed && planting.days_to_harvest !== undefined) {
+                          <div class="progress-section">
+                            <div class="progress-bar">
+                              <div class="progress-fill" [style.width.%]="getProgressPercent(planting)"></div>
+                            </div>
+                            <div class="progress-info">
+                              <span>{{ planting.days_elapsed }} {{ 'plots.daysCultivated' | t }}</span>
+                              <span class="days-remaining">{{ getDaysRemaining(planting) }}</span>
+                            </div>
+                          </div>
+                        }
+                      </div>
+
+                      <div class="card-footer">
+                        <button class="btn-view">
+                          {{ 'app.view' | t }}
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9,18 15,12 9,6"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
             </div>
           }
         </div>
-      }
-    </section>
 
-    @if (plot()!.description) {
-      <section class="plot-description">
-        <h2>Descripción</h2>
-        <p>{{ plot()!.description }}</p>
-      </section>
-    }
+        <!-- Harvested Plantings Section -->
+        <div class="collapsible-section" [class.open]="harvestedSectionOpen()">
+          <button class="section-toggle" (click)="toggleHarvestedSection()">
+            <div class="section-header">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron" [class.rotated]="harvestedSectionOpen()">
+                <polyline points="9,18 15,12 9,6"/>
+              </svg>
+              <span class="section-title">{{ 'plots.harvestHistory' | t }}</span>
+              <span class="section-count harvested">{{ harvestedPlantings().length }}</span>
+            </div>
+          </button>
+          
+          @if (harvestedSectionOpen()) {
+            <div class="section-content">
+              @if (!loadingPlantings() && harvestedPlantings().length === 0) {
+                <div class="empty-plantings small">
+                  <p>{{ 'plots.noHarvests' | t }}</p>
+                </div>
+              }
+
+              @if (harvestedPlantings().length > 0) {
+                <div class="harvested-list">
+                  @for (planting of harvestedPlantings(); track planting.id) {
+                    <div class="harvested-item" (click)="viewPlanting(planting.id)">
+                      <div class="harvested-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 22c4-4 8-7.5 8-12a8 8 0 1 0-16 0c0 4.5 4 8 8 12z"/>
+                          <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                      </div>
+                      <div class="harvested-info">
+                        <h4>{{ planting.crop_name || ('plots.crop' | t) }}</h4>
+                        <span class="harvest-date">{{ 'plots.harvested' | t }}: {{ planting.harvested_at ? formatDate(planting.harvested_at) : formatDate(planting.expected_harvest_at) }}</span>
+                      </div>
+                      <span class="harvested-badge">{{ 'plots.harvested' | t }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="sidebar-section">
+          <a [routerLink]="['/plots', plot()!.id, 'rotations']" class="btn-rotations">
+            {{ 'plots.viewRotations' | t }}
+          </a>
+        </div>
+      </main>
+    </div>
   }
 </div>

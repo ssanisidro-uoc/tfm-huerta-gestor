@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { PlotService, PlotDetail } from '../../services/plot.service';
 import { PlantingService, PlantingDetail } from '../../../plantings/services/planting.service';
+import { TranslatePipe } from '../../../../core/services/i18n/translate.pipe';
 
 interface PlotPlanting {
   id: string;
@@ -22,16 +23,20 @@ interface PlotPlanting {
 @Component({
   selector: 'app-plot-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './plot-detail.component.html',
   styleUrl: './plot-detail.component.scss'
 })
 export class PlotDetailComponent implements OnInit {
   plot = signal<PlotDetail | null>(null);
-  plantings = signal<PlotPlanting[]>([]);
+  activePlantings = signal<PlotPlanting[]>([]);
+  harvestedPlantings = signal<PlotPlanting[]>([]);
   loadingPlantings = signal(false);
   
+  activeSectionOpen = signal(true);
+  harvestedSectionOpen = signal(false);
+
   irrigationLabels: Record<string, string> = {
     'manual': 'Manual',
     'drip': 'Goteo',
@@ -73,13 +78,33 @@ export class PlotDetailComponent implements OnInit {
       next: (response) => {
         this.loadingPlantings.set(false);
         if (response?.success && response.data) {
-          this.plantings.set(response.data);
+          const active: PlotPlanting[] = [];
+          const harvested: PlotPlanting[] = [];
+          
+          response.data.forEach((p: PlotPlanting) => {
+            if (p.status === 'harvested' || p.status === 'archived') {
+              harvested.push(p);
+            } else {
+              active.push(p);
+            }
+          });
+          
+          this.activePlantings.set(active);
+          this.harvestedPlantings.set(harvested);
         }
       },
       error: () => {
         this.loadingPlantings.set(false);
       }
     });
+  }
+
+  toggleActiveSection(): void {
+    this.activeSectionOpen.set(!this.activeSectionOpen());
+  }
+
+  toggleHarvestedSection(): void {
+    this.harvestedSectionOpen.set(!this.harvestedSectionOpen());
   }
 
   getIrrigationLabel(type: string): string {
@@ -118,5 +143,11 @@ export class PlotDetailComponent implements OnInit {
       'archived': 'Archivado'
     };
     return labels[status] || status;
+  }
+
+  getDaysRemaining(planting: PlotPlanting): string {
+    if (planting.days_to_harvest === undefined) return '';
+    if (planting.days_to_harvest <= 0) return 'Listo para cosechar';
+    return `${planting.days_to_harvest} días`;
   }
 }

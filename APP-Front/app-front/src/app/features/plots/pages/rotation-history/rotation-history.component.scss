@@ -1,0 +1,206 @@
+.rotation-history-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  .header {
+    margin-bottom: 2rem;
+
+    .btn-back {
+      display: inline-block;
+      color: #3498db;
+      text-decoration: none;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
+
+    .plot-info {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.95rem;
+      color: #7f8c8d;
+
+      .plot-name {
+        font-weight: 600;
+        color: #27ae60;
+      }
+    }
+  }
+
+  .loading {
+    text-align: center;
+    padding: 3rem;
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+  }
+
+  .error {
+    text-align: center;
+    padding: 2rem;
+    background: #fee;
+    border-radius: 8px;
+
+    .error-message {
+      color: #c0392b;
+      margin-bottom: 1rem;
+    }
+
+    .btn-retry {
+      padding: 0.5rem 1.5rem;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:hover {
+        background: #2980b9;
+      }
+    }
+  }
+
+  .summary {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+
+    .stat {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+
+      .count {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #27ae60;
+      }
+
+      .label {
+        font-size: 0.8rem;
+        color: #7f8c8d;
+      }
+    }
+  }
+
+  .rotations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .rotation-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    border-left: 4px solid #27ae60;
+
+    .rotation-year {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 60px;
+
+      .year {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      .sequence {
+        font-size: 0.75rem;
+        color: #7f8c8d;
+      }
+    }
+
+    .rotation-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .crop-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .crop-name {
+          font-weight: 600;
+          color: #27ae60;
+        }
+
+        .status {
+          font-size: 0.75rem;
+          padding: 2px 6px;
+          border-radius: 4px;
+          text-transform: capitalize;
+
+          &.completed { background: #d4edda; color: #28a745; }
+          &.planned { background: #d1ecf1; color: #0c5460; }
+        }
+      }
+
+      .dates {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.85rem;
+        color: #7f8c8d;
+      }
+
+      .metrics {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.85rem;
+
+        .yield {
+          color: #e67e22;
+          font-weight: 500;
+        }
+
+        .score {
+          &.score-high { color: #27ae60; }
+          &.score-medium { color: #f39c12; }
+          &.score-low { color: #e74c3c; }
+        }
+      }
+    }
+  }
+
+  .empty-rotations {
+    text-align: center;
+    padding: 3rem;
+    color: #7f8c8d;
+
+    .hint {
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

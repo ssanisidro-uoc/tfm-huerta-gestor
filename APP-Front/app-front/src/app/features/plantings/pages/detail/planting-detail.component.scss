@@ -7,15 +7,16 @@
 .loading {
   text-align: center;
   padding: 2rem;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .error-message {
-  background: #fee;
-  color: #c00;
+  background: rgba(198, 40, 40, 0.1);
+  color: var(--color-error);
   padding: 1rem;
   border-radius: 6px;
   margin-bottom: 1rem;
+  border: 1px solid var(--color-error-light);
 }
 
 .planting-header {
@@ -23,7 +24,7 @@
 }
 
 .back-link {
-  color: #3498db;
+  color: var(--color-primary);
   text-decoration: none;
   font-size: 0.9rem;
   
@@ -34,21 +35,22 @@
 
 h1 {
   margin: 0.5rem 0;
-  color: #2c3e50;
+  color: var(--text-primary);
 }
 
 h2 {
   margin: 0 0 1rem;
   font-size: 1.25rem;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .phenological-status {
-  background: white;
+  background: var(--card-bg);
   padding: 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 .phase-info {
@@ -62,9 +64,9 @@ h2 {
   font-weight: 600;
   margin-bottom: 1rem;
   
-  &.germinacion { background: #e8f5e9; color: #2e7d32; }
-  &.crecimiento { background: #e3f2fd; color: #1565c0; }
-  &.desarrollo { background: #fff3e0; color: #ef6c00; }
+  &.germinacion { background: var(--color-success-light); color: var(--color-success); }
+  &.crecimiento { background: var(--color-info); color: white; }
+  &.desarrollo { background: var(--color-warning-light); color: var(--color-warning); }
   &.floracion { background: #fce4ec; color: #c2185b; }
   &.fructificacion { background: #f1f8e9; color: #558b2f; }
   &.maduracion { background: #fff8e1; color: #f9a825; }
@@ -80,26 +82,26 @@ h2 {
 .progress-bar {
   flex: 1;
   height: 12px;
-  background: #e0e0e0;
+  background: var(--border-color);
   border-radius: 6px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #4caf50, #8bc34a);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light-main));
   border-radius: 6px;
   transition: width 0.3s ease;
 }
 
 .progress-text {
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   min-width: 45px;
 }
 
 .description {
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.5;
 }
 
@@ -116,30 +118,31 @@ h2 {
 
 .day-label {
   font-size: 0.85rem;
-  color: #888;
+  color: var(--text-muted);
 }
 
 .day-value {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .harvest-text {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #27ae60;
+  color: var(--color-success);
   padding: 0.75rem;
-  background: #e8f5e9;
-  border-radius: 4px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
 }
 
 .planting-info {
-  background: white;
+  background: var(--card-bg);
   padding: 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 .info-grid {
@@ -151,24 +154,39 @@ h2 {
 
 .info-item {
   dt {
-    color: #888;
-    font-size: 0.85rem;
-    margin-bottom: 0.25rem;
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-1);
   }
   
   dd {
     margin: 0;
-    color: #333;
-    font-weight: 500;
+    color: var(--text-primary);
+    font-weight: var(--font-weight-medium);
+  }
+}
+
+.harvest-info {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-4);
+  border: 1px solid var(--color-warning);
+  font-size: var(--font-size-sm);
+  
+  p {
+    margin: 0;
   }
 }
 
 .actions-section {
-  background: white;
+  background: var(--card-bg);
   padding: 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 .actions-list {
@@ -178,7 +196,7 @@ h2 {
   
   li {
     padding: 0.75rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
     
     &:last-child {
       border-bottom: none;
@@ -186,7 +204,7 @@ h2 {
     
     &::before {
       content: "✓ ";
-      color: #27ae60;
+      color: var(--color-success);
       font-weight: 600;
     }
   }
@@ -195,25 +213,27 @@ h2 {
 .btn-harvest {
   width: 100%;
   padding: 1rem;
-  background: #27ae60;
-  color: white;
+  background: var(--color-success);
+  color: var(--text-on-primary);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
+  transition: all var(--transition-base);
   
   &:hover {
-    background: #219a52;
+    background: var(--color-success-light);
   }
 }
 
 .harvest-form {
-  background: white;
+  background: var(--card-bg);
   padding: 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 .form-group {
@@ -222,23 +242,25 @@ h2 {
   label {
     display: block;
     margin-bottom: 0.5rem;
-    color: #333;
-    font-weight: 500;
+    color: var(--text-primary);
+    font-weight: var(--font-weight-medium);
   }
 }
 
 .form-control {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
   font-size: 1rem;
   box-sizing: border-box;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   
   &:focus {
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52,152,219,0.2);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
   }
 }
 
@@ -255,45 +277,97 @@ textarea.form-control {
 .btn-cancel {
   flex: 1;
   padding: 0.75rem;
-  background: #95a5a6;
-  color: white;
+  background: var(--text-muted);
+  color: var(--text-on-primary);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 1rem;
   cursor: pointer;
+  transition: all var(--transition-base);
   
   &:hover {
-    background: #7f8c8d;
+    background: var(--text-secondary);
   }
 }
 
 .btn-confirm {
   flex: 1;
   padding: 0.75rem;
-  background: #27ae60;
-  color: white;
+  background: var(--color-success);
+  color: var(--text-on-primary);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
+  transition: all var(--transition-base);
   
   &:hover {
-    background: #219a52;
+    background: var(--color-success-light);
   }
 }
 
-.harvest-info {
-  background: #e8f5e9;
+.associations-section {
+  background: var(--card-bg);
   padding: 1.5rem;
-  border-radius: 8px;
-  border: 1px solid #a5d6a7;
-  
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+
   h2 {
-    color: #2e7d32;
+    margin: 0 0 1rem;
   }
-  
-  .full-width {
-    grid-column: 1 / -1;
+}
+
+.associations-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.association-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.5rem;
+
+  .companion-label {
+    font-weight: var(--font-weight-medium);
+  }
+
+  .benefit {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+}
+
+.observation-form {
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+
+  h2 {
+    margin: 0 0 1rem;
+  }
+}
+
+.association-observation {
+  padding: 1rem;
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color);
+
+  h3 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    color: var(--text-primary);
   }
 }

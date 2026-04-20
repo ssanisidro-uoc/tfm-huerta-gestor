@@ -1,8 +1,8 @@
 <div class="create-planting">
-  <h2>Registrar Cultivo</h2>
+  <h2>{{ 'plantings.registerCrop' | t }}</h2>
   
   @if (loading()) {
-    <div class="loading">Guardando...</div>
+    <div class="loading">{{ 'plantings.saving' | t }}</div>
   }
   
   @if (error()) {
@@ -13,11 +13,23 @@
     <div class="success-message">{{ success() }}</div>
   }
   
+  @if (warnings().length > 0) {
+    <div class="warning-message">
+      <h4>{{ 'crops.compatibilityWarning' | t }}</h4>
+      @for (warning of warnings(); track warning.existing_crop_id) {
+        <p>{{ 'crops.incompatibleWith' | t: { crop: warning.existing_crop_name } }}: {{ warning.compatibility_type }}</p>
+        @if (warning.description) {
+          <p class="warning-description">{{ warning.description }}</p>
+        }
+      }
+    </div>
+  }
+  
   <form (ngSubmit)="onSubmit()">
     <div class="form-group">
-      <label for="garden">Huerta *</label>
+      <label for="garden">{{ 'plantings.garden' | t }} *</label>
       <select id="garden" [(ngModel)]="selectedGarden" name="garden" (change)="onGardenChange()" [class.error]="validationErrors()['garden']">
-        <option value="">Selecciona una huerta</option>
+        <option value="">{{ 'plantings.selectGarden' | t }}</option>
         @for (garden of gardens(); track garden.id) {
           <option [value]="garden.id">{{ garden.name }}</option>
         }
@@ -28,9 +40,9 @@
     </div>
     
     <div class="form-group">
-      <label for="plot">Parcela *</label>
-      <select id="plot" [(ngModel)]="selectedPlot" name="plot" [disabled]="!selectedGarden" [class.error]="validationErrors()['plot']">
-        <option value="">Selecciona una parcela</option>
+      <label for="plot">{{ 'plantings.plot' | t }} *</label>
+      <select id="plot" [(ngModel)]="selectedPlot" name="plot" [disabled]="!selectedGarden" (change)="onPlotChange()" [class.error]="validationErrors()['plot']">
+        <option value="">{{ 'plantings.selectPlot' | t }}</option>
         @for (plot of plots(); track plot.id) {
           <option [value]="plot.id">{{ plot.name }}</option>
         }
@@ -41,9 +53,9 @@
     </div>
     
     <div class="form-group">
-      <label for="crop">Cultivo *</label>
-      <select id="crop" [(ngModel)]="selectedCrop" name="crop" [class.error]="validationErrors()['crop']">
-        <option value="">Selecciona un cultivo</option>
+      <label for="crop">{{ 'plantings.crop' | t }} *</label>
+      <select id="crop" [(ngModel)]="selectedCrop" name="crop" (change)="onCropChange()" [class.error]="validationErrors()['crop']">
+        <option value="">{{ 'plantings.selectCrop' | t }}</option>
         @for (crop of crops(); track crop.id) {
           <option [value]="crop.id">{{ crop.name }}</option>
         }
@@ -52,9 +64,143 @@
         <span class="field-error">{{ validationErrors()['crop'] }}</span>
       }
     </div>
+
+    @if (rotationCheck()) {
+      <div class="rotation-alert" [class]="getRotationClass()">
+        <div class="rotation-header">
+          @if (rotationCheck()!.severity === 'error') {
+            <span class="rotation-icon">🚫</span>
+          } @else if (rotationCheck()!.severity === 'warning') {
+            <span class="rotation-icon">⚠️</span>
+          } @else {
+            <span class="rotation-icon">ℹ️</span>
+          }
+          <span class="rotation-title">
+            @if (rotationCheck()!.severity === 'error') {
+              {{ 'plantings.rotationError' | t }}
+            } @else if (rotationCheck()!.severity === 'warning') {
+              {{ 'plantings.rotationWarning' | t }}
+            } @else {
+              {{ 'plantings.rotationInfo' | t }}
+            }
+          </span>
+        </div>
+        <p class="rotation-message">{{ rotationCheck()!.message }}</p>
+        @if (rotationCheck()!.alternatives && rotationCheck()!.alternatives!.length > 0) {
+          <div class="rotation-alternatives">
+            <p>{{ 'plantings.rotationAlternatives' | t }}:</p>
+            <div class="alternative-crops">
+              @for (alt of rotationCheck()!.alternatives; track alt.cropId) {
+                <button 
+                  type="button" 
+                  class="alternative-btn"
+                  [class]="alt.rotationType"
+                  (click)="selectAlternativeCrop(alt.cropId, alt.cropName)"
+                >
+                  {{ alt.cropName }} ({{ alt.rotationType }})
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (rotationRecommendations() && !selectedCrop) {
+      <div class="rotation-recommendations">
+        <h4>{{ 'plantings.rotationRecommendations' | t }}</h4>
+        <p>{{ rotationRecommendations()!.message }}</p>
+        
+        @if (rotationRecommendations()!.recommendations.highly_recommended.length > 0) {
+          <div class="rec-section highly-recommended">
+            <h5>{{ 'plantings.highlyRecommended' | t }}</h5>
+            <div class="rec-crops">
+              @for (crop of rotationRecommendations()!.recommendations.highly_recommended; track crop.crop_id) {
+                <button 
+                  type="button" 
+                  class="rec-btn highly"
+                  (click)="selectAlternativeCrop(crop.crop_id, crop.crop_name)"
+                >
+                  {{ crop.crop_name }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+        
+        @if (rotationRecommendations()!.recommendations.recommended.length > 0) {
+          <div class="rec-section recommended">
+            <h5>{{ 'plantings.recommended' | t }}</h5>
+            <div class="rec-crops">
+              @for (crop of rotationRecommendations()!.recommendations.recommended; track crop.crop_id) {
+                <button 
+                  type="button" 
+                  class="rec-btn recommended"
+                  (click)="selectAlternativeCrop(crop.crop_id, crop.crop_name)"
+                >
+                  {{ crop.crop_name }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (selectedPlot && selectedCrop && companionPlantings().length > 0) {
+      <div class="companion-section">
+        <h4>{{ 'plantings.companionPlantings' | t }}</h4>
+        <p class="companion-hint">{{ 'plantings.selectCompanions' | t }}</p>
+        
+        @if (companionSuggestions().length > 0) {
+          <div class="companion-suggestions">
+            <h5>{{ 'plantings.suggestedCompanions' | t }}</h5>
+            @for (suggestion of companionSuggestions(); track suggestion.plantingId) {
+              <div class="suggestion-item" [class]="'suggestion-' + suggestion.compatibility">
+                <label class="companion-checkbox">
+                  <input 
+                    type="checkbox" 
+                    [checked]="isCompanionSelected(suggestion.plantingId)"
+                    (change)="toggleCompanion(suggestion.plantingId)"
+                  />
+                  <span class="companion-name">{{ suggestion.cropName }}</span>
+                  <span class="companion-badge">{{ suggestion.compatibility }}</span>
+                  @if (suggestion.reason) {
+                    <span class="companion-reason">{{ suggestion.reason }}</span>
+                  }
+                </label>
+              </div>
+            }
+          </div>
+        }
+        
+        <div class="companion-list">
+          <h5>{{ 'plantings.availablePlantings' | t }}</h5>
+          @for (planting of companionPlantings(); track planting.id) {
+            <div class="companion-item">
+              <label class="companion-checkbox">
+                <input 
+                  type="checkbox" 
+                  [checked]="isCompanionSelected(planting.id)"
+                  (change)="toggleCompanion(planting.id)"
+                />
+                <span class="companion-name">{{ planting.crop_name }}</span>
+                <span class="companion-family">{{ planting.family }}</span>
+              </label>
+            </div>
+          }
+        </div>
+        
+        @if (selectedCompanions().length > 0) {
+          <div class="selected-companions">
+            <p>{{ 'plantings.selectedCount' | t: { count: selectedCompanions().length } }}</p>
+          </div>
+        }
+      </div>
+    }
     
     <div class="form-group">
-      <label for="planted_at">Fecha de siembra *</label>
+      <label for="planted_at">{{ 'plantings.plantedAt' | t }} *</label>
       <input type="date" id="planted_at" [(ngModel)]="plantedAt" name="planted_at" [class.error]="validationErrors()['planted_at']" />
       @if (validationErrors()['planted_at']) {
         <span class="field-error">{{ validationErrors()['planted_at'] }}</span>
@@ -62,14 +208,14 @@
     </div>
     
     <div class="form-group">
-      <label for="quantity">Cantidad (número de plantas)</label>
+      <label for="quantity">{{ 'plantings.quantity' | t }} ({{ 'plantings.numberOfPlants' | t }})</label>
       <input type="number" id="quantity" [(ngModel)]="quantity" name="quantity" min="1" value="1" />
     </div>
     
-    <button type="submit" [disabled]="loading() || !isValid()">
-      {{ loading() ? 'Guardando...' : 'Registrar Cultivo' }}
+    <button type="submit" [disabled]="loading() || !canSubmit()">
+      {{ loading() ? ('plantings.saving' | t) : ('plantings.registerCrop' | t) }}
     </button>
     
-    <button type="button" class="btn-cancel" (click)="goBack()">Cancelar</button>
+    <button type="button" class="btn-cancel" (click)="goBack()">{{ 'plantings.cancel' | t }}</button>
   </form>
 </div>

@@ -1,0 +1,63 @@
+<div class="rotation-history-container">
+  <div class="header">
+    <a routerLink="/plots/{{ plotId }}" class="btn-back">{{ 'plots.backToPlot' | t }}</a>
+    <h1>{{ 'plots.rotationHistory' | t }}</h1>
+    <div class="plot-info" *ngIf="history()">
+      <span class="plot-name">{{ history()?.plot_name }}</span>
+      <span class="garden-name">{{ history()?.garden_name }}</span>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="loading()">
+    <div class="spinner"></div>
+    <p>{{ 'plots.loadingHistory' | t }}</p>
+  </div>
+
+  <div class="error" *ngIf="error() as errorMsg">
+    <p class="error-message">{{ errorMsg }}</p>
+    <button class="btn-retry" (click)="loadHistory()">{{ 'plots.retry' | t }}</button>
+  </div>
+
+  <div class="history-content" *ngIf="history() && !loading()">
+    <div class="summary" *ngIf="history()?.rotations?.length">
+      <div class="stat">
+        <span class="count">{{ history()?.rotations?.length }}</span>
+        <span class="label">{{ 'plots.cropsRegistered' | t }}</span>
+      </div>
+      <div class="stat">
+        <span class="count">{{ getUniqueYears() }}</span>
+        <span class="label">{{ 'plots.rotationYears' | t }}</span>
+      </div>
+    </div>
+
+    <div class="rotations-list">
+      <div class="rotation-item" *ngFor="let rotation of history()?.rotations">
+        <div class="rotation-year">
+          <span class="year">{{ rotation.year }}</span>
+          <span class="sequence">{{ 'plots.cycle' | t:{sequence: rotation.sequence} }}</span>
+        </div>
+        <div class="rotation-details">
+          <div class="crop-info">
+            <span class="crop-name">{{ rotation.crop_name }}</span>
+            <span class="status" [ngClass]="rotation.status">{{ rotation.status }}</span>
+          </div>
+          <div class="dates">
+            <span class="planting">{{ 'plots.sowing' | t }}: {{ formatDate(rotation.planting_date) }}</span>
+            <span class="harvest" *ngIf="rotation.harvest_date">{{ 'plots.harvestDate' | t:{date: formatDate(rotation.harvest_date)} }}</span>
+          </div>
+          <div class="metrics">
+            <span class="yield" *ngIf="rotation.yield_kg">{{ 'plots.yieldUnit' | t:{yield: rotation.yield_kg} }}</span>
+            <span class="score" *ngIf="rotation.rotation_score" [ngClass]="getScoreClass(rotation.rotation_score)">
+              {{ 'plots.score' | t:{score: rotation.rotation_score} }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-rotations" *ngIf="history()?.rotations?.length === 0">
+        <p>{{ 'plots.noRotationRecords' | t }}</p>
+        <p class="hint">{{ 'plots.rotationHint' | t }}</p>
+      </div>
+    </div>
+  </div>
+</div>

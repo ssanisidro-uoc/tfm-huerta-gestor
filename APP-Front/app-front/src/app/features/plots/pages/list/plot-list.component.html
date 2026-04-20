@@ -1,16 +1,16 @@
 <div class="plot-list">
   <header class="header">
-    <a [routerLink]="['/gardens', gardenId]" class="back-link">← Volver a la huerta</a>
-    <h1 id="title">Parcelas</h1>
-    <a [routerLink]="['/gardens', gardenId, 'plots', 'create']" class="btn-primary" aria-label="Crear nueva parcela">
-      + Nueva Parcela
+    <a [routerLink]="['/gardens', gardenId]" class="back-link">← {{ 'plots.backToGarden' | t }}</a>
+    <h1 id="title">{{ 'plots.title' | t }}</h1>
+    <a [routerLink]="['/gardens', gardenId, 'plots', 'create']" class="btn-primary" aria-label="{{ 'plots.create' | t }}">
+      + {{ 'plots.create' | t }}
     </a>
   </header>
 
   @if (plotService.loading()) {
     <div class="loading" role="status" aria-live="polite">
       <span class="spinner"></span>
-      <span>Cargando parcelas...</span>
+      <span>{{ 'app.loading' | t }}</span>
     </div>
   }
 
@@ -20,9 +20,9 @@
 
   @if (!plotService.loading() && plotService.plots().length === 0) {
     <div class="empty-state">
-      <p>No hay parcelas todavía</p>
+      <p>{{ 'plots.noPlots' | t }}</p>
       <a [routerLink]="['/gardens', gardenId, 'plots', 'create']" class="btn-primary">
-        Crear tu primera parcela
+        {{ 'plots.addFirst' | t }}
       </a>
     </div>
   }
@@ -40,7 +40,7 @@
               <p class="description">{{ plot.description }}</p>
             }
             <div class="plot-info">
-              <span class="surface">{{ plot.surface_m2 }} m²</span>
+              <span class="surface">{{ plot.surface_m2 }} {{ 'plots.surfaceUnit' | t }}</span>
             </div>
           </a>
         </li>

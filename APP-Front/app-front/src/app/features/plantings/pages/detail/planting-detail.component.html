@@ -1,6 +1,6 @@
 <div class="planting-detail">
   @if (plantingService.loading()) {
-    <div class="loading">Cargando...</div>
+    <div class="loading">{{ 'app.loading' | t }}</div>
   }
   
   @if (plantingService.error()) {
@@ -10,14 +10,14 @@
   @if (planting()) {
     <header class="planting-header">
       <div class="header-content">
-        <a routerLink="/crops" class="back-link">← Volver</a>
-        <h1>{{ planting()!.crop?.name || 'Cultivo' }}</h1>
+        <a routerLink="/crops" class="back-link">← {{ 'app.back' | t }}</a>
+        <h1>{{ planting()!.crop?.name || ('plantings.crop' | t) }}</h1>
       </div>
     </header>
     
     @if (planting()!.phenological) {
       <section class="phenological-status">
-        <h2>Estado Fenológico</h2>
+        <h2>{{ 'plantings.phenologicalStatus' | t }}</h2>
         
         <div class="phase-info">
           <div class="phase-badge" [class]="getPhaseClass(planting()!.phenological!.phase)">
@@ -36,11 +36,11 @@
         
         <div class="days-info">
           <div class="day-item">
-            <span class="day-label">Días transcurridos</span>
+            <span class="day-label">{{ 'plantings.daysElapsed' | t }}</span>
             <span class="day-value">{{ planting()!.phenological!.days_elapsed }}</span>
           </div>
           <div class="day-item">
-            <span class="day-label">Días hasta cosecha</span>
+            <span class="day-label">{{ 'plantings.daysToHarvest' | t }}</span>
             <span class="day-value">{{ planting()!.phenological!.days_to_harvest }}</span>
           </div>
         </div>
@@ -52,30 +52,36 @@
     }
     
     <section class="planting-info">
-      <h2>Información</h2>
+      <h2>{{ 'plantings.information' | t }}</h2>
       <dl class="info-grid">
         <div class="info-item">
-          <dt>Fecha de siembra</dt>
+          <dt>{{ 'plantings.plantedAt' | t }}</dt>
           <dd>{{ formatDate(planting()!.planted_at) }}</dd>
         </div>
         <div class="info-item">
-          <dt>Cosecha esperada</dt>
+          <dt>{{ 'plantings.expectedHarvest' | t }}</dt>
           <dd>{{ formatDate(planting()!.expected_harvest_at) }}</dd>
         </div>
         <div class="info-item">
-          <dt>Cantidad</dt>
-          <dd>{{ planting()!.quantity }} plantas</dd>
+          <dt>{{ 'plantings.quantity' | t }}</dt>
+          <dd>{{ planting()!.quantity }} {{ 'plantings.plants' | t }}</dd>
         </div>
         <div class="info-item">
-          <dt>Estado</dt>
+          <dt>{{ 'plantings.status' | t }}</dt>
           <dd>{{ getStatusLabel(planting()!.status) }}</dd>
         </div>
       </dl>
     </section>
+
+    @if (getHarvestMessage()) {
+      <div class="harvest-info">
+        <p>{{ getHarvestMessage() }}</p>
+      </div>
+    }
     
     @if (planting()!.actions && planting()!.actions!.length > 0) {
       <section class="actions-section">
-        <h2>Acciones Recomendadas</h2>
+        <h2>{{ 'plantings.recommendedActions' | t }}</h2>
         <ul class="actions-list">
           @for (action of planting()!.actions!; track action) {
             <li>{{ action }}</li>
@@ -87,14 +93,18 @@
     @if (canHarvest()) {
       @if (!showHarvestForm) {
         <button class="btn-harvest" (click)="openHarvestForm()">
-          Registrar Cosecha
+          {{ 'plantings.registerHarvest' | t }}
         </button>
       } @else {
         <section class="harvest-form">
-          <h2>Registrar Cosecha</h2>
+          <h2>{{ 'plantings.registerHarvest' | t }}</h2>
+          
+          @if (harvestError()) {
+            <div class="error-message" role="alert">{{ harvestError() }}</div>
+          }
           
           <div class="form-group">
-            <label for="harvestDate">Fecha de cosecha</label>
+            <label for="harvestDate">{{ 'plantings.harvestDate' | t }}</label>
             <input 
               type="date" 
               id="harvestDate" 
@@ -104,7 +114,7 @@
           </div>
 
           <div class="form-group">
-            <label for="harvestKg">Cantidad cosechada (kg)</label>
+            <label for="harvestKg">{{ 'plantings.harvestedAmount' | t }} (kg)</label>
             <input 
               type="number" 
               id="harvestKg" 
@@ -117,33 +127,33 @@
           </div>
 
           <div class="form-group">
-            <label for="harvestQuality">Calidad</label>
+            <label for="harvestQuality">{{ 'plantings.quality' | t }}</label>
             <select 
               id="harvestQuality" 
               [(ngModel)]="harvestQuality"
               class="form-control"
             >
-              <option value="excellent">Excelente</option>
-              <option value="good">Buena</option>
-              <option value="acceptable">Regular</option>
-              <option value="poor">Baja</option>
+              <option value="excellent">{{ 'plantings.excellent' | t }}</option>
+              <option value="good">{{ 'plantings.good' | t }}</option>
+              <option value="acceptable">{{ 'plantings.acceptable' | t }}</option>
+              <option value="poor">{{ 'plantings.poor' | t }}</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="harvestNotes">Notas</label>
+            <label for="harvestNotes">{{ 'plantings.notes' | t }}</label>
             <textarea 
               id="harvestNotes" 
               [(ngModel)]="harvestNotes"
               class="form-control"
               rows="3"
-              placeholder="Observaciones sobre la cosecha..."
+              placeholder="{{ 'plantings.harvestNotesPlaceholder' | t }}"
             ></textarea>
           </div>
 
           <div class="form-actions">
-            <button class="btn-cancel" (click)="cancelHarvest()">Cancelar</button>
-            <button class="btn-confirm" (click)="onHarvest()">Confirmar Cosecha</button>
+            <button class="btn-cancel" (click)="cancelHarvest()">{{ 'plantings.cancel' | t }}</button>
+            <button class="btn-confirm" (click)="onHarvest()">{{ 'plantings.confirmHarvest' | t }}</button>
           </div>
         </section>
       }
@@ -151,32 +161,109 @@
 
     @if (planting()!.status === 'harvested' || planting()!.status === 'archived') {
       <section class="harvest-info">
-        <h2>Información de Cosecha</h2>
+        <h2>{{ 'plantings.harvestInformation' | t }}</h2>
         <dl class="info-grid">
           <div class="info-item">
-            <dt>Fecha de cosecha</dt>
+            <dt>{{ 'plantings.harvestDate' | t }}</dt>
             <dd>{{ formatDate(planting()!.harvested_at!) }}</dd>
           </div>
           @if (planting()!.harvest_info?.total_harvest_kg) {
             <div class="info-item">
-              <dt>Cantidad cosechada</dt>
+              <dt>{{ 'plantings.harvestedAmount' | t }}</dt>
               <dd>{{ planting()!.harvest_info?.total_harvest_kg }} kg</dd>
             </div>
           }
           @if (planting()!.harvest_info?.harvest_quality) {
             <div class="info-item">
-              <dt>Calidad</dt>
+              <dt>{{ 'plantings.quality' | t }}</dt>
               <dd>{{ getQualityLabel(planting()!.harvest_info?.harvest_quality!) }}</dd>
             </div>
           }
           @if (planting()!.harvest_info?.harvest_notes) {
             <div class="info-item full-width">
-              <dt>Notas</dt>
+              <dt>{{ 'plantings.notes' | t }}</dt>
               <dd>{{ planting()!.harvest_info?.harvest_notes }}</dd>
             </div>
           }
         </dl>
       </section>
     }
+
+    @if (hasActiveAssociations()) {
+      <section class="associations-section">
+        <h2>{{ 'plantings.companionPlantings' | t }}</h2>
+        <ul class="associations-list">
+          @for (assoc of associations(); track assoc.id) {
+            <li class="association-item">
+              <span class="companion-label">{{ assoc.companion_crop_name }}</span>
+              @if (assoc.expected_benefit) {
+                <span class="benefit">{{ assoc.expected_benefit }}</span>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (showAssociationObservation && hasActiveAssociations()) {
+      <section class="observation-form">
+        <h2>{{ 'plantings.recordAssociationObservation' | t }}</h2>
+        
+        @if (observationError()) {
+          <div class="error-message">{{ observationError() }}</div>
+        }
+        
+        @for (assoc of associations(); track assoc.id) {
+          <div class="association-observation">
+            <h3>{{ assoc.companion_crop_name }}</h3>
+            
+            <div class="form-group">
+              <label>{{ 'plantings.outcome' | t }}</label>
+              <select [(ngModel)]="observationOutcome" class="form-control">
+                <option value="successful">{{ 'plantings.outcomeSuccessful' | t }}</option>
+                <option value="partial">{{ 'plantings.outcomePartial' | t }}</option>
+                <option value="failed">{{ 'plantings.outcomeFailed' | t }}</option>
+                <option value="neutral">{{ 'plantings.outcomeNeutral' | t }}</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>{{ 'plantings.effectivenessRating' | t }}: {{ observationRating }}</label>
+              <input 
+                type="range" 
+                [(ngModel)]="observationRating" 
+                min="1" 
+                max="10" 
+                class="form-control"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label>{{ 'plantings.notes' | t }}</label>
+              <textarea 
+                [(ngModel)]="observationDescription" 
+                class="form-control"
+                rows="2"
+                placeholder="{{ 'plantings.observationPlaceholder' | t }}"
+              ></textarea>
+            </div>
+            
+            <button class="btn-confirm" (click)="recordObservation(assoc.id)">
+              {{ 'plantings.saveObservation' | t }}
+            </button>
+          </div>
+        }
+        
+        <button class="btn-cancel" (click)="cancelAssociationObservation()">
+          {{ 'plantings.skipObservation' | t }}
+        </button>
+      </section>
+    }
+
+    <section class="tasks-section">
+      <a [routerLink]="['/plantings', planting()!.id, 'tasks']" class="btn-tasks">
+        {{ 'plantings.viewTaskHistory' | t }}
+      </a>
+    </section>
   }
 </div>
