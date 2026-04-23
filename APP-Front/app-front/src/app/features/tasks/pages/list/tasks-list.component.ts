@@ -82,7 +82,6 @@ export class TasksListComponent implements OnInit {
         }
         if (results.tasks) {
           this.tasks.set(results.tasks.data);
-          this.loadIntelligenceForTasks(results.tasks.data);
         }
         this.cdr.detectChanges();
       },
@@ -100,6 +99,21 @@ export class TasksListComponent implements OnInit {
         this.plots.set(response.plots);
       }
     });
+  }
+
+  selectedTask = signal<Task | null>(null);
+
+  selectTask(task: Task): void {
+    this.selectedTask.set(task);
+  }
+
+  closeTaskDetail(): void {
+    this.selectedTask.set(null);
+  }
+
+  getTaskDetailDate(task: Task): string {
+    const date = task.postponed_until ? new Date(task.postponed_until) : new Date(task.scheduled_date);
+    return date.toLocaleDateString('es', { weekday: 'short', day: 'numeric', month: 'short' });
   }
 
   loadIntelligenceForTasks(tasks: Task[]): void {
@@ -178,8 +192,8 @@ export class TasksListComponent implements OnInit {
     }
 
     result = [...result].sort((a, b) => {
-      const dateA = new Date(a.scheduled_date).getTime();
-      const dateB = new Date(b.scheduled_date).getTime();
+      const dateA = a.postponed_until ? new Date(a.postponed_until).getTime() : new Date(a.scheduled_date).getTime();
+      const dateB = b.postponed_until ? new Date(b.postponed_until).getTime() : new Date(b.scheduled_date).getTime();
       return this.sortOrder() === 'asc' ? dateA - dateB : dateB - dateA;
     });
 
@@ -216,6 +230,7 @@ export class TasksListComponent implements OnInit {
     this.tasksService.completeTask(taskId).subscribe(response => {
       if (response?.success) {
         this.loadData();
+        this.selectedTask.set(null);
       }
     });
   }
@@ -229,6 +244,59 @@ export class TasksListComponent implements OnInit {
         this.loadData();
       }
     });
+  }
+
+  postponeModalTaskId = signal<string | null>(null);
+  postponeDays = signal<number>(1);
+  postponeReason = '';
+  postponeReasonError = signal(false);
+
+  postponeTaskModal(taskId: string): void {
+    this.postponeModalTaskId.set(taskId);
+    this.postponeDays.set(1);
+    this.postponeReason = '';
+    this.postponeReasonError.set(false);
+  }
+
+  confirmPostpone(): void {
+    if (!this.postponeReason.trim()) {
+      this.postponeReasonError.set(true);
+      return;
+    }
+
+    const taskId = this.postponeModalTaskId();
+    if (!taskId) return;
+
+    const task = this.selectedTask();
+    if (!task) return;
+
+    const baseDate = task.postponed_until ? new Date(task.postponed_until) : new Date(task.scheduled_date);
+    baseDate.setDate(baseDate.getDate() + this.postponeDays());
+    baseDate.setHours(23, 59, 59, 999);
+    
+    const reason = this.postponeReason.trim();
+    this.tasksService.postponeTask(taskId, baseDate, reason).subscribe(response => {
+      if (response?.success) {
+        this.loadData();
+        this.selectedTask.set(null);
+      }
+      this.cancelPostpone();
+    });
+  }
+
+  cancelPostpone(): void {
+    this.postponeModalTaskId.set(null);
+  }
+
+  getPostponePreviewDate(): Date {
+    const task = this.selectedTask();
+    if (!task) {
+      return new Date();
+    }
+    
+    const baseDate = task.postponed_until ? new Date(task.postponed_until) : new Date(task.scheduled_date);
+    baseDate.setDate(baseDate.getDate() + this.postponeDays());
+    return baseDate;
   }
 
   isUrgent(task: Task): boolean {

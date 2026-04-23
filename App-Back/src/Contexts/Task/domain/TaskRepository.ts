@@ -12,7 +12,12 @@ export interface TaskRepository {
     garden_id: string,
     options?: { page: number; limit: number; offset: number; filters?: { status?: string; task_type?: string; assigned_to?: string } }
   ): Promise<Task[]>;
+  find_by_gardens(
+    garden_ids: string[],
+    options?: { page: number; limit: number; offset: number; filters?: { status?: string; task_type?: string; assigned_to?: string } }
+  ): Promise<Task[]>;
   count_by_garden(garden_id: string, filters?: { status?: string; task_type?: string; assigned_to?: string }): Promise<number>;
+  count_by_gardens(garden_ids: string[], filters?: { status?: string; task_type?: string; assigned_to?: string }): Promise<number>;
   find_by_date_range(garden_id: string, start_date: Date, end_date: Date, filters?: { status?: string; task_type?: string }): Promise<Task[]>;
   find_recurring_pending(): Promise<Task[]>;
   update(task: Task): Promise<void>;

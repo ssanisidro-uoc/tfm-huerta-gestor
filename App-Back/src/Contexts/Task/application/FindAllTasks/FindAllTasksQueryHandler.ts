@@ -23,7 +23,10 @@ export class FindAllTasksQueryHandler implements QueryHandler<FindAllTasksQuery,
         status: task.status,
         task_type: task.task_type,
         scheduled_date: task.scheduled_date,
-        due_date: task.due_date
+        due_date: task.due_date,
+        postponed_until: task.postponed_until,
+        postponed_reason: task.postponed_reason,
+        postponed_by: task.postponed_by
       })),
       total,
       query.page,

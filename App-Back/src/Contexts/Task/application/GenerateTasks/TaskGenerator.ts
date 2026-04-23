@@ -1,7 +1,7 @@
+import { GardenId } from '../../../Garden/domain/value-objects/GardenId';
 import { Task } from '../../domain/Task';
 import { TaskId } from '../../domain/value-objects/TaskId';
 import { TaskTitle } from '../../domain/value-objects/TaskTitle';
-import { GardenId } from '../../../Garden/domain/value-objects/GardenId';
 
 interface TaskTemplate {
   task_type: string;
@@ -28,7 +28,7 @@ interface CropData {
 export class TaskGenerator {
   private static readonly TASK_TEMPLATES: TaskTemplate[] = [
     {
-      task_type: 'sowing',
+      task_type: 'planting',
       task_category: 'planting',
       days_offset: 0,
       title_template: 'Siembra de {crop_name}',
@@ -39,10 +39,10 @@ export class TaskGenerator {
     },
     {
       task_type: 'watering',
-      task_category: 'irrigation',
+      task_category: 'watering',
       days_offset: 2,
       title_template: 'Riego de {crop_name}',
-      description_template: 'Regar {crop_name}. Frecuencia: según kebutuhan de agua',
+      description_template: 'Regar {crop_name}. Frecuencia: según disponibilidad de agua',
       priority: 'medium',
       estimated_duration_minutes: 30,
       is_recurring: true,
@@ -75,7 +75,7 @@ export class TaskGenerator {
     },
     {
       task_type: 'treatment',
-      task_category: 'pest_control',
+      task_category: 'pest_disease',
       days_offset: 20,
       title_template: 'Tratamiento fitosanitario de {crop_name}',
       description_template: 'Revisar estado fitosanitario de {crop_name}',
@@ -86,8 +86,8 @@ export class TaskGenerator {
       recurrence_interval: 1
     },
     {
-      task_type: 'harvest',
-      task_category: 'harvest',
+      task_type: 'harvesting',
+      task_category: 'harvesting',
       days_offset: 0,
       title_template: 'Cosecha de {crop_name}',
       description_template: 'Recoger cosecha de {crop_name}',
@@ -116,20 +116,20 @@ export class TaskGenerator {
 
       const scheduledDate = new Date(plantedAt);
       scheduledDate.setDate(scheduledDate.getDate() + daysOffset);
+      scheduledDate.setHours(4, 0, 0, 0);
 
       if (scheduledDate < new Date()) {
         continue;
       }
 
-      const title = template.title_template
-        .replace('{crop_name}', cropName);
-      
-      const description = template.description_template
-        .replace('{crop_name}', cropName);
+      const title = template.title_template.replace('{crop_name}', cropName);
 
-      const dueDate = template.task_type === 'harvest'
-        ? new Date(plantedAt.getTime() + daysToMaturity * 24 * 60 * 60 * 1000)
-        : null;
+      const description = template.description_template.replace('{crop_name}', cropName);
+
+      const dueDate =
+        template.task_type === 'harvest'
+          ? new Date(plantedAt.getTime() + daysToMaturity * 24 * 60 * 60 * 1000)
+          : null;
 
       const task = new Task({
         id: new TaskId(crypto.randomUUID()),

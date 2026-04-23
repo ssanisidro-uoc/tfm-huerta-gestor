@@ -10,7 +10,7 @@ export class CreatePlantingController {
   async run(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const user = (req as any).user;
-      const { crop_id, plot_id, garden_id, planted_at, quantity, variety } = req.body;
+      const { crop_id, plot_id, garden_id, planted_at, quantity, variety, crop_name, days_to_maturity } = req.body;
 
       if (!user) {
         throw new AppError(401, 'AUTH_UNAUTHORIZED', 'User not authenticated');
@@ -35,7 +35,9 @@ export class CreatePlantingController {
         plot_id,
         plantedDate,
         harvestDate,
-        quantity || 1
+        quantity || 1,
+        crop_name || req.body.crop_name,
+        days_to_maturity || req.body.days_to_maturity
       );
 
       await this.commandBus.dispatch(command);

@@ -30,14 +30,13 @@
       <input
         type="email"
         id="email"
-        [(ngModel)]="email"
+        [ngModel]="email"
         name="email"
-        placeholder="tu@email.com"
-        [class.error]="validationErrors()['email']"
+        [readonly]="true"
+        disabled
+        class="readonly-field"
       />
-      @if (validationErrors()['email']) {
-        <span class="field-error">{{ validationErrors()['email'] }}</span>
-      }
+      <span class="field-hint">{{ 'profile.emailCannotChange' | t }}</span>
     </div>
 
     <hr />
@@ -67,9 +66,37 @@
         name="newPassword"
         placeholder="Mínimo 8 caracteres"
         [class.error]="validationErrors()['newPassword']"
+        (input)="onNewPasswordChange()"
       />
       @if (validationErrors()['newPassword']) {
         <span class="field-error">{{ validationErrors()['newPassword'] }}</span>
+      }
+      
+      @if (newPassword.length > 0) {
+        <div class="password-requirements">
+          <ul class="req-list">
+            <li [class.valid]="passwordRequirements.minLength()">
+              <span class="check">{{ passwordRequirements.minLength() ? '✓' : '○' }}</span>
+              {{ 'profile.passwordMinLength' | t }}
+            </li>
+            <li [class.valid]="passwordRequirements.hasNumber()">
+              <span class="check">{{ passwordRequirements.hasNumber() ? '✓' : '○' }}</span>
+              {{ 'profile.passwordNumber' | t }}
+            </li>
+            <li [class.valid]="passwordRequirements.hasLowercase()">
+              <span class="check">{{ passwordRequirements.hasLowercase() ? '✓' : '○' }}</span>
+              {{ 'profile.passwordLowercase' | t }}
+            </li>
+            <li [class.valid]="passwordRequirements.hasUppercase()">
+              <span class="check">{{ passwordRequirements.hasUppercase() ? '✓' : '○' }}</span>
+              {{ 'profile.passwordUppercase' | t }}
+            </li>
+            <li [class.valid]="passwordRequirements.hasSpecial()">
+              <span class="check">{{ passwordRequirements.hasSpecial() ? '✓' : '○' }}</span>
+              {{ 'profile.passwordSpecial' | t }}
+            </li>
+          </ul>
+        </div>
       }
     </div>
 

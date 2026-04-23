@@ -52,7 +52,8 @@ export interface TaskItem {
   title: string;
   subtitle?: string;
   plot_name?: string;
-  scheduled_time?: string; // '09:00', 'Hoy', '16:30'
+  scheduled_time?: string;
+  scheduled_date?: string | Date;
   type:
     | 'riego'
     | 'fitosanitario'
@@ -60,8 +61,10 @@ export interface TaskItem {
     | 'abonado'
     | 'mantenimiento'
     | 'otro';
-  status: 'pending' | 'completed' | 'overdue';
+  status: 'pending' | 'completed' | 'overdue' | 'postponed';
   is_urgent?: boolean;
+  postponed_until?: Date | null;
+  postponed_reason?: string | null;
 }
 
 export interface TaskTypeStats {
@@ -81,9 +84,13 @@ export interface ActivityItem {
 }
 
 export interface AlertBanner {
+  id: string;
+  type: 'task_overdue' | 'planting_ready' | 'task_today' | 'weather_warning';
+  title: string;
   message: string;
-  task_id?: string;
-  severity: 'warning' | 'error' | 'info';
+  priority: 'high' | 'medium' | 'low';
+  entity_id?: string;
+  entity_type?: string;
 }
 
 @Injectable({

@@ -1,0 +1,384 @@
+{
+  "info": {
+    "name": "Huertis API - Backend",
+    "description": "Colección con autenticación automática",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "baseUrl", "value": "http://localhost:3000"},
+    {"key": "token", "value": ""},
+    {"key": "userId", "value": ""},
+    {"key": "gardenId", "value": ""},
+    {"key": "plotId", "value": ""},
+    {"key": "cropId", "value": ""}
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{"key": "token", "value": "{{token}}"}]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "javascript",
+        "exec": [
+          "// Añadir userid header si hay token",
+          "if (pm.variables.get('token')) {",
+          "  pm.request.headers.add({key: 'userid', value: pm.variables.get('userId')});",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "javascript",
+        "exec": [
+          "// Guardar token automáticamente después del login",
+          "if (pm.request.url.path.includes('login') && pm.response.code === 200) {",
+          "  const response = pm.response.json();",
+          "  if (response && response.token) {",
+          "    pm.variables.set('token', response.token);",
+          "    pm.variables.set('userId', response.userId);",
+          "    console.log('Token guardado automáticamente');",
+          "  }",
+          "}",
+          "",
+          "// Guardar IDs de recursos creados",
+          "const location = pm.response.headers.get('Location') || pm.response.json()?.id;",
+          "if (location && pm.request.method === 'POST') {",
+          "  const path = pm.request.url.path;",
+          "  if (path.includes('/gardens') && !path.includes('/collaborators')) {",
+          "    pm.variables.set('gardenId', location);",
+          "    console.log('Garden ID guardado:', location);",
+          "  }",
+          "  if (path.includes('/plots')) {",
+          "    pm.variables.set('plotId', location);",
+          "    console.log('Plot ID guardado:', location);",
+          "  }",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.token) {",
+                  "  pm.variables.set('token', json.token);",
+                  "  pm.variables.set('userId', json.userId);",
+                  "  console.log('✓ Token guardado:', json.token.substring(0, 20) + '...');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"}
+          }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/register",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"id\": \"{{$guid}}\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"Test User\",\n  \"role_id\": \"2\"\n}"}
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/logout"
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/auth/me"}
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/users/profile",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Nombre Actualizado\"\n}"}
+          }
+        },
+        {
+          "name": "Get Preferences",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/users/preferences"}
+        },
+        {
+          "name": "Update Preferences",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/users/preferences",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"language\": \"es\",\n  \"theme\": \"light\"\n}"}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gardens",
+      "item": [
+        {
+          "name": "Get All Gardens",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/gardens"}
+        },
+        {
+          "name": "Create Garden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.garden && json.garden.id) {",
+                  "  pm.variables.set('gardenId', json.garden.id);",
+                  "  console.log('✓ Garden ID guardado:', json.garden.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/gardens",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Mi Huerta\",\n  \"description\": \"Huerta de prueba\",\n  \"climate_zone\": \"mediterranean_coast\",\n  \"surface_m2\": 100,\n  \"location\": {\n    \"city\": \"Madrid\",\n    \"region\": \"Madrid\",\n    \"country\": \"ES\"\n  }\n}"}
+          }
+        },
+        {
+          "name": "Get Garden by ID",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/gardens/{{gardenId}}"}
+        },
+        {
+          "name": "Update Garden",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/gardens/{{gardenId}}",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Huerta Actualizada\",\n  \"location\": {\n    \"city\": \"Barcelona\",\n    \"region\": \"Catalunya\",\n    \"country\": \"ES\"\n  }\n}"}
+          }
+        },
+        {
+          "name": "Delete Garden",
+          "request": {"method": "DELETE", "url": "{{baseUrl}}/api/gardens/{{gardenId}}"}
+        },
+        {
+          "name": "Validate Location",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/gardens/validate-location?city=Valencia"}
+        },
+        {
+          "name": "Get Shared Gardens",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/gardens/shared"}
+        },
+        {
+          "name": "Get Collaborators",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/gardens/{{gardenId}}/collaborators"}
+        },
+        {
+          "name": "Invite Collaborator",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/gardens/{{gardenId}}/collaborators",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"colaborador@example.com\",\n  \"role\": \"collaborator\"\n}"}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plots",
+      "item": [
+        {
+          "name": "Get Plots by Garden",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/gardens/{{gardenId}}/plots"}
+        },
+        {
+          "name": "Create Plot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.plot && json.plot.id) {",
+                  "  pm.variables.set('plotId', json.plot.id);",
+                  "  console.log('✓ Plot ID guardado:', json.plot.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/gardens/{{gardenId}}/plots",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Parcela 1\",\n  \"soil_type\": \"clay\",\n  \"surface_m2\": 50,\n  \"description\": \"Parcela de prueba\"\n}"}
+          }
+        },
+        {
+          "name": "Get Plot by ID",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/plots/{{plotId}}"}
+        },
+        {
+          "name": "Update Plot",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/plots/{{plotId}}",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Parcela Actualizada\",\n  \"soil_type\": \"sandy\"\n}"}
+          }
+        },
+        {
+          "name": "Delete Plot",
+          "request": {"method": "DELETE", "url": "{{baseUrl}}/api/plots/{{plotId}}"}
+        },
+        {
+          "name": "Check Rotation",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/plots/{{plotId}}/rotation/check"}
+        },
+        {
+          "name": "Companion Suggestions",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/plots/{{plotId}}/companion-suggestions"}
+        }
+      ]
+    },
+    {
+      "name": "Plantings",
+      "item": [
+        {
+          "name": "Get Plantings by Plot",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/plots/{{plotId}}/plantings"}
+        },
+        {
+          "name": "Get Planting by ID",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/plantings/{{plantingId}}"}
+        },
+        {
+          "name": "Create Planting",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.planting && json.planting.id) {",
+                  "  pm.variables.set('plantingId', json.planting.id);",
+                  "  console.log('✓ Planting ID guardado:', json.planting.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/plots/{{plotId}}/plantings",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"crop_id\": \"{{cropId}}\",\n  \"sowing_date\": \"2026-04-01\",\n  \"days_to_maturity\": 60,\n  \"status\": \"planned\"\n}"}
+          }
+        },
+        {
+          "name": "Get Planting Status",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/plantings/{{plantingId}}/status"}
+        },
+        {
+          "name": "Get Planting Associations",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/plantings/{{plantingId}}/associations"}
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Get Tasks by Garden",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/gardens/{{gardenId}}/tasks"}
+        },
+        {
+          "name": "Get Calendar",
+          "request": {"method": "GET", "url": "{{baseUrl}}/api/gardens/{{gardenId}}/calendar"}
+        },
+        {
+          "name": "Create Task",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/gardens/{{gardenId}}/tasks",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Regar\",\n  \"description\": \"Regar las plantas\",\n  \"category\": \"irrigation\",\n  \"scheduled_date\": \"2026-04-21\"\n}"}
+          }
+        },
+        {
+          "name": "Delete Task",
+          "request": {"method": "DELETE", "url": "{{baseUrl}}/api/tasks/{{taskId}}"}
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {"name": "Stats", "request": {"method": "GET", "url": "{{baseUrl}}/api/dashboard/stats"}},
+        {"name": "Plots Summary", "request": {"method": "GET", "url": "{{baseUrl}}/api/dashboard/plots-summary"}},
+        {"name": "Crops Summary", "request": {"method": "GET", "url": "{{baseUrl}}/api/dashboard/crops-summary"}},
+        {"name": "Recent Activity", "request": {"method": "GET", "url": "{{baseUrl}}/api/dashboard/recent-activity"}},
+        {"name": "Today Tasks", "request": {"method": "GET", "url": "{{baseUrl}}/api/dashboard/today-tasks"}},
+        {"name": "Task Stats", "request": {"method": "GET", "url": "{{baseUrl}}/api/dashboard/task-stats"}},
+        {"name": "Alerts", "request": {"method": "GET", "url": "{{baseUrl}}/api/dashboard/alerts"}}
+      ]
+    },
+    {
+      "name": "Weather",
+      "item": [
+        {"name": "Get Locations", "request": {"method": "GET", "url": "{{baseUrl}}/api/weather/locations"}},
+        {"name": "Garden Weather", "request": {"method": "GET", "url": "{{baseUrl}}/api/weather/garden/{{gardenId}}"}},
+        {"name": "Recommendations", "request": {"method": "GET", "url": "{{baseUrl}}/api/weather/garden/{{gardenId}}/recommendations?days=7"}},
+        {"name": "Alerts", "request": {"method": "GET", "url": "{{baseUrl}}/api/weather/garden/{{gardenId}}/alerts"}},
+        {"name": "Get Forecast", "request": {"method": "GET", "url": "{{baseUrl}}/api/weather/forecast/{{locationId}}"}}
+      ]
+    },
+    {
+      "name": "Lunar",
+      "item": [
+        {"name": "Today", "request": {"method": "GET", "url": "{{baseUrl}}/api/lunar/today"}},
+        {"name": "Recommendations", "request": {"method": "GET", "url": "{{baseUrl}}/api/lunar/recommendations"}},
+        {"name": "Calendar", "request": {"method": "GET", "url": "{{baseUrl}}/api/lunar/calendar/2026/4"}},
+        {"name": "Tasks", "request": {"method": "GET", "url": "{{baseUrl}}/api/lunar/tasks"}},
+        {"name": "Update Preferences", "request": {
+          "method": "PUT",
+          "url": "{{baseUrl}}/api/lunar/preferences",
+          "header": [{"key": "Content-Type", "value": "application/json"}],
+          "body": {"mode": "raw", "raw": "{\n  \"hemisphere\": \"northern\",\n  \"activities\": [\"sowing\", \"harvesting\", \"pruning\"]\n}"}
+        }}
+      ]
+    },
+    {
+      "name": "Crops",
+      "item": [
+        {"name": "Get All Crops", "request": {"method": "GET", "url": "{{baseUrl}}/api/crops"}},
+        {"name": "Get Crop by ID", "request": {"method": "GET", "url": "{{baseUrl}}/api/crops/{{cropId}}"}},
+        {"name": "Get Crop Compatibilities", "request": {"method": "GET", "url": "{{baseUrl}}/api/crops/{{cropId}}/compatibilities"}}
+      ]
+    }
+  ]
+}

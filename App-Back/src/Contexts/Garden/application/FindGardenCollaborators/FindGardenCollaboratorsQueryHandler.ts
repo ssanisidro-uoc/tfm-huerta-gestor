@@ -2,18 +2,16 @@ import { QueryHandler } from '../../../Shared/domain/QueryHandler';
 import { Query } from '../../../Shared/domain/Query';
 import { FindGardenCollaboratorsQuery } from './FindGardenCollaboratorsQuery';
 import { FindGardenCollaboratorsResponse } from './FindGardenCollaboratorsResponse';
-import { UserGardenRepository } from '../../../UserGarden/domain/UserGardenRepository';
+import { GardenCollaboratorsFinder } from './GardenCollaboratorsFinder';
 
 export class FindGardenCollaboratorsQueryHandler implements QueryHandler<FindGardenCollaboratorsQuery, FindGardenCollaboratorsResponse> {
-  constructor(private repository: UserGardenRepository) {}
+  constructor(private finder: GardenCollaboratorsFinder) {}
 
   subscribedTo(): Query {
     return FindGardenCollaboratorsQuery;
   }
 
   async handle(query: FindGardenCollaboratorsQuery): Promise<FindGardenCollaboratorsResponse> {
-    const collaborators = await this.repository.find_collaborators_by_garden(query.garden_id);
-    
-    return new FindGardenCollaboratorsResponse(collaborators);
+    return this.finder.run(query.garden_id);
   }
 }

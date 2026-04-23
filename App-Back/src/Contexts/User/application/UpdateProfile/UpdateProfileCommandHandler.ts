@@ -13,7 +13,6 @@ export class UpdateProfileCommandHandler implements CommandHandler<UpdateProfile
   async handle(command: UpdateProfileCommand): Promise<void> {
     await this.updater.run(command.user_id, {
       name: command.name,
-      email: command.email,
       currentPassword: command.currentPassword,
       newPassword: command.newPassword
     });

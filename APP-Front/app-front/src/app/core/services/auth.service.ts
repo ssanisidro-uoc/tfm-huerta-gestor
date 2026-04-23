@@ -25,7 +25,6 @@ export interface RegisterRequest {
 
 export interface UpdateProfileRequest {
   name?: string;
-  email?: string;
   currentPassword?: string;
   newPassword?: string;
 }
@@ -148,11 +147,10 @@ export class AuthService {
         tap((response) => {
           if (response.success) {
             const storedUser = this.getStoredUser();
-            if (storedUser) {
+            if (storedUser && data.name) {
               const updatedUser: User = {
                 ...storedUser,
-                ...(data.name && { name: data.name }),
-                ...(data.email && { email: data.email }),
+                name: data.name,
               };
               this.storeUser(updatedUser);
               this.currentUserSignal.set(updatedUser);

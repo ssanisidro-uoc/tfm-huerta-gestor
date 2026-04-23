@@ -1,31 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
-import { QueryBus } from '../../../../Contexts/Shared/domain/QueryBus';
-import { CommandBus } from '../../../../Contexts/Shared/domain/CommandBus';
 import { 
-  GetAssociationsByPlantingQuery, 
-  GetAssociationsByPlotQuery, 
-  GetAssociationByIdQuery,
-  GetCompanionSuggestionsQuery,
-  GetActivePlantingsQuery 
-} from '../../../../Contexts/Planting/application/PlantingAssociations/AssociationQueries';
-import { 
-  CreateAssociationCommand, 
-  DeleteAssociationCommand,
-  CreateObservationCommand 
-} from '../../../../Contexts/Planting/application/PlantingAssociations/AssociationCommands';
+  PlantingAssociationsService,
+  CreateAssociationCommand,
+  CreateObservationCommand
+} from '../../../../Contexts/Planting/application/PlantingAssociationsService';
 import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
 
 export class PlantingAssociationsController {
   constructor(
-    private queryBus: QueryBus,
-    private commandBus: CommandBus
+    private service: PlantingAssociationsService
   ) {}
 
   async getByPlanting(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { plantingId } = req.params;
-      const query = new GetAssociationsByPlantingQuery(plantingId);
-      const associations = await this.queryBus.ask(query);
+      const associations = await this.service.getByPlanting(plantingId);
 
       res.status(200).json({
         success: true,
@@ -40,8 +29,7 @@ export class PlantingAssociationsController {
   async getByPlot(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { plotId } = req.params;
-      const query = new GetAssociationsByPlotQuery(plotId);
-      const associations = await this.queryBus.ask(query);
+      const associations = await this.service.getByPlot(plotId);
 
       res.status(200).json({
         success: true,
@@ -56,8 +44,7 @@ export class PlantingAssociationsController {
   async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
-      const query = new GetAssociationByIdQuery(id);
-      const association = await this.queryBus.ask(query);
+      const association = await this.service.getById(id);
 
       if (!association) {
         res.status(404).json({ success: false, error: 'Association not found' });
@@ -92,18 +79,18 @@ export class PlantingAssociationsController {
         return;
       }
 
-      const command = new CreateAssociationCommand(
-        plantingId,
-        companion_planting_id,
-        actual_distance_cm,
-        actual_arrangement,
-        actual_ratio,
-        purpose,
-        expected_benefit,
-        user_notes
-      );
+      const command: CreateAssociationCommand = {
+        primaryPlantingId: plantingId,
+        companionPlantingId: companion_planting_id,
+        actualDistanceCm: actual_distance_cm,
+        actualArrangement: actual_arrangement,
+        actualRatio: actual_ratio,
+        purpose: purpose,
+        expectedBenefit: expected_benefit,
+        userNotes: user_notes
+      };
 
-      await this.commandBus.dispatch(command);
+      await this.service.createAssociation(command);
 
       res.status(201).json({
         success: true,
@@ -118,8 +105,7 @@ export class PlantingAssociationsController {
   async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
-      const command = new DeleteAssociationCommand(id);
-      await this.commandBus.dispatch(command);
+      await this.service.deleteAssociation(id);
 
       res.status(200).json({ success: true });
     } catch (error: any) {
@@ -145,17 +131,17 @@ export class PlantingAssociationsController {
         return;
       }
 
-      const command = new CreateObservationCommand(
-        id,
-        userId,
-        observation_type,
-        outcome,
-        effectiveness_rating,
-        description,
-        measured_data
-      );
+      const command: CreateObservationCommand = {
+        associationId: id,
+        observedBy: userId,
+        observationType: observation_type,
+        outcome: outcome,
+        effectivenessRating: effectiveness_rating,
+        description: description,
+        measuredData: measured_data
+      };
 
-      await this.commandBus.dispatch(command);
+      await this.service.createObservation(command);
 
       res.status(201).json({
         success: true,
@@ -168,11 +154,33 @@ export class PlantingAssociationsController {
   }
 
   async getObservations(req: Request, res: Response, next: NextFunction): Promise<void> {
-    res.status(501).json({ success: false, error: 'Not implemented' });
+    try {
+      const { id } = req.params;
+      const observations = await this.service.getObservations(id);
+
+      res.status(200).json({
+        success: true,
+        data: observations
+      });
+    } catch (error: any) {
+      logger.error(`Error getting observations: ${error.message}`, 'PlantingAssociationsController');
+      next(error);
+    }
   }
 
   async getReport(req: Request, res: Response, next: NextFunction): Promise<void> {
-    res.status(501).json({ success: false, error: 'Not implemented' });
+    try {
+      const { plotId } = req.params;
+      const report = await this.service.getReportByPlot(plotId);
+
+      res.status(200).json({
+        success: true,
+        data: report
+      });
+    } catch (error: any) {
+      logger.error(`Error getting report: ${error.message}`, 'PlantingAssociationsController');
+      next(error);
+    }
   }
 
   async getCompanionSuggestions(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -185,8 +193,7 @@ export class PlantingAssociationsController {
         return;
       }
 
-      const query = new GetCompanionSuggestionsQuery(plotId, cropCatalogId);
-      const suggestions = await this.queryBus.ask(query);
+      const suggestions = await this.service.getCompanionSuggestions(plotId, cropCatalogId);
 
       res.status(200).json({
         success: true,
@@ -199,18 +206,6 @@ export class PlantingAssociationsController {
   }
 
   async getActivePlantings(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const { plotId } = req.params;
-      const query = new GetActivePlantingsQuery(plotId);
-      const plantings = await this.queryBus.ask(query);
-
-      res.status(200).json({
-        success: true,
-        data: plantings
-      });
-    } catch (error: any) {
-      logger.error(`Error getting active plantings: ${error.message}`, 'PlantingAssociationsController');
-      next(error);
-    }
+    res.status(501).json({ success: false, error: 'Use /api/plantings/by-plot/{plotId} instead' });
   }
 }

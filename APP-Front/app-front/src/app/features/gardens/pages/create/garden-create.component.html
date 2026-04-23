@@ -102,7 +102,7 @@
           <p class="field-hint">{{ 'gardens.locationHint' | t }}</p>
           
           <div class="form-row">
-            <div class="form-group">
+            <div class="form-group city-input-group">
               <label for="location_city">{{ 'gardens.city' | t }} *</label>
               <input
                 type="text"
@@ -112,9 +112,37 @@
                 required
                 aria-required="true"
                 [disabled]="gardenService.loading()"
-                autocomplete="address-level2"
+                autocomplete="off"
                 [placeholder]="'gardens.cityPlaceholder' | t"
+                (blur)="onLocationBlur()"
+                (input)="onCityInput()"
+                (focus)="showSuggestions.set(true)"
+                [class.invalid]="locationError()"
               />
+              @if (showSuggestions() && citySuggestions()?.length) {
+                <ul class="city-suggestions">
+                  @for (suggestion of citySuggestions(); track suggestion.displayName) {
+                    <li (mousedown)="selectCity(suggestion)">
+                      <strong>{{ suggestion.city }}</strong>
+                      @if (suggestion.region) {
+                        <span>, {{ suggestion.region }}</span>
+                      }
+                      @if (suggestion.country) {
+                        <span>, {{ suggestion.country }}</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+              @if (locationValidating()) {
+                <span class="validation-loading">Buscando...</span>
+              }
+              @if (locationValid(); as valid) {
+                <span class="validation-success">✓</span>
+              }
+              @if (locationError()) {
+                <span class="validation-error">{{ locationError() }}</span>
+              }
             </div>
 
             <div class="form-group">

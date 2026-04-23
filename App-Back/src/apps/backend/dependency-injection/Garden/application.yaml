@@ -91,15 +91,22 @@ services:
     tags:
       - { name: 'commandHandler' }
 
+  Backend.Garden.application.SharedGardensFinder:
+    class: ../../../../Contexts/Garden/application/ListSharedGardens/SharedGardensFinder
+    arguments: ['@Backend.Garden.domain.UserGardenRepository', '@Backend.Garden.application.GardenByIdFinder']
+
   Backend.Garden.application.ListSharedGardensQueryHandler:
     class: ../../../../Contexts/Garden/application/ListSharedGardens/ListSharedGardensQueryHandler
-    arguments:
-      ['@Backend.Garden.domain.UserGardenRepository', '@Backend.Garden.domain.GardenRepository']
+    arguments: ['@Backend.Garden.application.SharedGardensFinder']
     tags:
       - { name: 'queryHandler' }
 
+  Backend.Garden.application.GardenCollaboratorsFinder:
+    class: ../../../../Contexts/Garden/application/FindGardenCollaborators/GardenCollaboratorsFinder
+    arguments: ['@Backend.Garden.domain.UserGardenRepository']
+
   Backend.Garden.application.FindGardenCollaboratorsQueryHandler:
     class: ../../../../Contexts/Garden/application/FindGardenCollaborators/FindGardenCollaboratorsQueryHandler
-    arguments: ['@Backend.Garden.domain.UserGardenRepository']
+    arguments: ['@Backend.Garden.application.GardenCollaboratorsFinder']
     tags:
       - { name: 'queryHandler' }

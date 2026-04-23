@@ -4,13 +4,33 @@ import { Observable, tap, catchError, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 export interface WeatherRecommendation {
-  id: string;
-  action: string;
-  type: string;
+  icon: string;
+  key: string;
+  params: Record<string, any>;
   severity: 'info' | 'warning' | 'critical';
-  message: string;
-  description: string;
-  strength: number;
+}
+
+export interface WeatherDailyRecommendation {
+  id: string;
+  type: string;
+  recommendations: WeatherRecommendation[];
+  mainRecommendation: WeatherRecommendation;
+  severity: 'info' | 'warning' | 'critical';
+}
+
+export interface WeatherForecast {
+  date: string;
+  temp_max: number;
+  temp_min: number;
+  precipitation_probability: number;
+  precipitation_sum: number;
+  weather_code: number;
+  weather_description: string;
+  humidity_max: number;
+  humidity_min: number;
+  wind_speed_max: number;
+  et0: number;
+  recommendation: WeatherDailyRecommendation | null;
 }
 
 export interface WeatherAlert {
@@ -32,8 +52,7 @@ export interface WeatherRecommendationsResponse {
     gardenName: string;
     location: any;
     days: number;
-    forecast: any[];
-    recommendations: WeatherRecommendation[];
+    forecast: WeatherForecast[];
   };
 }
 
@@ -53,15 +72,17 @@ export class WeatherIntelligenceService {
   
   private recommendationsSignal = signal<WeatherRecommendation[]>([]);
   private alertsSignal = signal<WeatherAlert[]>([]);
+  private forecastSignal = signal<WeatherForecast[]>([]);
   private loadingSignal = signal(false);
 
   readonly recommendations = this.recommendationsSignal.asReadonly();
   readonly alerts = this.alertsSignal.asReadonly();
+  readonly forecast = this.forecastSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
 
   constructor(private http: HttpClient) {}
 
-  getWeatherRecommendations(gardenId: string, days = 7): Observable<WeatherRecommendationsResponse | null> {
+  getWeatherRecommendations(gardenId: string, days = 5): Observable<WeatherRecommendationsResponse | null> {
     this.loadingSignal.set(true);
     
     return this.http.get<WeatherRecommendationsResponse>(
@@ -69,15 +90,20 @@ export class WeatherIntelligenceService {
       { params: { days: days.toString() } }
     ).pipe(
       tap(response => {
-        if (response?.data?.recommendations) {
-          this.recommendationsSignal.set(response.data.recommendations);
+        if (response?.data?.forecast) {
+          this.forecastSignal.set(response.data.forecast);
+          const allRecs = response.data.forecast
+            .flatMap(f => f.recommendation?.recommendations || []);
+          this.recommendationsSignal.set(allRecs);
         } else {
+          this.forecastSignal.set([]);
           this.recommendationsSignal.set([]);
         }
         this.loadingSignal.set(false);
       }),
       catchError((err: HttpErrorResponse) => {
         console.error('Weather recommendations error:', err);
+        this.forecastSignal.set([]);
         this.recommendationsSignal.set([]);
         this.loadingSignal.set(false);
         return of(null);

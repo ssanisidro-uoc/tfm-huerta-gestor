@@ -1,11 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
-import { CalendarTasksFinder } from '../../../../Contexts/Task/application/GetCalendarTasks/CalendarTasksFinder';
+import { QueryBus } from '../../../../Contexts/Shared/domain/QueryBus';
 import { UserGardenRepository } from '../../../../Contexts/Garden/infrastructure/persistence/UserGardenRepository';
+import { GetCalendarTasksQuery } from '../../../../Contexts/Task/application/GetCalendarTasks/GetCalendarTasksQuery';
+import { GetCalendarTasksResponse } from '../../../../Contexts/Task/application/GetCalendarTasks/GetCalendarTasksResponse';
 
 export class GetCalendarTasksController {
   constructor(
-    private calendarFinder: CalendarTasksFinder,
+    private queryBus: QueryBus,
     private userGardenRepository: UserGardenRepository
   ) {}
 
@@ -43,41 +45,31 @@ export class GetCalendarTasksController {
       if (task_type) filters.task_type = task_type;
       if (status) filters.status = status;
 
-      const tasks = await this.calendarFinder.run(
+      const query = new GetCalendarTasksQuery(
         garden_id,
         new Date(start_date as string),
         new Date(end_date as string),
         filters
       );
+      
+      const result = await this.queryBus.ask(query) as GetCalendarTasksResponse;
 
       const tasksByDate: Record<string, any[]> = {};
-      for (const task of tasks) {
+      for (const task of result.tasks) {
         const dateKey = new Date(task.scheduled_date).toISOString().split('T')[0];
         if (!tasksByDate[dateKey]) {
           tasksByDate[dateKey] = [];
         }
-        tasksByDate[dateKey].push({
-          id: task.id.get_value(),
-          task_type: task.task_type,
-          task_category: task.task_category,
-          title: task.title.get_value(),
-          description: task.description,
-          scheduled_date: task.scheduled_date,
-          plot_id: task.plot_id,
-          planting_id: task.planting_id,
-          status: task.status,
-          priority: task.priority,
-          is_recurring: task.is_recurring
-        });
+        tasksByDate[dateKey].push(task);
       }
 
-      logger.info(`Calendar tasks: ${tasks.length} tasks from ${start_date} to ${end_date}`, 'GetCalendarTasksController');
+      logger.info(`Calendar tasks: ${result.tasks.length} tasks from ${start_date} to ${end_date}`, 'GetCalendarTasksController');
 
       res.status(200).json({
         success: true,
         data: {
           tasks: tasksByDate,
-          total: tasks.length
+          total: result.tasks.length
         }
       });
     } catch (error: unknown) {

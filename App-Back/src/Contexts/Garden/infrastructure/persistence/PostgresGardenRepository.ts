@@ -17,14 +17,22 @@ export class PostgresGardenRepository extends PostgresRepository implements Gard
     const garden_data = garden.to_persistence();
 
     const query: string = `
-      INSERT INTO gardens (id, owner_id, name, surface_m2, climate_zone, is_active, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO gardens (id, owner_id, name, surface_m2, climate_zone, is_active, created_at, updated_at, 
+        location_address, location_city, location_region, location_country, location_latitude, location_longitude, location_timezone)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       ON CONFLICT (id) DO UPDATE SET
         name = $3,
         surface_m2 = $4,
         climate_zone = $5,
         is_active = $6,
-        updated_at = $8
+        updated_at = $8,
+        location_address = $9,
+        location_city = $10,
+        location_region = $11,
+        location_country = $12,
+        location_latitude = $13,
+        location_longitude = $14,
+        location_timezone = $15
     `;
 
     const values = [
@@ -35,7 +43,14 @@ export class PostgresGardenRepository extends PostgresRepository implements Gard
       garden_data.climate_zone,
       garden_data.is_active,
       garden_data.created_at,
-      garden_data.updated_at
+      garden_data.updated_at,
+      garden_data.location_address,
+      garden_data.location_city,
+      garden_data.location_region,
+      garden_data.location_country,
+      garden_data.location_latitude,
+      garden_data.location_longitude,
+      garden_data.location_timezone
     ];
 
     await this.query(query, values);

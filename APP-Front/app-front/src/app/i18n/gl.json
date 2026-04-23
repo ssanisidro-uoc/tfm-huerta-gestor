@@ -61,6 +61,18 @@
     "notifications": "Notificacións",
     "notificationsEnabled": "Recibir notificacións",
     "profileUpdated": "Perfil actualizado correctamente",
+    "emailCannotChange": "O correo non se pode modificar",
+    "passwordRequirements": "Requisitos de contrasinal:",
+    "passwordMinLength": "Mínimo 8 caracteres",
+    "passwordNumber": "Polo menos un número",
+    "passwordLowercase": "Unha letra minúscula",
+    "passwordUppercase": "Unha letra maiúscula",
+    "passwordSpecial": "Un carácter especial (!@#$%...)",
+    "passwordStrength": {
+      "weak": "Feble",
+      "medium": "Media",
+      "strong": "Forte"
+    },
     "themes": {
       "light": "Claro",
       "dark": "Oscuro",
@@ -116,7 +128,34 @@
     "noTasksToday": "Non hai tarefas para hoxe",
     "tasksByType": "Tarefas por tipo",
     "noTaskData": "Sen datos de tarefas",
-    "noRecentActivity": "Sen actividade recente"
+    "noRecentActivity": "Sen actividade recente",
+    "weatherForecast": "Predición do tempo",
+    "weatherAlerts": "Alertas meteorolóxicas",
+    "weatherRecommendations": "Recomendacións do tempo",
+    "noWeatherAlerts": "Sen alertas meteorolóxicas",
+    "weatherNoLocation": "Configura a ubicación da túa horta para ver o clima",
+    "configureLocation": "Configurar ubicación",
+    "weatherRecs": {
+      "waterPlants": "Regar",
+      "avoidWatering": "Evitar rega",
+      "lowRainProb": "Baixa probabilidade de choiva",
+      "rainExpected": "Choiva probable",
+      "heatWarning": "Calor extremo",
+      "protectFromHeat": "Protexer plantas do calor",
+      "stormWarning": "Tormenta",
+      "protectFromStorm": "Protexer cultivos",
+      "fungusRisk": "Vixilancia fungos",
+      "highHumidity": "Humidade alta",
+      "windWarning": "Vento forte",
+      "highWind": "Vento forte",
+      "frostWarning": "Alerta xeada",
+      "protectSensitive": "Protexer sensibles",
+      "units": {
+        "rain": "choiva",
+        "humidity": "humidade",
+        "wind": "vento"
+      }
+    }
   },
   "gardens": {
     "title": "As miñas Hortas",
@@ -193,7 +232,24 @@
     "pendingInvitation": "Invitación pendente",
     "processing": "Procesando...",
     "accept": "Aceptar",
-    "reject": "Rexeitar"
+    "reject": "Rexeitar",
+    "locationHint": "A cidade é obligatoria para recibir recomendacións climáticas baseadas no clima local",
+    "city": "Cidade",
+    "cityPlaceholder": "Santiago de Compostela",
+    "region": "Provincia",
+    "address": "Dirección",
+    "country": "País",
+    "selectCountry": "Selecciona un país",
+    "surfacePlaceholder": "100",
+    "selectClimateZone": "Selecciona unha zona climática",
+    "creating": "Creando...",
+    "saving": "Gardando...",
+    "save": "Gardar",
+    "invalidSurface": "A superficie debe ser maior que 0",
+    "descriptionPlaceholder": "Descrición da túa horta",
+    "namePlaceholder": "Nome da túa horta",
+    "moreOptions": "Máis opcións",
+    "lessOptions": "Menos opcións"
   },
   "plots": {
     "title": "Parcelas",
@@ -440,6 +496,12 @@
     "cancelledCount": "Canceladas",
     "scheduled": "Programada",
     "dueDatePrefix": "Vence",
+    "selectPostponeDays": "Cantos dias queres pospoñer?",
+    "postponedTo": "Aplazada ao",
+    "reason": "Motivo",
+    "reasonRequired": "O motivo é obrigatorio",
+    "reasonPlaceholder": "Indica o motivo do retraso...",
+    "newDate": "Nova data",
     "completedDate": "Completada: {{date}}",
     "completedBy": "por {{user}}",
     "postponedDate": "Pospoñta: {{date}}",
@@ -756,11 +818,5 @@
     "idealTransplanting": "Bo para transplatar",
     "idealHarvesting": "Ideal para colleitar",
     "idealPruning": "Bo para podar"
-  },
-  "gardens": {
-    "title": "As miñas Hortas",
-    "create": "Crear",
-    "noGardens": "Aínda non tes hortas",
-    "createFirst": "Crear a miña primeira horta"
   }
 }

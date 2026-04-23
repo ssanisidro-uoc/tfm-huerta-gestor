@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { Observable, tap, catchError, of, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 export interface GardenLocation {
@@ -68,6 +68,15 @@ export interface LocationValidation {
     displayName: string;
   };
   error?: string;
+}
+
+export interface CitySuggestion {
+  city: string;
+  region?: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+  displayName: string;
 }
 
 export interface UpdateGardenRequest {
@@ -216,6 +225,16 @@ export class GardenService {
       catchError((err: HttpErrorResponse) => {
         return of(null);
       })
+    );
+  }
+
+  searchCities(query: string, country?: string): Observable<CitySuggestion[]> {
+    const params = new URLSearchParams({ q: query });
+    if (country) params.append('country', country);
+
+    return this.http.get<{ suggestions: CitySuggestion[] }>(`${this.API_URL}/api/gardens/search-cities?${params.toString()}`).pipe(
+      map(response => response.suggestions || []),
+      catchError(() => of([]))
     );
   }
 

@@ -13,14 +13,14 @@ export class GetWeatherRecommendationsController {
   async getRecommendations(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { gardenId } = req.params;
-      const days = parseInt(req.query.days as string) || 7;
+      const days = parseInt(req.query.days as string) || 5;
       
       logger.debug(`Getting weather recommendations for garden ${gardenId}, days=${days}`, 'GetWeatherRecommendationsController');
 
       const weather = await this.weatherService.getGardenWeather(gardenId);
       const forecast = weather.forecast.slice(0, days);
 
-      const recommendations = this.generateRecommendations(forecast);
+      const dailyRecommendations = this.generateDailyRecommendations(forecast);
 
       res.status(200).json({
         success: true,
@@ -34,7 +34,7 @@ export class GetWeatherRecommendationsController {
             timezone: weather.location.timezone
           },
           days: days,
-          forecast: forecast.map(f => ({
+          forecast: forecast.map((f, index) => ({
             date: f.date,
             temp_max: f.tempMax,
             temp_min: f.tempMin,
@@ -45,9 +45,9 @@ export class GetWeatherRecommendationsController {
             humidity_max: f.humidityMax,
             humidity_min: f.humidityMin,
             wind_speed_max: f.windSpeedMax,
-            et0: f.et0
-          })),
-          recommendations: recommendations
+            et0: f.et0,
+            recommendation: dailyRecommendations[index] || null
+          }))
         }
       });
     } catch (error) {
@@ -78,52 +78,85 @@ export class GetWeatherRecommendationsController {
     }
   }
 
-  private generateRecommendations(forecast: WeatherData[]): any[] {
-    const recommendations: any[] = [];
-    let id = 1;
-
-    for (let i = 0; i < forecast.length; i++) {
-      const day = forecast[i];
-      const tasks: string[] = [];
+  private generateDailyRecommendations(forecast: WeatherData[]): any[] {
+    return forecast.map((day, index) => {
+      const recommendations: any[] = [];
 
       if (day.precipitationProbability < 30 && day.tempMax > 25) {
-        tasks.push('Regar - probabilidad baja de lluvia');
+        recommendations.push({
+          icon: '💧',
+          key: 'waterPlants',
+          params: { rain: day.precipitationProbability },
+          severity: 'info'
+        });
       }
 
       if (day.precipitationProbability > 70) {
-        tasks.push('Evitar riego - lluvia esperada');
+        recommendations.push({
+          icon: '🌧️',
+          key: 'rainExpected',
+          params: { rain: day.precipitationProbability },
+          severity: 'warning'
+        });
       }
 
       if (day.tempMax > 35) {
-        tasks.push('Proteger plantas del calor extremo');
+        recommendations.push({
+          icon: '🔥',
+          key: 'heatWarning',
+          params: { temp: day.tempMax },
+          severity: 'warning'
+        });
       }
 
       if (day.weatherCode >= 95) {
-        tasks.push('Proteger de tormenta');
+        recommendations.push({
+          icon: '⛈️',
+          key: 'stormWarning',
+          params: { weather: day.weatherDescription },
+          severity: 'critical'
+        });
       }
 
       if (day.humidityMax > 80) {
-        tasks.push('Vigilancia de hongos');
+        recommendations.push({
+          icon: '🦠',
+          key: 'fungusRisk',
+          params: { humidity: day.humidityMax },
+          severity: 'warning'
+        });
       }
 
       if (day.windSpeedMax > 40) {
-        tasks.push('Proteger plantas del viento');
-      }
-
-      if (tasks.length > 0) {
         recommendations.push({
-          id: `rec-${id++}`,
-          action: tasks[0],
-          type: 'irrigation',
-          severity: day.precipitationProbability > 70 ? 'warning' : 'info',
-          message: tasks.join(', '),
-          description: `Temp: ${day.tempMax}°/${day.tempMin}° - ${day.weatherDescription}`,
-          strength: tasks.length
+          icon: '💨',
+          key: 'windWarning',
+          params: { wind: day.windSpeedMax },
+          severity: 'info'
         });
       }
-    }
 
-    return recommendations;
+      if (day.tempMin < 5 && day.tempMax > 20) {
+        recommendations.push({
+          icon: '🌡️',
+          key: 'frostWarning',
+          params: { temp: day.tempMin },
+          severity: 'critical'
+        });
+      }
+
+      if (recommendations.length === 0) {
+        return null;
+      }
+
+      return {
+        id: `rec-${index + 1}`,
+        type: 'irrigation',
+        recommendations: recommendations,
+        mainRecommendation: recommendations[0],
+        severity: recommendations[0].severity
+      };
+    });
   }
 
   private generateAlerts(forecast: WeatherData[]): any[] {

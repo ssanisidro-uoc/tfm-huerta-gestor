@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { NominatimClient } from '../../../../Contexts/Shared/infrastructure/NominatimClient';
+import { NominatimClient, GeocodingResult } from '../../../../Contexts/Shared/infrastructure/NominatimClient';
 
 export class ValidateLocationController {
   constructor(private nominatimClient: NominatimClient) {}
@@ -38,6 +38,36 @@ export class ValidateLocationController {
           displayName: result.displayName
         }
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async searchCities(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { q, country } = req.query;
+
+      if (!q || typeof q !== 'string' || q.length < 2) {
+        res.status(400).json({ error: 'Query too short' });
+        return;
+      }
+
+      const results = await this.nominatimClient.search(
+        q,
+        typeof country === 'string' && country.length === 2 ? country : undefined,
+        5
+      );
+
+      const suggestions = results.map((r: GeocodingResult) => ({
+        city: r.city,
+        region: r.region,
+        country: r.country,
+        latitude: r.latitude,
+        longitude: r.longitude,
+        displayName: r.displayName
+      }));
+
+      res.status(200).json({ suggestions });
     } catch (error) {
       next(error);
     }

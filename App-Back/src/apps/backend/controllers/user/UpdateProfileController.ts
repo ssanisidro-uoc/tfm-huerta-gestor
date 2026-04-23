@@ -10,13 +10,13 @@ export class UpdateProfileController {
   async execute(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { userid } = req.headers as { userid?: string };
-      const { name, email, currentPassword, newPassword } = req.body;
+      const { name, currentPassword, newPassword } = req.body;
 
       if (!userid) {
         throw new AppError(401, 'AUTH_UNAUTHORIZED', 'User not authenticated');
       }
 
-      const command = new UpdateProfileCommand(userid, name, email, currentPassword, newPassword);
+      const command = new UpdateProfileCommand(userid, name, currentPassword, newPassword);
 
       await this.commandBus.dispatch(command);
 

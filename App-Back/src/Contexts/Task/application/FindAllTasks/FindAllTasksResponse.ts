@@ -11,6 +11,9 @@ export class FindAllTasksResponse implements Response {
       task_type: string;
       scheduled_date: Date;
       due_date: Date | null;
+      postponed_until: Date | null;
+      postponed_reason: string | null;
+      postponed_by: string | null;
     }>,
     readonly total: number,
     readonly page: number,

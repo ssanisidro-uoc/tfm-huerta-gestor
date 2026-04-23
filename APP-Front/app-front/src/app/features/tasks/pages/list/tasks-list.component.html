@@ -10,19 +10,19 @@
 
   <div class="stats-grid">
     <div class="stat-card">
-      <span class="stat-value">{{ stats()?.pendientes_hoy || 0 }}</span>
+      <span class="stat-value">{{ stats()?.pendingToday || 0 }}</span>
       <span class="stat-label">{{ 'tasks.pendingToday' | t }}</span>
     </div>
     <div class="stat-card">
-      <span class="stat-value">{{ stats()?.completadas_semana || 0 }}</span>
+      <span class="stat-value">{{ stats()?.completedThisWeek || 0 }}</span>
       <span class="stat-label">{{ 'tasks.completedWeek' | t }}</span>
     </div>
     <div class="stat-card">
-      <span class="stat-value">{{ stats()?.postponidas || 0 }}</span>
+      <span class="stat-value">{{ stats()?.postponedCount || 0 }}</span>
       <span class="stat-label">{{ 'tasks.postponedStatusLabel' | t }}</span>
     </div>
     <div class="stat-card">
-      <span class="stat-value">{{ stats()?.total_mes || 0 }}</span>
+      <span class="stat-value">{{ stats()?.totalThisMonth || 0 }}</span>
       <span class="stat-label">{{ 'tasks.totalMonth' | t }}</span>
     </div>
   </div>
@@ -105,7 +105,7 @@
         </thead>
           <tbody>
             @for (task of filteredTasks(); track task.id) {
-              <tr [class.urgent]="isUrgent(task)" [class.completed]="isCompleted(task)" [class]="getIntelligenceClass(task.id)">
+              <tr [class.urgent]="isUrgent(task)" [class.completed]="isCompleted(task)" (click)="selectTask(task)" class="clickable">
                 <td>
                   <span class="status-indicator" [attr.aria-label]="getStatusLabel(task.status)"></span>
                 </td>
@@ -113,21 +113,6 @@
                   <span class="task-title" [class.strikethrough]="isCompleted(task)">{{ task.title }}</span>
                   @if (task.description) {
                     <span class="task-description">{{ task.description }}</span>
-                  }
-                  @if (getIntelligenceForTask(task.id); as intel) {
-                    <div class="task-intelligence">
-                      <span class="intel-badge" [class]="'badge-' + intel.priority" [title]="intel.summary">
-                        @if (intel.weather && intel.weather.alerts.length > 0) {
-                          <span class="intel-icon">🌧️</span>
-                        }
-                        @if (intel.lunar) {
-                          <span class="intel-icon">🌙</span>
-                        }
-                        @if (intel.rotation && intel.rotation.previousCrop) {
-                          <span class="intel-icon">🔄</span>
-                        }
-                      </span>
-                    </div>
                   }
                 </td>
               <td>
@@ -139,7 +124,7 @@
                 </span>
               </td>
               <td>
-                <span class="task-date">{{ formatDate(task.scheduled_date) }}</span>
+                <span class="task-date" [class.postponed]="task.postponed_until">{{ task.postponed_until ? formatDate(task.postponed_until) : formatDate(task.scheduled_date) }}</span>
               </td>
               <td>
                 @if (task.task_type) {
@@ -154,7 +139,7 @@
                     <button class="action-btn complete" (click)="completeTask(task.id)" [attr.aria-label]="'tasks.completeTask' | t" [title]="'tasks.completeTask' | t">
                       ✓
                     </button>
-                    <button class="action-btn postpone" (click)="postponeTask(task.id)" [attr.aria-label]="'tasks.postponeTask' | t" [title]="'tasks.postponeTask' | t">
+                    <button class="action-btn postpone" (click)="postponeTaskModal(task.id)" [attr.aria-label]="'tasks.postponeTask' | t" [title]="'tasks.postponeTask' | t">
                       ⏰
                     </button>
                   }
@@ -166,4 +151,130 @@
       </table>
     </div>
   }
+  
+@if (postponeModalTaskId()) {
+  <div class="modal-overlay" (click)="cancelPostpone()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>{{ 'tasks.postponeTask' | t }}</h3>
+      <p>{{ 'tasks.selectPostponeDays' | t }}</p>
+      
+      <div class="postpone-options">
+        <button 
+          [class.selected]="postponeDays() === 1" 
+          (click)="postponeDays.set(1)">
+          +1 {{ 'tasks.day' | t }}
+        </button>
+        <button 
+          [class.selected]="postponeDays() === 2" 
+          (click)="postponeDays.set(2)">
+          +2 {{ 'tasks.days' | t }}
+        </button>
+        <button 
+          [class.selected]="postponeDays() === 3" 
+          (click)="postponeDays.set(3)">
+          +3 {{ 'tasks.days' | t }}
+        </button>
+        <button 
+          [class.selected]="postponeDays() === 7" 
+          (click)="postponeDays.set(7)">
+          +1 {{ 'tasks.week' | t }}
+        </button>
+      </div>
+
+      <div class="postpone-date-preview">
+        {{ 'tasks.newDate' | t }}: {{ getPostponePreviewDate() | date:'dd/MM' }}
+      </div>
+
+      <div class="postpone-reason">
+        <label for="postponeReason">{{ 'tasks.reason' | t }} *</label>
+        <textarea 
+          id="postponeReason"
+          [(ngModel)]="postponeReason" 
+          rows="2"
+          [placeholder]="'tasks.reasonPlaceholder' | t"
+          [class.error]="postponeReasonError()">
+        </textarea>
+        @if (postponeReasonError()) {
+          <span class="error-message">{{ 'tasks.reasonRequired' | t }}</span>
+        }
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="cancelPostpone()">{{ 'tasks.cancel' | t }}</button>
+        <button class="btn-confirm" (click)="confirmPostpone()" [disabled]="!postponeReason.trim()">{{ 'tasks.confirm' | t }}</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (selectedTask()) {
+  <div class="task-detail-panel" (click)="closeTaskDetail()">
+    <div class="panel-content" (click)="$event.stopPropagation()">
+      <div class="panel-header">
+        <h3>{{ selectedTask()!.title }}</h3>
+        <button class="close-btn" (click)="closeTaskDetail()">×</button>
+      </div>
+      
+      <div class="panel-body">
+        <div class="detail-row">
+          <span class="detail-label">{{ 'tasks.status' | t }}:</span>
+          <span class="detail-value" [class]="'status-' + selectedTask()!.status">{{ selectedTask()!.status }}</span>
+        </div>
+        
+        <div class="detail-row">
+          <span class="detail-label">{{ 'tasks.date' | t }}:</span>
+          <span class="detail-value">
+            {{ selectedTask()!.status === 'postponed' && selectedTask()!.postponed_until 
+                ? ('tasks.postponedTo' | t) + ' ' + (selectedTask()!.postponed_until | date:'dd/MM') 
+                : getTaskDetailDate(selectedTask()!) }}
+          </span>
+        </div>
+
+        @if (selectedTask()!.due_date) {
+          <div class="detail-row">
+            <span class="detail-label">{{ 'tasks.dueDate' | t }}:</span>
+            <span class="detail-value">{{ selectedTask()!.due_date | date:'dd/MM' }}</span>
+          </div>
+        }
+
+        <div class="detail-row">
+          <span class="detail-label">{{ 'tasks.type' | t }}:</span>
+          <span class="detail-value">{{ selectedTask()!.task_type }}</span>
+        </div>
+
+        @if (selectedTask()!.plot_name) {
+          <div class="detail-row">
+            <span class="detail-label">{{ 'tasks.plot' | t }}:</span>
+            <span class="detail-value">{{ selectedTask()!.plot_name }}</span>
+          </div>
+        }
+
+        @if (selectedTask()!.description) {
+          <div class="detail-row">
+            <span class="detail-label">{{ 'tasks.description' | t }}:</span>
+            <span class="detail-value">{{ selectedTask()!.description }}</span>
+          </div>
+        }
+
+        @if (selectedTask()!.is_recurring) {
+          <div class="detail-row recurring">
+            <span class="detail-label">♻️ {{ 'tasks.recurring' | t }}:</span>
+            <span class="detail-value">{{ selectedTask()!.recurrence_pattern || ' sí' }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="panel-actions">
+        @if (selectedTask()!.status === 'pending') {
+          <button class="action-btn complete" (click)="completeTask(selectedTask()!.id)">
+            ✓ {{ 'tasks.completeTask' | t }}
+          </button>
+          <button class="action-btn postpone" (click)="postponeTask(selectedTask()!.id)">
+            ⏰ {{ 'tasks.postponeTask' | t }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}
 </div>

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { QueryBus } from '../../../../Contexts/Shared/domain/QueryBus';
 import { GetDashboardAlertsQuery } from '../../../../Contexts/Dashboard/application/Alerts/GetDashboardAlertsQuery';
-import { DashboardAlertsResponse } from '../../../../Contexts/Dashboard/application/Alerts/DashboardAlertsResponse';
+import { DashboardAlertsResponse, Alert } from '../../../../Contexts/Dashboard/application/Alerts/DashboardAlertsResponse';
 import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
 
 export class GetDashboardAlertsController {
@@ -20,9 +20,11 @@ export class GetDashboardAlertsController {
 
       logger.info(`Dashboard alerts for user ${user.userId}: ${result.alerts.length} alerts`, 'GetDashboardAlertsController');
 
+      const firstAlert = result.alerts.length > 0 ? result.alerts[0] : null;
+
       res.status(200).json({
         success: true,
-        data: result
+        data: firstAlert
       });
     } catch (error: any) {
       logger.error(`Error fetching alerts: ${error.message}`, 'GetDashboardAlertsController');

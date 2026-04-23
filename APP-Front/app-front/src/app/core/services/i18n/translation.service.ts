@@ -95,8 +95,11 @@ export class TranslationService {
     this.http.get<Translations>(`/i18n/${lang}.json`).subscribe({
       next: (data) => {
         this.translations = { ...FALLBACK_TRANSLATIONS, ...data };
+        console.log('[i18n] Background loaded:', lang, '- has weatherRecs:', 'weatherRecs' in (data['dashboard'] || {}));
       },
-      error: () => {}
+      error: (err) => {
+        console.error('[i18n] Background load failed for:', lang, err);
+      }
     });
   }
 
@@ -138,9 +141,11 @@ export class TranslationService {
   private loadTranslations(lang: string): Promise<void> {
     console.log('[i18n] Loading translations for:', lang);
     return new Promise((resolve) => {
-      this.http.get<Translations>(`/i18n/${lang}.json`).subscribe({
+      const cacheBust = `?t=${Date.now()}`;
+      this.http.get<Translations>(`/i18n/${lang}.json${cacheBust}`).subscribe({
         next: (data) => {
           console.log('[i18n] Loaded successfully:', lang, 'Keys:', Object.keys(data).length);
+          console.log('[i18n] Has weatherRecs:', 'weatherRecs' in (data['dashboard'] || {}));
           this.translations = { ...FALLBACK_TRANSLATIONS, ...data };
           this.isLoaded.set(true);
           resolve();
@@ -194,7 +199,7 @@ export class TranslationService {
     if (!value || typeof value !== 'string') {
       value = this.getFromFallback(key);
       if (!value) {
-        console.log('[i18n] Key not found:', key);
+        console.log('[i18n] Key not found:', key, '- Available dashboard keys:', Object.keys(this.translations['dashboard'] || {}));
         return key;
       }
     }

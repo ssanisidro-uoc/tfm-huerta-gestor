@@ -27,6 +27,28 @@ export class RegisterComponent {
   loading = signal(false);
   error = signal('');
 
+  passwordRequirements = {
+    minLength: signal(false),
+    hasNumber: signal(false),
+    hasLowercase: signal(false),
+    hasUppercase: signal(false),
+    hasSpecial: signal(false)
+  };
+
+  onPasswordChange(): void {
+    const pwd = this.password;
+    this.passwordRequirements.minLength.set(pwd.length >= 8);
+    this.passwordRequirements.hasNumber.set(/[0-9]/.test(pwd));
+    this.passwordRequirements.hasLowercase.set(/[a-z]/.test(pwd));
+    this.passwordRequirements.hasUppercase.set(/[A-Z]/.test(pwd));
+    this.passwordRequirements.hasSpecial.set(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(pwd));
+  }
+
+  isPasswordValid(): boolean {
+    const req = this.passwordRequirements;
+    return req.minLength() && req.hasNumber() && req.hasLowercase() && req.hasUppercase() && req.hasSpecial();
+  }
+
   onSubmit(): void {
     this.error.set('');
 
@@ -46,8 +68,8 @@ export class RegisterComponent {
       return;
     }
 
-    if (this.password.length < 6) {
-      this.error.set(this.translationService.t('auth.passwordMinLength') || 'La contraseña debe tener al menos 6 caracteres');
+    if (!this.isPasswordValid()) {
+      this.error.set(this.translationService.t('auth.passwordRequirements') || 'La contraseña no cumple los requisitos mínimos');
       return;
     }
 

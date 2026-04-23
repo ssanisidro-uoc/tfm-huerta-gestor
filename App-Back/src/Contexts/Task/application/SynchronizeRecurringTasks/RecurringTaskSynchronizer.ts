@@ -28,8 +28,10 @@ export class RecurringTaskSynchronizer {
 
     for (const task of recurringTasks) {
       try {
+        const baseDate = task.postponed_until || task.scheduled_date;
+        
         const nextOccurrence = this.calculateNextOccurrence(
-          task.scheduled_date,
+          baseDate,
           task.recurrence_pattern,
           task.recurrence_interval
         );
@@ -80,6 +82,8 @@ export class RecurringTaskSynchronizer {
         logger.warn(`Unknown recurrence pattern: ${pattern}`, 'RecurringTaskSynchronizer');
         return currentDate;
     }
+
+    next.setHours(4, 0, 0, 0);
 
     return next;
   }

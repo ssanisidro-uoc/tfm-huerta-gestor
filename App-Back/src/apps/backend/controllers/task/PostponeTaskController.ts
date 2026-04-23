@@ -25,13 +25,22 @@ export class PostponeTaskController {
         throw new AppError(400, 'INVALID_REQUEST', 'postponed_until is required');
       }
 
+      if (!reason || !reason.trim()) {
+        throw new AppError(400, 'INVALID_REQUEST', 'reason is required');
+      }
+
       const postponedDate = new Date(postponed_until);
       if (isNaN(postponedDate.getTime())) {
         throw new AppError(400, 'INVALID_DATE', 'postponed_until must be a valid date');
       }
 
-      if (postponedDate <= new Date()) {
-        throw new AppError(400, 'INVALID_DATE', 'postponed_until must be in the future');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const postponeDay = new Date(postponedDate);
+      postponeDay.setHours(0, 0, 0, 0);
+
+      if (postponeDay <= today) {
+        throw new AppError(400, 'INVALID_DATE', 'postponed_until must be tomorrow or later');
       }
 
       const command = new PostponeTaskCommand(

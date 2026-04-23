@@ -1,4 +1,4 @@
-import { RotationObservationsRepository } from '../../infrastructure/persistence/PostgresRotationObservationsRepository';
+import { RotationObservationCreator } from './RotationObservationCreator';
 
 export class CreateRotationObservationCommand {
   constructor(
@@ -12,25 +12,16 @@ export class CreateRotationObservationCommand {
 }
 
 export class CreateRotationObservationCommandHandler {
-  constructor(private repository: RotationObservationsRepository) {}
+  constructor(private creator: RotationObservationCreator) {}
 
   async handle(command: CreateRotationObservationCommand) {
-    if (!command.previousPlantingId) {
-      return null;
-    }
-
-    const description = command.harvestYieldKg 
-      ? `Cosecha completada. Rendimiento: ${command.harvestYieldKg} kg`
-      : 'Cosecha completada';
-
-    return this.repository.create({
-      previous_planting_id: command.previousPlantingId,
-      current_planting_id: command.currentPlantingId,
-      rotation_rule_id: command.rotationRuleId || undefined,
-      observed_by: command.observedBy,
-      observation_date: command.observationDate,
-      observed_outcome: 'success',
-      description
+    await this.creator.run({
+      currentPlantingId: command.currentPlantingId,
+      previousPlantingId: command.previousPlantingId,
+      rotationRuleId: command.rotationRuleId,
+      observedBy: command.observedBy,
+      observationDate: command.observationDate,
+      harvestYieldKg: command.harvestYieldKg
     });
   }
 }

@@ -9,6 +9,8 @@ import { FindTasksController } from '../../controllers/task/FindTasksController'
 import { CreateManualTaskController } from '../../controllers/task/CreateManualTaskController';
 import { DeleteManualTaskController } from '../../controllers/task/DeleteManualTaskController';
 import { GetCalendarTasksController } from '../../controllers/task/GetCalendarTasksController';
+import { GetUnifiedIntelligenceController } from '../../controllers/task/GetUnifiedIntelligenceController';
+import { GetTaskStatsController } from '../../controllers/task/GetTaskStatsController';
 
 export async function register_task_routes(router: Router): Promise<void> {
   const postponeTaskController = await container.get('Backend.Task.controllers.PostponeTaskController') as PostponeTaskController;
@@ -19,6 +21,16 @@ export async function register_task_routes(router: Router): Promise<void> {
   const createManualTaskController = await container.get('Backend.Task.controllers.CreateManualTaskController') as CreateManualTaskController;
   const deleteManualTaskController = await container.get('Backend.Task.controllers.DeleteManualTaskController') as DeleteManualTaskController;
   const calendarTasksController = await container.get('Backend.Task.controllers.GetCalendarTasksController') as GetCalendarTasksController;
+  const intelligenceController = await container.get('Backend.Task.controllers.GetUnifiedIntelligenceController') as GetUnifiedIntelligenceController;
+  const taskStatsController = await container.get('Backend.Task.controllers.GetTaskStatsController') as GetTaskStatsController;
+
+  router.get('/api/tasks', require_auth, (req, res, next) => {
+    findTasksController.run(req, res, next);
+  });
+
+  router.get('/api/tasks/stats', require_auth, (req, res, next) => {
+    taskStatsController.run(req, res, next);
+  });
 
   router.get('/api/gardens/:garden_id/tasks', require_auth, (req, res, next) => {
     findTasksController.run(req, res, next);
@@ -50,5 +62,13 @@ export async function register_task_routes(router: Router): Promise<void> {
 
   router.patch('/api/tasks/:task_id/assign', require_auth, (req, res, next) => {
     assignTaskController.run(req, res, next);
+  });
+
+  router.get('/api/tasks/:taskId/intelligence', require_auth, (req, res, next) => {
+    intelligenceController.getByTaskId(req, res, next);
+  });
+
+  router.get('/api/gardens/:gardenId/tasks/intelligence', require_auth, (req, res, next) => {
+    intelligenceController.getByGarden(req, res, next);
   });
 };

@@ -36,6 +36,14 @@ export class UserComponent implements OnInit {
   success = signal('');
   validationErrors = signal<Record<string, string>>({});
 
+  passwordRequirements = {
+    minLength: signal(false),
+    hasNumber: signal(false),
+    hasLowercase: signal(false),
+    hasUppercase: signal(false),
+    hasSpecial: signal(false)
+  };
+
   languages = [
     { value: 'es', label: 'Español' },
     { value: 'ca', label: 'Català' },
@@ -55,12 +63,8 @@ export class UserComponent implements OnInit {
       errors['name'] = this.translationService.t('profile.nameMinLength') || 'El nombre debe tener al menos 2 caracteres';
     }
 
-    if (!EMAIL_REGEX.test(this.email)) {
-      errors['email'] = this.translationService.t('profile.invalidEmail') || 'Introduce un email válido';
-    }
-
-    if (this.newPassword && this.newPassword.length < 8) {
-      errors['newPassword'] = this.translationService.t('profile.passwordTooShort') || 'La nueva contraseña debe tener al menos 8 caracteres';
+    if (this.newPassword && !this.isNewPasswordValid()) {
+      errors['newPassword'] = this.translationService.t('auth.passwordRequirements') || 'La nueva contraseña no cumple los requisitos';
     }
 
     if (this.newPassword && !this.currentPassword) {
@@ -69,6 +73,20 @@ export class UserComponent implements OnInit {
 
     this.validationErrors.set(errors);
     return Object.keys(errors).length === 0;
+  }
+
+  onNewPasswordChange(): void {
+    const pwd = this.newPassword;
+    this.passwordRequirements.minLength.set(pwd.length >= 8);
+    this.passwordRequirements.hasNumber.set(/[0-9]/.test(pwd));
+    this.passwordRequirements.hasLowercase.set(/[a-z]/.test(pwd));
+    this.passwordRequirements.hasUppercase.set(/[A-Z]/.test(pwd));
+    this.passwordRequirements.hasSpecial.set(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(pwd));
+  }
+
+  isNewPasswordValid(): boolean {
+    const req = this.passwordRequirements;
+    return req.minLength() && req.hasNumber() && req.hasLowercase() && req.hasUppercase() && req.hasSpecial();
   }
 
   constructor(
@@ -119,7 +137,6 @@ export class UserComponent implements OnInit {
 
     const data: UpdateProfileRequest = {
       name: this.name,
-      email: this.email,
     };
 
     if (this.currentPassword && this.newPassword) {

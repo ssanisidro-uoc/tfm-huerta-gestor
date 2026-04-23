@@ -14,18 +14,18 @@
   </div>
 
   @if (dashboardService.alert(); as alert) {
-    <div class="alert-banner" [class]="'alert-' + alert.severity">
+    <div class="alert-banner" [class]="'alert-' + getAlertSeverity(alert.priority)">
       <div class="alert-content">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
           <line x1="12" y1="9" x2="12" y2="13" />
           <line x1="12" y1="17" x2="12.01" y2="17" />
         </svg>
-        <span class="alert-label">{{ 'dashboard.preventiveTreatment' | t }}</span>
+        <span class="alert-label">{{ alert.title }}</span>
         <span class="alert-separator">—</span>
         <span class="alert-text">{{ alert.message }}</span>
       </div>
-      <button class="btn-alert-action" routerLink="/calendar">{{ 'dashboard.viewTask' | t }}</button>
+      <button class="btn-alert-action" [routerLink]="getAlertLink(alert)">{{ 'dashboard.viewTask' | t }}</button>
     </div>
   }
 
@@ -65,16 +65,49 @@
     </div>
   </section>
 
-  @if (weatherRecommendations().length > 0) {
+  @if (hasGardenWithLocation() && weatherForecast().length > 0) {
     <section class="weather-summary-section">
       <h3 class="section-title">🌤️ {{ 'dashboard.weatherForecast' | t }}</h3>
-      <div class="weather-cards">
-        @for (rec of weatherRecommendations().slice(0, 3); track rec.id) {
-          <div class="weather-day-card" [class]="'weather-' + rec.severity">
-            <div class="weather-icon">{{ rec.severity === 'warning' ? '⚠️' : '☀️' }}</div>
-            <div class="weather-message">{{ rec.message }}</div>
+      <div class="forecast-cards">
+        @for (day of weatherForecast().slice(0, 5); track day.date) {
+          <div class="forecast-card" [class]="'has-rec-' + (day.recommendation?.severity || 'none')">
+            <div class="forecast-date">{{ formatDate(day.date) }}</div>
+            <div class="forecast-icon">{{ getWeatherIcon(day.weather_code) }}</div>
+            <div class="forecast-temps">
+              <span class="temp-max">{{ day.temp_max | number:'1.0-0' }}°</span>
+              <span class="temp-min">{{ day.temp_min | number:'1.0-0' }}°</span>
+            </div>
+            <div class="forecast-rain">
+              @if (day.precipitation_probability > 20) {
+                <span class="rain-prob">💧 {{ day.precipitation_probability }}%</span>
+              } @else {
+                <span class="rain-prob no-rain">☀ {{ day.precipitation_probability }}%</span>
+              }
+            </div>
+            @if (day.recommendation && day.recommendation.recommendations?.length) {
+              <div class="forecast-recs">
+                @for (rec of day.recommendation.recommendations; track $index) {
+                  <div class="forecast-rec-item" [class]="'rec-' + rec.severity">
+                    <span class="rec-icon">{{ rec.icon }}</span>
+                    <div class="rec-content">
+                      <span class="rec-title">{{ getWeatherRecTitle(rec.key) | t }}</span>
+                      <span class="rec-msg">{{ getWeatherRecMessage(rec) }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
           </div>
         }
+      </div>
+    </section>
+  } @else if (hasGardens() && !hasGardenWithLocation()) {
+    <section class="weather-summary-section weather-empty">
+      <h3 class="section-title">🌤️ {{ 'dashboard.weatherForecast' | t }}</h3>
+      <div class="weather-no-location">
+        <span class="no-location-icon">📍</span>
+        <p>{{ 'dashboard.weatherNoLocation' | t }}</p>
+        <a routerLink="/gardens" class="btn-configure">{{ 'dashboard.configureLocation' | t }}</a>
       </div>
     </section>
   }
@@ -131,7 +164,7 @@
               <div class="plot-next-task" [class]="'task-' + nextTask.type">
                 <span class="task-type-icon">{{ getTaskIcon(nextTask.type) }}</span>
                 <span>{{ 'dashboard.next' | t }}: {{ nextTask.title }}</span>
-                <span class="task-date">· {{ nextTask.scheduled_time }}</span>
+                <span class="task-date">· {{ getTaskRelativeDate(nextTask.scheduled_date, nextTask.postponed_until) }}</span>
               </div>
             }
           </div>
@@ -171,7 +204,7 @@
                 <div class="task-title-row">
                   <span class="task-title">{{ task.title }}</span>
                   <span class="task-time" [class.urgent]="task.is_urgent">
-                    {{ task.scheduled_time }}
+                    {{ getTaskRelativeDate(task.scheduled_date, task.postponed_until) }}
                     @if (task.is_urgent) {
                       <span class="urgent-icon">▲</span>
                     }
@@ -193,7 +226,7 @@
     </div>
 
     <div class="right-panel">
-      <div class="card mb-1">
+      <div class="card tasks-by-type-card">
         <div class="card-header-row">
           <h3 class="card-title"><span class="card-title-icon">📊</span> {{ 'dashboard.tasksByType' | t }} · {{ currentMonth }}</h3>
         </div>
@@ -222,14 +255,14 @@
         }
       </div>
 
-      <div class="card">
+      <div class="card recent-activity-card">
         <div class="card-header-row">
           <h3 class="card-title"><span class="card-title-icon">🕐</span> {{ 'dashboard.recentActivity' | t }}</h3>
           <a routerLink="/history" class="link-ver-todas">{{ 'dashboard.viewAll' | t }} →</a>
         </div>
         <div class="activity-list">
           @if (dashboardService.activities().length > 0) {
-            @for (activity of dashboardService.activities().slice(0, 4); track activity.date + activity.type) {
+            @for (activity of dashboardService.activities().slice(0, 5); track activity.date + activity.type) {
               <div class="activity-item">
                 <span class="activity-emoji">{{ activity.emoji || getActivityEmoji(activity.type) }}</span>
                 <div class="activity-body">
@@ -243,51 +276,6 @@
           }
         </div>
       </div>
-
-      @if (weatherAlerts().length > 0 || weatherRecommendations().length > 0) {
-        <div class="card">
-          <div class="card-header-row">
-            <h3 class="card-title"><span class="card-title-icon">🌤️</span> {{ 'dashboard.weatherAlerts' | t }}</h3>
-          </div>
-          
-          @if (weatherAlerts().length > 0) {
-            <div class="weather-alerts-list">
-              @for (alert of weatherAlerts().slice(0, 3); track alert.id) {
-                <div class="weather-alert-item" [class]="'alert-severity-' + alert.severity">
-                  <div class="alert-header">
-                    <span class="alert-type">{{ alert.alertType }}</span>
-                    <span class="alert-badge" [class]="'badge-' + alert.severity">{{ alert.severity | t }}</span>
-                  </div>
-                  <p class="alert-description">{{ alert.description }}</p>
-                  @if (alert.recommendedActions.length > 0) {
-                    <ul class="alert-actions">
-                      @for (action of alert.recommendedActions.slice(0, 2); track action) {
-                        <li>{{ action }}</li>
-                      }
-                    </ul>
-                  }
-                </div>
-              }
-            </div>
-          }
-
-          @if (weatherRecommendations().length > 0) {
-            <div class="weather-recommendations">
-              <h4 class="recommendations-title">{{ 'dashboard.weatherRecommendations' | t }}</h4>
-              @for (rec of weatherRecommendations().slice(0, 3); track rec.id) {
-                <div class="recommendation-item" [class]="'rec-' + rec.severity">
-                  <span class="rec-icon">💡</span>
-                  <span class="rec-message">{{ rec.message }}</span>
-                </div>
-              }
-            </div>
-          }
-
-          @if (weatherAlerts().length === 0 && weatherRecommendations().length === 0) {
-            <p class="empty-text">{{ 'dashboard.noWeatherAlerts' | t }}</p>
-          }
-        </div>
-      }
     </div>
   </div>
 </div>

@@ -68,6 +68,18 @@ export class PlantingCreateComponent implements OnInit {
     if (this.quantity && this.quantity < 1) {
       errors['quantity'] = this.t('plantings.quantityError');
     }
+
+    const rotation = this.rotationCheck();
+    if (rotation && rotation.severity === 'error') {
+      errors['rotation'] = rotation.message;
+    }
+
+    const incompatibleWarnings = this.warnings().filter(w => 
+      w.compatibility_type === 'incompatible' || w.compatibility_type === 'highly_incompatible'
+    );
+    if (incompatibleWarnings.length > 0) {
+      errors['incompatible'] = this.t('plantings.incompatibleWarning');
+    }
     
     this.validationErrors.set(errors);
     return Object.keys(errors).length === 0;

@@ -37,12 +37,18 @@ export async function register_user_routes(router: Router): Promise<void> {
   );
 
   router.get(
-    '/api/users/:id',
+    '/api/users/preferences',
     require_auth,
-    validate_find_user_by_id,
-    handle_validation_errors,
     async_handler((req: Request, res: Response, next: NextFunction) =>
-      find_user_controller.run(req, res, next)
+      get_preferences_controller.run(req, res, next)
+    )
+  );
+
+  router.put(
+    '/api/users/preferences',
+    require_auth,
+    async_handler((req: Request, res: Response, next: NextFunction) =>
+      update_preferences_controller.run(req, res, next)
     )
   );
 
@@ -57,18 +63,12 @@ export async function register_user_routes(router: Router): Promise<void> {
   );
 
   router.get(
-    '/api/users/preferences',
+    '/api/users/:id',
     require_auth,
+    validate_find_user_by_id,
+    handle_validation_errors,
     async_handler((req: Request, res: Response, next: NextFunction) =>
-      get_preferences_controller.run(req, res, next)
-    )
-  );
-
-  router.put(
-    '/api/users/preferences',
-    require_auth,
-    async_handler((req: Request, res: Response, next: NextFunction) =>
-      update_preferences_controller.run(req, res, next)
+      find_user_controller.run(req, res, next)
     )
   );
 }

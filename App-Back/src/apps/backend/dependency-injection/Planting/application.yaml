@@ -85,8 +85,12 @@ services:
   Backend.Planting.application.PlantingAssociationsService:
     class: ../../../../Contexts/Planting/application/PlantingAssociationsService
     arguments:
-      ['@Backend.Planting.domain.PlantingRepository', '@Backend.Planting.infrastructure.persistence.PostgresPlantingAssociationsRepository']
+      ['@Backend.Planting.infrastructure.persistence.PostgresPlantingAssociationsRepository', '@Backend.Planting.infrastructure.persistence.PostgresAssociationObservationsRepository', '@Backend.Crop.domain.CropCompatibilityRepository', '@Backend.Shared.PostgresConnection']
 
   Backend.Planting.infrastructure.persistence.PostgresPlantingAssociationsRepository:
     class: ../../../../Contexts/Planting/infrastructure/persistence/PostgresPlantingAssociationsRepository
+    arguments: ['@Backend.Shared.PostgresConnection', '@Backend.Shared.PostgresGarderingConfig']
+
+  Backend.Planting.infrastructure.persistence.PostgresAssociationObservationsRepository:
+    class: ../../../../Contexts/Planting/infrastructure/persistence/PostgresAssociationObservationsRepository
     arguments: ['@Backend.Shared.PostgresConnection', '@Backend.Shared.PostgresGarderingConfig']

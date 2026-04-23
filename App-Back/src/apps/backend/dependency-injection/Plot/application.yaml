@@ -44,7 +44,12 @@ services:
     tags:
       - { name: 'commandHandler' }
 
+  Backend.Plot.application.PlotDeleter:
+    class: ../../../../Contexts/Plot/application/DeletePlot/PlotDeleter
+    arguments: ['@Backend.Plot.domain.PlotRepository']
+
   Backend.Plot.application.DeletePlotCommandHandler:
     class: ../../../../Contexts/Plot/application/DeletePlot/DeletePlotCommandHandler
+    arguments: ['@Backend.Plot.application.PlotDeleter']
     tags:
       - { name: 'commandHandler' }

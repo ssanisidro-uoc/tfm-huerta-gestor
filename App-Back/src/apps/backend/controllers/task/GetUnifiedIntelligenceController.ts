@@ -1,9 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
-import { UnifiedIntelligenceService } from '../../../../Contexts/Task/application/UnifiedIntelligence/UnifiedIntelligenceService';
-import { logger } from '../../../../Contexts/Shared/infrastructure/Logger';
+import { QueryBus } from '../../../../Contexts/Shared/domain/QueryBus';
+import { GetTaskIntelligenceQuery } from '../../../../Contexts/Task/application/GetTaskIntelligence/GetTaskIntelligenceQuery';
+import { GetTaskIntelligenceResponse } from '../../../../Contexts/Task/application/GetTaskIntelligence/GetTaskIntelligenceResponse';
+import { GetGardenIntelligenceQuery } from '../../../../Contexts/Task/application/GetGardenIntelligence/GetGardenIntelligenceQuery';
+import { GetGardenIntelligenceResponse } from '../../../../Contexts/Task/application/GetGardenIntelligence/GetGardenIntelligenceResponse';
 
 export class GetUnifiedIntelligenceController {
-  constructor(private service: UnifiedIntelligenceService) {}
+  constructor(private queryBus: QueryBus) {}
 
   async getByTaskId(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -14,19 +17,15 @@ export class GetUnifiedIntelligenceController {
         return;
       }
 
-      const intelligence = await this.service.getIntelligenceForTask(taskId);
-
-      if (!intelligence) {
-        res.status(404).json({ success: false, error: 'Task not found' });
-        return;
-      }
+      const query = new GetTaskIntelligenceQuery(taskId);
+      const result = await this.queryBus.ask(query) as GetTaskIntelligenceResponse;
 
       res.status(200).json({
         success: true,
-        data: intelligence
+        data: result.intelligence
       });
     } catch (error: any) {
-      logger.error(`Error getting unified intelligence: ${error.message}`, 'GetUnifiedIntelligenceController');
+      res.status(404).json({ success: false, error: 'Task not found' });
       next(error);
     }
   }
@@ -41,14 +40,15 @@ export class GetUnifiedIntelligenceController {
         return;
       }
 
-      const intelligences = await this.service.getIntelligenceForGarden(gardenId, daysAhead);
+      const query = new GetGardenIntelligenceQuery(gardenId, daysAhead);
+      const result = await this.queryBus.ask(query) as GetGardenIntelligenceResponse;
 
       res.status(200).json({
         success: true,
-        data: intelligences
+        data: result.intelligences
       });
     } catch (error: any) {
-      logger.error(`Error getting garden intelligence: ${error.message}`, 'GetUnifiedIntelligenceController');
+      res.status(500).json({ success: false, error: 'Error getting intelligence' });
       next(error);
     }
   }

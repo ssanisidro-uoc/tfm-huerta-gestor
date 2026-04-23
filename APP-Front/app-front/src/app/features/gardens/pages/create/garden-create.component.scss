@@ -229,3 +229,69 @@ textarea {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+.city-input-group {
+  position: relative;
+}
+
+.city-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  list-style: none;
+  margin: var(--spacing-1) 0 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 100;
+
+  li {
+    padding: var(--spacing-3);
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    transition: background var(--transition-base);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: var(--bg-hover);
+    }
+
+    strong {
+      color: var(--text-primary);
+    }
+
+    span {
+      color: var(--text-secondary);
+      font-size: var(--font-size-sm);
+    }
+  }
+}
+
+.validation-success {
+  color: #16a34a;
+  font-size: var(--font-size-sm);
+  display: block;
+  margin-top: var(--spacing-1);
+}
+
+.validation-error {
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  display: block;
+  margin-top: var(--spacing-1);
+}
+
+.validation-loading {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  display: block;
+  margin-top: var(--spacing-1);
+}

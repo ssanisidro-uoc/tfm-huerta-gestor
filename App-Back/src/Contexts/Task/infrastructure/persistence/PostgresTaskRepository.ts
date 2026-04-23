@@ -4,6 +4,11 @@ import { PostgresRepository } from '../../../Shared/infrastructure/persistence/p
 import PostgresConfig from '../../../Shared/infrastructure/persistence/postgres/PostgresConfig';
 import { Pool } from 'pg';
 
+function toPgArray(arr: string[] | null | undefined): string {
+  if (!arr || arr.length === 0) return '{}';
+  return '{' + arr.map(s => `"${s.replace(/"/g, '\\"')}`).join(',') + '}';
+}
+
 export class PostgresTaskRepository extends PostgresRepository implements TaskRepository {
   constructor(pool: Promise<Pool>, config: PostgresConfig) {
     super(pool, config);
@@ -27,7 +32,7 @@ export class PostgresTaskRepository extends PostgresRepository implements TaskRe
     for (const task of tasks) {
       const task_data = task.to_persistence();
 
-      placeholders.push(`($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4}, $${paramIndex + 5}, $${paramIndex + 6}, $${paramIndex + 7}, $${paramIndex + 8}, $${paramIndex + 9}, $${paramIndex + 10}, $${paramIndex + 11}, $${paramIndex + 12}, $${paramIndex + 13}, $${paramIndex + 14}, $${paramIndex + 15}, $${paramIndex + 16}, $${paramIndex + 17}, $${paramIndex + 18}, $${paramIndex + 19}, $${paramIndex + 20}, $${paramIndex + 21}, $${paramIndex + 22}, $${paramIndex + 23}, $${paramIndex + 24}, $${paramIndex + 25}, $${paramIndex + 26}, $${paramIndex + 27}, $${paramIndex + 28}, $${paramIndex + 29}, $${paramIndex + 30}, $${paramIndex + 31}, $${paramIndex + 32}, $${paramIndex + 33}, $${paramIndex + 34}, $${paramIndex + 35}, $${paramIndex + 36}, $${paramIndex + 37}, $${paramIndex + 38}, $${paramIndex + 39}, $${paramIndex + 40}, $${paramIndex + 41})`);
+      placeholders.push(`($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4}, $${paramIndex + 5}, $${paramIndex + 6}, $${paramIndex + 7}, $${paramIndex + 8}, $${paramIndex + 9}, $${paramIndex + 10}, $${paramIndex + 11}, $${paramIndex + 12}, $${paramIndex + 13}, $${paramIndex + 14}, $${paramIndex + 15}, $${paramIndex + 16}, $${paramIndex + 17}, $${paramIndex + 18}, $${paramIndex + 19}, $${paramIndex + 20}, $${paramIndex + 21}, $${paramIndex + 22}, $${paramIndex + 23}, $${paramIndex + 24}, $${paramIndex + 25}, $${paramIndex + 26}, $${paramIndex + 27}, $${paramIndex + 28}, $${paramIndex + 29}, $${paramIndex + 30}, $${paramIndex + 31}, $${paramIndex + 32}, $${paramIndex + 33}, $${paramIndex + 34}, $${paramIndex + 35}, $${paramIndex + 36}, $${paramIndex + 37}, $${paramIndex + 38}, $${paramIndex + 39}, $${paramIndex + 40}, $${paramIndex + 41}, $${paramIndex + 42}, $${paramIndex + 43}, $${paramIndex + 44}, $${paramIndex + 45}, $${paramIndex + 46}, $${paramIndex + 47})`);
 
       values.push(
         task_data.id, task_data.garden_id, task_data.plot_id, task_data.planting_id,
@@ -42,10 +47,11 @@ export class PostgresTaskRepository extends PostgresRepository implements TaskRe
         task_data.reason, task_data.related_moon_phase, task_data.related_weather_event,
         task_data.climate_triggered, task_data.assigned_to, task_data.assigned_at,
         task_data.completion_notes, task_data.observations,
-        JSON.stringify(task_data.depends_on_task_ids), JSON.stringify(task_data.blocks_task_ids),
+        task_data.photos, task_data.tags, false, null, true,
+        toPgArray(task_data.depends_on_task_ids), toPgArray(task_data.blocks_task_ids),
         task_data.created_at, task_data.updated_at
       );
-      paramIndex += 42;
+      paramIndex += 48;
     }
 
     const query: string = `
@@ -58,7 +64,7 @@ export class PostgresTaskRepository extends PostgresRepository implements TaskRe
         cancelled_at, cancelled_by, cancellation_reason,
         reason, related_moon_phase, related_weather_event, climate_triggered,
         assigned_to, assigned_at, completion_notes, observations,
-        depends_on_task_ids, blocks_task_ids, created_at, updated_at
+        photos, tags, reminder_sent, reminder_sent_at, is_active, depends_on_task_ids, blocks_task_ids, created_at, updated_at
       ) VALUES ${placeholders.join(', ')}
       ON CONFLICT (id) DO UPDATE SET
         status = EXCLUDED.status,
@@ -144,6 +150,67 @@ export class PostgresTaskRepository extends PostgresRepository implements TaskRe
     return parseInt(result.rows[0].total, 10);
   }
 
+  async find_by_gardens(
+    garden_ids: string[],
+    options?: { page: number; limit: number; offset: number; filters?: { status?: string; task_type?: string; assigned_to?: string } }
+  ): Promise<Task[]> {
+    if (garden_ids.length === 0) return [];
+
+    const filters = options?.filters || {};
+    let query: string = `SELECT * FROM tasks WHERE garden_id = ANY($${1})`;
+    const values: any[] = [garden_ids];
+    let paramIndex = 2;
+
+    if (filters.status) {
+      query += ` AND status = $${paramIndex++}`;
+      values.push(filters.status);
+    }
+    if (filters.task_type) {
+      query += ` AND task_type = $${paramIndex++}`;
+      values.push(filters.task_type);
+    }
+    if (filters.assigned_to) {
+      query += ` AND assigned_to = $${paramIndex++}`;
+      values.push(filters.assigned_to);
+    }
+
+    query += ` ORDER BY due_date ASC NULLS LAST, scheduled_date ASC NULLS LAST`;
+    query += ` LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
+    
+    const limit = options?.limit || 20;
+    const offset = options?.offset || 0;
+    values.push(limit, offset);
+
+    const result = await this.query<any>(query, values);
+    return result.rows.map(row => Task.from_persistence(row));
+  }
+
+  async count_by_gardens(garden_ids: string[], filters?: { status?: string; task_type?: string; assigned_to?: string }): Promise<number> {
+    if (garden_ids.length === 0) return 0;
+
+    let query: string = 'SELECT COUNT(*) as total FROM tasks WHERE garden_id = ANY($1)';
+    const values: any[] = [garden_ids];
+    let paramIndex = 2;
+
+    if (filters) {
+      if (filters.status) {
+        query += ` AND status = $${paramIndex++}`;
+        values.push(filters.status);
+      }
+      if (filters.task_type) {
+        query += ` AND task_type = $${paramIndex++}`;
+        values.push(filters.task_type);
+      }
+      if (filters.assigned_to) {
+        query += ` AND assigned_to = $${paramIndex++}`;
+        values.push(filters.assigned_to);
+      }
+    }
+
+    const result = await this.query<any>(query, values);
+    return parseInt(result.rows[0].total, 10);
+  }
+
   async find_by_date_range(
     garden_id: string,
     start_date: Date,
@@ -191,13 +258,15 @@ export class PostgresTaskRepository extends PostgresRepository implements TaskRe
     const query: string = `
       UPDATE tasks SET
         status = $2, completed_at = $3, completed_by = $4,
-        postponed_at = $5, postponed_until = $6, updated_at = $7
+        postponed_at = $5, postponed_until = $6, postponed_by = $7, postponed_reason = $8,
+        updated_at = $9
       WHERE id = $1
     `;
 
     const values = [
       task_data.id, task_data.status, task_data.completed_at, task_data.completed_by,
-      task_data.postponed_at, task_data.postponed_until, task_data.updated_at
+      task_data.postponed_at, task_data.postponed_until, task_data.postponed_by, task_data.postponed_reason,
+      task_data.updated_at
     ];
 
     const result = await this.query<any>(query, values);

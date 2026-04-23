@@ -17,13 +17,19 @@ export interface Task {
   priority: string;
   created_at: Date;
   completed_at?: Date;
+  plot_name?: string;
+  is_recurring?: boolean;
+  recurrence_pattern?: string;
+  postponed_until?: Date | null;
+  postponed_reason?: string | null;
+  postponed_by?: string | null;
 }
 
 export interface TaskStats {
-  pendientes_hoy: number;
-  completadas_semana: number;
-  postponidas: number;
-  total_mes: number;
+  pendingToday: number;
+  completedThisWeek: number;
+  postponedCount: number;
+  totalThisMonth: number;
 }
 
 export interface TaskResponse {
@@ -149,11 +155,14 @@ export class TasksService {
       );
   }
 
-  postponeTask(taskId: string, newDate?: Date): Observable<{ success: boolean; message?: string } | null> {
+  postponeTask(taskId: string, newDate?: Date, reason?: string): Observable<{ success: boolean; message?: string } | null> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    const body = newDate ? { scheduled_date: newDate } : {};
+    const body: any = newDate ? { postponed_until: newDate.toISOString() } : {};
+    if (reason) {
+      body.reason = reason;
+    }
 
     return this.http
       .patch<{ success: boolean; message?: string }>(`${this.API_URL}/api/tasks/${taskId}/postpone`, body)

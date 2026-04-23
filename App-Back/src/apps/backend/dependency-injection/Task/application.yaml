@@ -3,6 +3,10 @@ services:
     class: ../../../../Contexts/Task/infrastructure/persistence/PostgresTaskRepository
     arguments: ['@Backend.Shared.PostgresConnection', '@Backend.Shared.PostgresGarderingConfig']
 
+  Backend.Task.domain.UnifiedIntelligenceService:
+    class: ../../../../Contexts/Task/application/UnifiedIntelligence/UnifiedIntelligenceService
+    arguments: ['@Backend.Shared.PostgresConnection']
+
   Backend.Task.application.TaskGenerator:
     class: ../../../../Contexts/Task/application/GenerateTasks/TaskGenerator
 
@@ -14,6 +18,10 @@ services:
     class: ../../../../Contexts/Task/application/Postpone/TaskPostponer
     arguments: ['@Backend.Task.domain.TaskRepository']
 
+  Backend.Task.application.TaskCompleter:
+    class: ../../../../Contexts/Task/application/Complete/TaskCompleter
+    arguments: ['@Backend.Task.domain.TaskRepository']
+
   Backend.Task.application.PostponeTaskCommandHandler:
     class: ../../../../Contexts/Task/application/Postpone/PostponeTaskCommandHandler
     arguments: ['@Backend.Task.application.TaskPostponer']
@@ -22,7 +30,7 @@ services:
 
   Backend.Task.application.CompleteTaskCommandHandler:
     class: ../../../../Contexts/Task/application/Complete/CompleteTaskCommandHandler
-    arguments: ['@Backend.Task.domain.TaskRepository']
+    arguments: ['@Backend.Task.application.TaskCompleter']
     tags:
       - { name: 'commandHandler' }
 
@@ -56,9 +64,13 @@ services:
     tags:
       - { name: 'commandHandler' }
 
+  Backend.Task.application.TaskDeleter:
+    class: ../../../../Contexts/Task/application/DeleteManualTask/TaskDeleter
+    arguments: ['@Backend.Task.domain.TaskRepository', '@Backend.Task.application.TaskByIdFinder']
+
   Backend.Task.application.DeleteManualTaskCommandHandler:
     class: ../../../../Contexts/Task/application/DeleteManualTask/DeleteManualTaskCommandHandler
-    arguments: ['@Backend.Task.domain.TaskRepository']
+    arguments: ['@Backend.Task.application.TaskDeleter']
     tags:
       - { name: 'commandHandler' }
 
@@ -66,12 +78,48 @@ services:
     class: ../../../../Contexts/Task/application/GetCalendarTasks/CalendarTasksFinder
     arguments: ['@Backend.Task.domain.TaskRepository']
 
+  Backend.Task.application.GetCalendarTasksQueryHandler:
+    class: ../../../../Contexts/Task/application/GetCalendarTasks/GetCalendarTasksQueryHandler
+    arguments: ['@Backend.Task.application.CalendarTasksFinder']
+    tags:
+      - { name: 'queryHandler' }
+
   Backend.Task.application.AllTasksFinder:
     class: ../../../../Contexts/Task/application/FindAllTasks/AllTasksFinder
+    arguments: ['@Backend.Task.domain.TaskRepository']
+
+  Backend.Task.application.TaskByIdFinder:
+    class: ../../../../Contexts/Task/application/FindTaskById/TaskByIdFinder
     arguments: ['@Backend.Task.domain.TaskRepository']
 
   Backend.Task.application.FindAllTasksQueryHandler:
     class: ../../../../Contexts/Task/application/FindAllTasks/FindAllTasksQueryHandler
     arguments: ['@Backend.Task.application.AllTasksFinder']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Task.application.GetTaskIntelligenceQueryHandler:
+    class: ../../../../Contexts/Task/application/GetTaskIntelligence/GetTaskIntelligenceQueryHandler
+    arguments: ['@Backend.Task.domain.UnifiedIntelligenceService']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Task.application.GetGardenIntelligenceQueryHandler:
+    class: ../../../../Contexts/Task/application/GetGardenIntelligence/GetGardenIntelligenceQueryHandler
+    arguments: ['@Backend.Task.domain.UnifiedIntelligenceService']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Task.application.TaskStatsFinder:
+    class: ../../../../Contexts/Task/application/TaskStats/TaskStatsFinder
+    arguments:
+      [
+        '@Backend.Garden.domain.UserGardenRepository',
+        '@Backend.Task.domain.TaskRepository'
+      ]
+
+  Backend.Task.application.TaskStatsQueryHandler:
+    class: ../../../../Contexts/Task/application/TaskStats/TaskStatsQueryHandler
+    arguments: ['@Backend.Task.application.TaskStatsFinder']
     tags:
       - { name: 'queryHandler' }

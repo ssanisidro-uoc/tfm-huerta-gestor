@@ -1,5 +1,6 @@
 import { Task } from '../../domain/Task';
 import { TaskRepository } from '../../domain/TaskRepository';
+import { logger } from '../../../Shared/infrastructure/Logger';
 
 export class TaskCompleter {
   constructor(private repository: TaskRepository) {}
@@ -14,8 +15,12 @@ export class TaskCompleter {
       throw new Error('Task not found');
     }
 
-    task.complete(data.completed_by, data.completion_notes, data.actual_duration_minutes);
-    await this.repository.update(task);
-    return task;
+    logger.info(`Completing task ${id}, current status: ${task.status}`, 'TaskCompleter');
+    
+    const completedTask = task.complete(data.completed_by, data.completion_notes, data.actual_duration_minutes);
+    logger.info(`Task ${id} new status: ${completedTask.status}`, 'TaskCompleter');
+    
+    await this.repository.update(completedTask);
+    return completedTask;
   }
 }

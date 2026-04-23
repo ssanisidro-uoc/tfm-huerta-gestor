@@ -28,8 +28,10 @@ export async function register_garden_routes(router: Router): Promise<void> {
 
   router.post('/api/gardens', require_auth, (req, res, next) => createGardenController.run(req, res, next));
   
-  // Importante: /shared antes de /:id para evitar conflictos de rutas
+  // Importante: rutas específicas ANTES de /:id
   router.get('/api/gardens/shared', require_auth, (req, res, next) => listSharedGardensController.run(req, res, next));
+  router.get('/api/gardens/validate-location', (req, res, next) => validateLocationController.validateCity(req, res, next));
+  router.get('/api/gardens/search-cities', (req, res, next) => validateLocationController.searchCities(req, res, next));
   
   router.get('/api/gardens', require_auth, (req, res, next) => findGardensController.run(req, res, next));
   router.get('/api/gardens/:id', require_auth, (req, res, next) => findGardenByIdController.run(req, res, next));
@@ -40,6 +42,4 @@ export async function register_garden_routes(router: Router): Promise<void> {
   router.get('/api/gardens/:gardenId/collaborators', require_auth, (req, res, next) => findGardenCollaboratorsController.run(req, res, next));
   router.post('/api/gardens/:gardenId/accept', require_auth, (req, res, next) => acceptInvitationController.run(req, res, next));
   router.post('/api/gardens/:gardenId/reject', require_auth, (req, res, next) => rejectInvitationController.run(req, res, next));
-
-  router.get('/api/gardens/validate-location', (req, res, next) => validateLocationController.validateCity(req, res, next));
 };

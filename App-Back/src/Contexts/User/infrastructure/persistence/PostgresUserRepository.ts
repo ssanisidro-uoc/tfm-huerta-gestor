@@ -144,9 +144,10 @@ export class PostgresUserRepository extends PostgresRepository implements UserRe
       UPDATE users SET
         name = $2,
         email = $3,
-        role_id = $4,
-        is_active = $5,
-        updated_at = $6
+        password_hash = $4,
+        role_id = $5,
+        is_active = $6,
+        updated_at = $7
       WHERE id = $1
     `;
 
@@ -154,6 +155,7 @@ export class PostgresUserRepository extends PostgresRepository implements UserRe
       user_data.id,
       user_data.name,
       user_data.email,
+      user_data.password_hash,
       user_data.role_id,
       user_data.is_active,
       user_data.updated_at

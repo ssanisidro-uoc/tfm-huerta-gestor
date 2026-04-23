@@ -61,6 +61,18 @@
     "notifications": "Notificacions",
     "notificationsEnabled": "Rebre notificacions",
     "profileUpdated": "Perfil actualitzat correctament",
+    "emailCannotChange": "El correu no es pot modificar",
+    "passwordRequirements": "Requisits de contrasenya:",
+    "passwordMinLength": "Mínim 8 caràcters",
+    "passwordNumber": "Almenys un número",
+    "passwordLowercase": "Una lletra minúscula",
+    "passwordUppercase": "Una lletra majúscula",
+    "passwordSpecial": "Un caràcter especial (!@#$%...)",
+    "passwordStrength": {
+      "weak": "Feble",
+      "medium": "Mitjana",
+      "strong": "Forta"
+    },
     "themes": {
       "light": "Clar",
       "dark": "Fosc",
@@ -116,7 +128,34 @@
     "noTasksToday": "No hi ha tasques per avui",
     "tasksByType": "Tasques per tipus",
     "noTaskData": "Sense dades de tasques",
-    "noRecentActivity": "Sense activitat recent"
+    "noRecentActivity": "Sense activitat recent",
+    "weatherForecast": "Predicció del temps",
+    "weatherAlerts": "Alertes meteorològiques",
+    "weatherRecommendations": "Recomanacions del temps",
+    "noWeatherAlerts": "Sense alertes meteorològiques",
+    "weatherNoLocation": "Configura la ubicació de la teva horta per veure el clima",
+    "configureLocation": "Configurar ubicació",
+    "weatherRecs": {
+      "waterPlants": "Regar",
+      "avoidWatering": "Evitar reg",
+      "lowRainProb": "Baixa probabilitat de pluja",
+      "rainExpected": "Pluja probable",
+      "heatWarning": "Calor extrem",
+      "protectFromHeat": "Protegir plantes de la calor",
+      "stormWarning": "Tempesta",
+      "protectFromStorm": "Protegir cultius",
+      "fungusRisk": "Vigilància fongs",
+      "highHumidity": "Humitat alta",
+      "windWarning": "Vent fort",
+      "highWind": "Vent fort",
+      "frostWarning": "Alerta glaçada",
+      "protectSensitive": "Protegir sensibles",
+      "units": {
+        "rain": "pluja",
+        "humidity": "humitat",
+        "wind": "vent"
+      }
+    }
   },
   "gardens": {
     "title": "Les meves Hortes",
@@ -193,7 +232,24 @@
     "pendingInvitation": "Invitació pendent",
     "processing": "Processant...",
     "accept": "Acceptar",
-    "reject": "Rebutjar"
+    "reject": "Rebutjar",
+    "locationHint": "La ciutat és obligatòria per rebre recomanacions climàtiques basades en el clima local",
+    "city": "Ciutat",
+    "cityPlaceholder": "Barcelona",
+    "region": "Província",
+    "address": "Adreça",
+    "country": "País",
+    "selectCountry": "Selecciona un país",
+    "surfacePlaceholder": "100",
+    "selectClimateZone": "Selecciona una zona climàtica",
+    "creating": "Creant...",
+    "saving": "Desant...",
+    "save": "Desar",
+    "invalidSurface": "La superfície ha de ser major que 0",
+    "descriptionPlaceholder": "Descripció del teu hort",
+    "namePlaceholder": "Nom del teu hort",
+    "moreOptions": "Més opcions",
+    "lessOptions": "Menys opcions"
   },
   "plots": {
     "title": "Parcel·les",
@@ -440,6 +496,12 @@
     "cancelledCount": "Cancel·lades",
     "scheduled": "Programada",
     "dueDatePrefix": "Vence",
+    "selectPostponeDays": "Quants dies vols posposar?",
+    "postponedTo": "Posposada al",
+    "reason": "Motiu",
+    "reasonRequired": "El motiu és obligatori",
+    "reasonPlaceholder": "Indica el motiu del retard...",
+    "newDate": "Nova data",
     "completedDate": "Completada: {{date}}",
     "completedBy": "per {{user}}",
     "postponedDate": "Posposada: {{date}}",
@@ -756,11 +818,5 @@
     "idealTransplanting": "Bo per trasplantar",
     "idealHarvesting": "Ideal per collir",
     "idealPruning": "Bo per podar"
-  },
-  "gardens": {
-    "title": "Els meus Horts",
-    "create": "Crear",
-    "noGardens": "No tens horts encara",
-    "createFirst": "Crear el meu primer hort"
   }
 }

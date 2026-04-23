@@ -39,7 +39,13 @@ export class GardenCreator {
   async run(data: CreateGardenData): Promise<Garden> {
     let locationData = data.location;
 
-    if (!locationData.latitude || !locationData.longitude) {
+    console.log('[GardenCreator] Received location:', JSON.stringify(locationData));
+
+    const hasCoords = locationData.latitude !== undefined && locationData.latitude !== null &&
+                     locationData.longitude !== undefined && locationData.longitude !== null;
+
+    if (!hasCoords) {
+      console.log('[GardenCreator] Missing coordinates, trying to geocode...');
       const geocoded = await this.nominatimClient.geocode(
         locationData.city,
         locationData.region,
@@ -53,8 +59,13 @@ export class GardenCreator {
           longitude: geocoded.longitude,
           city: geocoded.city || locationData.city
         };
+        console.log('[GardenCreator] After geocoding:', JSON.stringify(locationData));
       }
+    } else {
+      console.log('[GardenCreator] Coordinates OK, using received ones');
     }
+
+    console.log('[GardenCreator] Final locationData:', JSON.stringify(locationData));
 
     const garden = Garden.create({
       id: new GardenId(data.id),

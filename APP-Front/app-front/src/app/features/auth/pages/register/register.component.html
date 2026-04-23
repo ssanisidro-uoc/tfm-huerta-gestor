@@ -44,11 +44,37 @@
           [(ngModel)]="password"
           name="password"
           required
-          minlength="6"
           aria-required="true"
           [disabled]="loading()"
           autocomplete="new-password"
+          (input)="onPasswordChange()"
         />
+        
+        <div class="password-requirements" [class.visible]="password.length > 0">
+          <p class="req-title">{{ 'profile.passwordRequirements' | t }}</p>
+          <ul class="req-list">
+            <li [class.valid]="passwordRequirements.minLength()">
+              <span class="check">{{ passwordRequirements.minLength() ? '✓' : '○' }}</span>
+              {{ 'profile.passwordMinLength' | t }}
+            </li>
+            <li [class.valid]="passwordRequirements.hasNumber()">
+              <span class="check">{{ passwordRequirements.hasNumber() ? '✓' : '○' }}</span>
+              {{ 'profile.passwordNumber' | t }}
+            </li>
+            <li [class.valid]="passwordRequirements.hasLowercase()">
+              <span class="check">{{ passwordRequirements.hasLowercase() ? '✓' : '○' }}</span>
+              {{ 'profile.passwordLowercase' | t }}
+            </li>
+            <li [class.valid]="passwordRequirements.hasUppercase()">
+              <span class="check">{{ passwordRequirements.hasUppercase() ? '✓' : '○' }}</span>
+              {{ 'profile.passwordUppercase' | t }}
+            </li>
+            <li [class.valid]="passwordRequirements.hasSpecial()">
+              <span class="check">{{ passwordRequirements.hasSpecial() ? '✓' : '○' }}</span>
+              {{ 'profile.passwordSpecial' | t }}
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div class="form-group">
@@ -67,7 +93,7 @@
 
       <button 
         type="submit" 
-        [disabled]="loading()"
+        [disabled]="loading() || !isPasswordValid()"
         [attr.aria-busy]="loading()"
       >
         @if (loading()) {

@@ -58,14 +58,22 @@ services:
     tags:
       - { name: 'commandHandler' }
 
+  Backend.User.application.UserPreferencesFinder:
+    class: ../../../../Contexts/User/application/FindUserPreferences/UserPreferencesFinder
+    arguments: ['@Backend.User.domain.UserPreferencesRepository']
+
   Backend.User.application.FindUserPreferencesQueryHandler:
     class: ../../../../Contexts/User/application/FindUserPreferences/FindUserPreferencesQueryHandler
-    arguments: ['@Backend.User.domain.UserPreferencesRepository']
+    arguments: ['@Backend.User.application.UserPreferencesFinder']
     tags:
       - { name: 'queryHandler' }
 
+  Backend.User.application.UserPreferencesUpdater:
+    class: ../../../../Contexts/User/application/UpdatePreferences/UserPreferencesUpdater
+    arguments: ['@Backend.User.domain.UserPreferencesRepository']
+
   Backend.User.application.UpdatePreferencesCommandHandler:
     class: ../../../../Contexts/User/application/UpdatePreferences/UpdatePreferencesCommandHandler
-    arguments: ['@Backend.User.domain.UserPreferencesRepository']
+    arguments: ['@Backend.User.application.UserPreferencesUpdater']
     tags:
       - { name: 'commandHandler' }

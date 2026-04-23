@@ -31,6 +31,14 @@ services:
     class: ../../../controllers/task/GetCalendarTasksController
     arguments:
       [
-        '@Backend.Task.application.CalendarTasksFinder',
+        '@Backend.Shared.domain.QueryBus',
         '@Backend.Garden.domain.UserGardenRepository'
       ]
+
+  Backend.Task.controllers.GetUnifiedIntelligenceController:
+    class: ../../../controllers/task/GetUnifiedIntelligenceController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Task.controllers.GetTaskStatsController:
+    class: ../../../controllers/task/GetTaskStatsController
+    arguments: ['@Backend.Shared.domain.QueryBus']
