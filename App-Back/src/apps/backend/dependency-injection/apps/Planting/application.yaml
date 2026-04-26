@@ -30,3 +30,7 @@ services:
   Backend.Planting.controllers.PlantingAssociationsController:
     class: ../../../controllers/planting/PlantingAssociationsController
     arguments: ['@Backend.Planting.application.PlantingAssociationsService']
+
+  Backend.Planting.controllers.PlantingTasksController:
+    class: ../../../controllers/planting/PlantingTasksController
+    arguments: ['@Backend.Shared.domain.QueryBus']

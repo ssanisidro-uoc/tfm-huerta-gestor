@@ -273,7 +273,7 @@ export class DashboardComponent implements OnInit {
 
   getAlertLink(alert: any): string[] {
     if (alert.entity_type === 'task') {
-      return ['/tasks'];
+      return ['/tareas'];
     }
     if (alert.entity_type === 'planting') {
       return ['/gardens'];

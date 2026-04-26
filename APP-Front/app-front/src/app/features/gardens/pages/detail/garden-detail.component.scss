@@ -256,6 +256,11 @@
       margin-bottom: var(--spacing-1);
       flex-shrink: 0;
       
+      &.pending {
+        opacity: 0.6;
+        border-left: 3px solid var(--color-warning);
+      }
+      
       .collab-avatar {
         width: 24px;
         height: 24px;
@@ -293,6 +298,12 @@
         background: var(--card-bg);
         border-radius: var(--radius-sm);
         flex-shrink: 0;
+      }
+      
+      .collab-status {
+        font-size: var(--font-size-xs);
+        color: var(--color-warning);
+        font-style: italic;
       }
       
       .collab-actions {

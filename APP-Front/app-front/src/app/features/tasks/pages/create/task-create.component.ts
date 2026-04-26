@@ -7,12 +7,18 @@ import { GardenService, Garden } from '../../../gardens/services/garden.service'
 import { PlotService, Plot as PlotModel } from '../../../plots/services/plot.service';
 import { TranslatePipe } from '../../../../core/services/i18n/translate.pipe';
 import { LunarDateSuggestionsComponent } from '../../../../shared/components/lunar-date-suggestions/lunar-date-suggestions.component';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../../environments/environment';
 
 const TASK_TYPES = [
-  { value: 'riego', label: 'Riego' },
-  { value: 'fitosanitario', label: 'Fitosanitario' },
-  { value: 'abonado', label: 'Abonado' },
-  { value: 'cosecha', label: 'Cosecha' }
+  { value: 'watering', label: 'Riego' },
+  { value: 'treatment', label: 'Fitosanitario' },
+  { value: 'fertilizing', label: 'Abonado' },
+  { value: 'harvesting', label: 'Cosecha' },
+  { value: 'sowing', label: 'Siembra' },
+  { value: 'transplanting', label: 'Trasplante' },
+  { value: 'weeding', label: 'Escarda' },
+  { value: 'other', label: 'Otro' }
 ];
 
 const PRIORITIES = [
@@ -20,6 +26,13 @@ const PRIORITIES = [
   { value: 'medium', label: 'Media' },
   { value: 'high', label: 'Alta' }
 ];
+
+interface Planting {
+  id: string;
+  crop_name: string;
+  plot_name: string;
+  status: string;
+}
 
 @Component({
   selector: 'app-task-create',
@@ -33,10 +46,12 @@ export class TaskCreateComponent implements OnInit {
   tasksService = inject(TasksService);
   gardenService = inject(GardenService);
   plotService = inject(PlotService);
+  private http = inject(HttpClient);
   private router = inject(Router);
 
   gardens = signal<Garden[]>([]);
   plots = signal<PlotModel[]>([]);
+  plantings = signal<Planting[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
   success = signal(false);
@@ -45,6 +60,7 @@ export class TaskCreateComponent implements OnInit {
   description = '';
   garden_id = '';
   plot_id = '';
+  planting_id = '';
   task_type = '';
   priority = 'medium';
   scheduled_date = '';
@@ -67,6 +83,8 @@ export class TaskCreateComponent implements OnInit {
 
   onGardenChange(): void {
     this.plot_id = '';
+    this.planting_id = '';
+    this.plantings.set([]);
     if (this.garden_id) {
       this.plotService.getPlotsByGarden(this.garden_id).subscribe(response => {
         if (response) {
@@ -76,6 +94,30 @@ export class TaskCreateComponent implements OnInit {
     } else {
       this.plots.set([]);
     }
+  }
+
+  onPlotChange(): void {
+    this.planting_id = '';
+    this.plantings.set([]);
+    if (this.plot_id) {
+      this.loadPlantings();
+    }
+  }
+
+  loadPlantings(): void {
+    const url = `${environment.apiUrl}/api/plots/${this.plot_id}/plantings`;
+    this.http.get<{ success: boolean; data: Planting[] }>(url).subscribe({
+      next: (response) => {
+        if (response?.data) {
+          this.plantings.set(response.data.filter((p: Planting) => 
+            p.status === 'active' || p.status === 'growing'
+          ));
+        }
+      },
+      error: () => {
+        this.plantings.set([]);
+      }
+    });
   }
 
   onSubmit(): void {
@@ -97,6 +139,7 @@ export class TaskCreateComponent implements OnInit {
       description: this.description.trim() || undefined,
       garden_id: this.garden_id,
       plot_id: this.plot_id || undefined,
+      planting_id: this.planting_id || undefined,
       task_type: this.task_type || undefined,
       priority: this.priority || undefined,
       scheduled_date: this.scheduled_date ? new Date(this.scheduled_date) : undefined,

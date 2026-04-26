@@ -9,6 +9,7 @@ import { HarvestCropController } from '../../controllers/planting/HarvestCropCon
 import { FindArchivedPlantingsController } from '../../controllers/planting/FindArchivedPlantingsController';
 import { FindPlantingsByPlotController } from '../../controllers/planting/FindPlantingsByPlotController';
 import { PlantingAssociationsController } from '../../controllers/planting/PlantingAssociationsController';
+import { PlantingTasksController } from '../../controllers/planting/PlantingTasksController';
 import { async_handler } from '../../middleware';
 
 export async function register_planting_routes(router: Router): Promise<void> {
@@ -20,6 +21,7 @@ export async function register_planting_routes(router: Router): Promise<void> {
   const findArchivedPlantingsController = await container.get('Backend.Planting.controllers.FindArchivedPlantingsController') as FindArchivedPlantingsController;
   const findPlantingsByPlotController = await container.get('Backend.Planting.controllers.FindPlantingsByPlotController') as FindPlantingsByPlotController;
   const plantingAssociationsController = await container.get('Backend.Planting.controllers.PlantingAssociationsController') as PlantingAssociationsController;
+  const plantingTasksController = await container.get('Backend.Planting.controllers.PlantingTasksController') as PlantingTasksController;
 
   router.get(
     '/api/plantings',
@@ -67,5 +69,11 @@ export async function register_planting_routes(router: Router): Promise<void> {
     '/api/plantings/:planting_id/associations',
     require_auth,
     async_handler((req, res, next) => plantingAssociationsController.getByPlanting(req, res, next))
+  );
+
+  router.get(
+    '/api/plantings/:planting_id/tasks',
+    require_auth,
+    async_handler((req, res, next) => plantingTasksController.run(req, res, next))
   );
 };

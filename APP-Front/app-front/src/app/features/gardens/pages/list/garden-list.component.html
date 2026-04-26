@@ -2,7 +2,6 @@
   <header class="header">
     <h1 id="title">{{ 'gardens.title' | t }}</h1>
     <div class="header-actions">
-      <a routerLink="/gardens/shared" class="btn-secondary" aria-label="Ver huertas compartidas">{{ 'gardens.sharedGardens' | t }}</a>
       <a routerLink="/gardens/create" class="btn-primary" aria-label="Crear nueva huerta">+ {{ 'gardens.create' | t }}</a>
     </div>
   </header>
@@ -18,36 +17,77 @@
     <div class="error-message" role="alert" aria-live="assertive">{{ gardenService.error() }}</div>
   }
 
-  @if (!gardenService.loading() && gardenService.gardens().length === 0) {
+  @if (hasPendingInvitations) {
+    <section class="pending-invitations" aria-label="Solicitudes pendientes">
+      <h2>{{ 'gardens.pendingInvitations' | t }}</h2>
+      <div class="invitations-list">
+        @for (invitation of pendingInvitations; track invitation.id) {
+          <div class="invitation-card">
+            <div class="invitation-info">
+              <strong>{{ invitation.garden.name }}</strong>
+              <span class="invited-by">{{ 'gardens.invitedBy' | t }}: {{ invitation.invited_by_name }}</span>
+            </div>
+            <div class="invitation-actions">
+              <button class="btn-accept" (click)="acceptInvitation(invitation.garden_id)" [disabled]="gardenService.loading()">
+                {{ 'gardens.accept' | t }}
+              </button>
+              <button class="btn-reject" (click)="rejectInvitation(invitation.garden_id)" [disabled]="gardenService.loading()">
+                {{ 'gardens.reject' | t }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <nav class="tabs" role="tablist" aria-label="Tipo de huertas">
+    <button 
+      role="tab" 
+      [attr.aria-selected]="activeTab() === 'own'" 
+      [class.active]="activeTab() === 'own'"
+      (click)="setTab('own')">
+      {{ 'gardens.myGardens' | t }}
+    </button>
+    <button 
+      role="tab" 
+      [attr.aria-selected]="activeTab() === 'shared'" 
+      [class.active]="activeTab() === 'shared'"
+      (click)="setTab('shared')">
+      {{ 'gardens.sharedWithMe' | t }}
+    </button>
+  </nav>
+
+  @if (!gardenService.loading() && displayedGardens.length === 0) {
     <div class="empty-state">
-      <p>{{ 'gardens.noGardens' | t }}</p>
-      <a routerLink="/gardens/create" class="btn-primary">{{ 'gardens.createFirst' | t }}</a>
+      <p>{{ activeTab() === 'own' ? ('gardens.noGardens' | t) : ('gardens.noSharedGardens' | t) }}</p>
+      @if (activeTab() === 'own') {
+        <a routerLink="/gardens/create" class="btn-primary">{{ 'gardens.createFirst' | t }}</a>
+      }
     </div>
   }
 
-  @if (gardenService.gardens().length > 0) {
+  @if (displayedGardens.length > 0) {
     <ul class="garden-grid" role="list" aria-label="Lista de huertas">
-      @for (garden of gardenService.gardens(); track garden.id) {
+      @for (garden of displayedGardens; track garden.garden_id) {
         <li class="garden-card">
-          <a [routerLink]="['/gardens', garden.id]" [attr.aria-label]="'Ver detalles de ' + garden.name">
+          <a [routerLink]="['/gardens', garden.garden_id]" [attr.aria-label]="'Ver detalles de ' + garden.garden?.name">
             <div class="card-header">
-              <h2>{{ garden.name }}</h2>
-              @if (garden.is_active) {
-                <span class="status-badge active">{{ 'gardens.active' | t }}</span>
+              <h2>{{ garden.garden?.name }}</h2>
+              @if (garden.garden_role === 'owner') {
+                <span class="role-badge owner">{{ 'gardens.owner' | t }}</span>
+              } @else {
+                <span class="role-badge {{ garden.garden_role }}">{{ garden.garden_role }}</span>
               }
             </div>
-            @if (garden.description) {
-              <p class="description">{{ garden.description }}</p>
+            @if (garden.garden?.climate_zone) {
+              <div class="garden-info">
+                <span class="climate"><span class="label">{{ 'gardens.climateZone' | t }}:</span> {{ getClimateLabel(garden.garden?.climate_zone ?? '') }}</span>
+                @if (garden.garden?.location?.city) {
+                  <span class="location"><span class="label">{{ 'gardens.location' | t }}:</span> {{ garden.garden?.location?.city }}</span>
+                }
+              </div>
             }
-            <div class="garden-info">
-              <span class="climate"><span class="label">{{ 'gardens.climateZone' | t }}:</span> {{ getClimateLabel(garden.climate_zone) }}</span>
-              @if (garden.surface_m2) {
-                <span class="surface"><span class="label">{{ 'gardens.surface' | t }}:</span> {{ garden.surface_m2 }} {{ 'gardens.surfaceUnit' | t }}</span>
-              }
-              @if (garden.location.city) {
-                <span class="location"><span class="label">{{ 'gardens.location' | t }}:</span> {{ garden.location.city }}</span>
-              }
-            </div>
           </a>
         </li>
       }

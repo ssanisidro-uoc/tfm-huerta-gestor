@@ -5,7 +5,8 @@ services:
       [
         '@Backend.Garden.domain.UserGardenRepository',
         '@Backend.Planting.domain.PlantingRepository',
-        '@Backend.Plot.domain.PlotRepository'
+        '@Backend.Plot.domain.PlotRepository',
+        '@Backend.Task.domain.TaskRepository'
       ]
 
   Backend.Dashboard.application.GetDashboardStatsQueryHandler:

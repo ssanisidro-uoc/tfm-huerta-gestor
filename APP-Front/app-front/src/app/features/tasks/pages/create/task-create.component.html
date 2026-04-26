@@ -56,6 +56,7 @@
           </select>
         </div>
 
+        <div class="form-row">
         <div class="form-group">
           <label for="plot_id">{{ 'tasks.plot' | t }}</label>
           <select 
@@ -63,6 +64,7 @@
             [(ngModel)]="plot_id" 
             name="plot_id" 
             [disabled]="loading() || !garden_id"
+            (change)="onPlotChange()"
           >
             <option value="">{{ 'tasks.noSpecificPlot' | t }}</option>
             @for (plot of plots(); track plot.id) {
@@ -70,6 +72,22 @@
             }
           </select>
         </div>
+
+        <div class="form-group">
+          <label for="planting_id">{{ 'tasks.crop' | t }}</label>
+          <select 
+            id="planting_id" 
+            [(ngModel)]="planting_id" 
+            name="planting_id" 
+            [disabled]="loading() || !plot_id"
+          >
+            <option value="">{{ 'tasks.noSpecificCrop' | t }}</option>
+            @for (planting of plantings(); track planting.id) {
+              <option [value]="planting.id">{{ planting.crop_name }} ({{ planting.plot_name }})</option>
+            }
+          </select>
+        </div>
+      </div>
       </div>
 
       <div class="form-row">

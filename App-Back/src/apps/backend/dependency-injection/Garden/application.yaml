@@ -6,7 +6,11 @@ services:
   Backend.Garden.application.GardenCreator:
     class: ../../../../Contexts/Garden/application/Create/GardenCreator
     arguments:
-      ['@Backend.Garden.domain.GardenRepository', '@Backend.Garden.domain.UserGardenRepository', '@Backend.Shared.NominatimClient']
+      [
+        '@Backend.Garden.domain.GardenRepository',
+        '@Backend.Garden.domain.UserGardenRepository',
+        '@Backend.Shared.NominatimClient'
+      ]
 
   Backend.Garden.application.GardenUpdater:
     class: ../../../../Contexts/Garden/application/Update/GardenUpdater
@@ -71,8 +75,7 @@ services:
 
   Backend.Garden.application.InvitationAcceptor:
     class: ../../../../Contexts/Garden/application/AcceptInvitation/InvitationAcceptor
-    arguments:
-      ['@Backend.Garden.domain.UserGardenRepository']
+    arguments: ['@Backend.Garden.domain.UserGardenRepository']
 
   Backend.Garden.application.AcceptInvitationCommandHandler:
     class: ../../../../Contexts/Garden/application/AcceptInvitation/AcceptInvitationCommandHandler
@@ -82,8 +85,7 @@ services:
 
   Backend.Garden.application.InvitationRejector:
     class: ../../../../Contexts/Garden/application/RejectInvitation/InvitationRejector
-    arguments:
-      ['@Backend.Garden.domain.UserGardenRepository']
+    arguments: ['@Backend.Garden.domain.UserGardenRepository']
 
   Backend.Garden.application.RejectInvitationCommandHandler:
     class: ../../../../Contexts/Garden/application/RejectInvitation/RejectInvitationCommandHandler
@@ -93,11 +95,30 @@ services:
 
   Backend.Garden.application.SharedGardensFinder:
     class: ../../../../Contexts/Garden/application/ListSharedGardens/SharedGardensFinder
-    arguments: ['@Backend.Garden.domain.UserGardenRepository', '@Backend.Garden.application.GardenByIdFinder']
+    arguments:
+      [
+        '@Backend.Garden.domain.UserGardenRepository',
+        '@Backend.Garden.application.GardenByIdFinder'
+      ]
 
   Backend.Garden.application.ListSharedGardensQueryHandler:
     class: ../../../../Contexts/Garden/application/ListSharedGardens/ListSharedGardensQueryHandler
     arguments: ['@Backend.Garden.application.SharedGardensFinder']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Garden.application.MyGardensFinder:
+    class: ../../../../Contexts/Garden/application/GetMyGardens/MyGardensFinder
+    arguments:
+      [
+        '@Backend.Garden.domain.UserGardenRepository',
+        '@Backend.Garden.application.GardenByIdFinder',
+        '@Backend.Shared.PostgresConnection'
+      ]
+
+  Backend.Garden.application.GetMyGardensQueryHandler:
+    class: ../../../../Contexts/Garden/application/GetMyGardens/GetMyGardensQueryHandler
+    arguments: ['@Backend.Garden.application.MyGardensFinder']
     tags:
       - { name: 'queryHandler' }
 
@@ -110,3 +131,25 @@ services:
     arguments: ['@Backend.Garden.application.GardenCollaboratorsFinder']
     tags:
       - { name: 'queryHandler' }
+
+  Backend.Garden.application.CollaboratorUpdater:
+    class: ../../../../Contexts/Garden/application/CollaboratorManagement/CollaboratorUpdater
+    arguments: ['@Backend.Garden.domain.UserGardenRepository']
+
+  Backend.Garden.application.CollaboratorRemover:
+    class: ../../../../Contexts/Garden/application/CollaboratorManagement/CollaboratorRemover
+    arguments: ['@Backend.Garden.domain.UserGardenRepository']
+
+  Backend.Garden.application.UpdateCollaboratorRoleCommandHandler:
+    class: ../../../../Contexts/Garden/application/UpdateCollaboratorRole/UpdateCollaboratorRoleCommandHandler
+    arguments:
+      - '@Backend.Garden.application.CollaboratorUpdater'
+    tags:
+      - { name: 'commandHandler' }
+
+  Backend.Garden.application.RemoveCollaboratorCommandHandler:
+    class: ../../../../Contexts/Garden/application/RemoveCollaborator/RemoveCollaboratorCommandHandler
+    arguments:
+      - '@Backend.Garden.application.CollaboratorRemover'
+    tags:
+      - { name: 'commandHandler' }

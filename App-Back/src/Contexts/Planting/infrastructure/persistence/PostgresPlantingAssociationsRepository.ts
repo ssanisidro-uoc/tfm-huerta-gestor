@@ -38,8 +38,8 @@ export class PostgresPlantingAssociationsRepository extends PostgresRepository {
     const query = `
       SELECT 
         pa.*,
-        pc1.crop_name as primary_crop_name,
-        pc2.crop_name as companion_crop_name
+        pc1.common_name as primary_crop_name,
+        pc2.common_name as companion_crop_name
       FROM planting_associations pa
       JOIN plantings p1 ON pa.primary_planting_id = p1.id
       JOIN plantings p2 ON pa.companion_planting_id = p2.id
@@ -58,8 +58,8 @@ export class PostgresPlantingAssociationsRepository extends PostgresRepository {
     const query = `
       SELECT 
         pa.*,
-        pc1.crop_name as primary_crop_name,
-        pc2.crop_name as companion_crop_name
+        pc1.common_name as primary_crop_name,
+        pc2.common_name as companion_crop_name
       FROM planting_associations pa
       JOIN plantings p1 ON pa.primary_planting_id = p1.id
       JOIN plantings p2 ON pa.companion_planting_id = p2.id

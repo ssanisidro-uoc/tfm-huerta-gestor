@@ -185,6 +185,17 @@ export class PostgresTaskRepository extends PostgresRepository implements TaskRe
     return result.rows.map(row => Task.from_persistence(row));
   }
 
+  async find_by_planting(planting_id: string): Promise<Task[]> {
+    const query: string = `
+      SELECT * FROM tasks 
+      WHERE planting_id = $1 
+      ORDER BY scheduled_date DESC
+    `;
+    
+    const result = await this.query<any>(query, [planting_id]);
+    return result.rows.map(row => Task.from_persistence(row));
+  }
+
   async count_by_gardens(garden_ids: string[], filters?: { status?: string; task_type?: string; assigned_to?: string }): Promise<number> {
     if (garden_ids.length === 0) return 0;
 
@@ -249,6 +260,58 @@ export class PostgresTaskRepository extends PostgresRepository implements TaskRe
     `;
 
     const result = await this.query<any>(query, []);
+    return result.rows.map(row => Task.from_persistence(row));
+  }
+
+  async find_by_date_range_all(
+    garden_ids: string[],
+    start_date: Date,
+    end_date: Date,
+    filters?: { status?: string; task_type?: string; plot_id?: string; planting_id?: string; crop_id?: string }
+  ): Promise<Task[]> {
+    if (garden_ids.length === 0) {
+      return [];
+    }
+
+    const placeholders = garden_ids.map((_, i) => `$${i + 1}`).join(', ');
+    let query: string = `SELECT t.* FROM tasks t`;
+    const values: any[] = [...garden_ids, start_date, end_date];
+    let paramIndex = garden_ids.length + 3;
+
+    let joinAdded = false;
+    
+    if (filters?.crop_id) {
+      query += ` LEFT JOIN plantings p ON t.planting_id = p.id`;
+      joinAdded = true;
+    }
+
+    query += ` WHERE t.garden_id IN (${placeholders}) AND t.scheduled_date >= $${garden_ids.length + 1} AND t.scheduled_date <= $${garden_ids.length + 2}`;
+
+    if (filters?.crop_id) {
+      query += ` AND p.crop_catalog_id = $${paramIndex++}`;
+      values.push(filters.crop_id);
+    }
+
+    if (filters?.status) {
+      query += ` AND t.status = $${paramIndex++}`;
+      values.push(filters.status);
+    }
+    if (filters?.task_type) {
+      query += ` AND t.task_type = $${paramIndex++}`;
+      values.push(filters.task_type);
+    }
+    if (filters?.plot_id) {
+      query += ` AND t.plot_id = $${paramIndex++}`;
+      values.push(filters.plot_id);
+    }
+    if (filters?.planting_id) {
+      query += ` AND t.planting_id = $${paramIndex++}`;
+      values.push(filters.planting_id);
+    }
+
+    query += ' ORDER BY t.scheduled_date ASC';
+
+    const result = await this.query<any>(query, values);
     return result.rows.map(row => Task.from_persistence(row));
   }
 

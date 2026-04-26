@@ -59,22 +59,26 @@
         }
 
         <div class="sidebar-actions">
-          <button class="btn-icon" (click)="startEdit()" title="{{ 'gardens.editGarden' | t }}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-            {{ 'gardens.edit' | t }}
-          </button>
-          <button class="btn-icon" (click)="startInvite()" title="{{ 'gardens.invite' | t }}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="8.5" cy="7" r="4"/>
-              <line x1="20" y1="8" x2="20" y2="14"/>
-              <line x1="23" y1="11" x2="17" y2="11"/>
-            </svg>
-            {{ 'gardens.invite' | t }}
-          </button>
+          @if (canEditGarden()) {
+            <button class="btn-icon" (click)="startEdit()" title="{{ 'gardens.editGarden' | t }}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              {{ 'gardens.edit' | t }}
+            </button>
+          }
+          @if (canInviteCollaborators()) {
+            <button class="btn-icon" (click)="startInvite()" title="{{ 'gardens.invite' | t }}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="8.5" cy="7" r="4"/>
+                <line x1="20" y1="8" x2="20" y2="14"/>
+                <line x1="23" y1="11" x2="17" y2="11"/>
+              </svg>
+              {{ 'gardens.invite' | t }}
+            </button>
+          }
         </div>
 
         <div class="sidebar-footer">
@@ -82,10 +86,11 @@
             <div class="collaborators-list">
               <span class="collaborators-label">{{ 'gardens.collaborators' | t }}</span>
               @for (collab of collaborators(); track collab.id) {
-                <div class="collaborator-item">
-                  <span class="collab-avatar">{{ collab.user_email?.charAt(0).toUpperCase() }}</span>
+                <div class="collaborator-item" [class.pending]="collab.is_pending">
+                  <span class="collab-avatar">{{ collab.user_name?.charAt(0).toUpperCase() || collab.user_email?.charAt(0).toUpperCase() }}</span>
                   <div class="collab-info">
                     <span class="collab-email">{{ collab.user_name || collab.user_email }}</span>
+                    <span class="collab-status" *ngIf="collab.is_pending">{{ 'gardens.pendingInvitation' | t }}</span>
                     @if (editingRoleFor() === collab.user_id) {
                       <select [(ngModel)]="editRoleValue" class="role-select">
                         <option value="manager">{{ 'gardens.manager' | t }}</option>
@@ -94,27 +99,29 @@
                       </select>
                     } @else {
                       <span class="collab-role">
-                        {{ collab.garden_role === 'manager' ? ('gardens.manager' | t) : collab.garden_role === 'collaborator' ? ('gardens.collaborator' | t) : ('gardens.viewer' | t) }}
+                        {{ collab.garden_role === 'owner' ? ('gardens.owner' | t) : collab.garden_role === 'manager' ? ('gardens.manager' | t) : collab.garden_role === 'collaborator' ? ('gardens.collaborator' | t) : ('gardens.viewer' | t) }}
                       </span>
                     }
                   </div>
-                  <div class="collab-actions">
-                    @if (editingRoleFor() === collab.user_id) {
-                      <button class="btn-icon btn-save" (click)="saveRole(gardenData()!.id, collab.user_id)" title="{{ 'app.save' | t }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                      </button>
-                      <button class="btn-icon btn-cancel" (click)="cancelEditRole()" title="{{ 'app.cancel' | t }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                      </button>
-                    } @else {
-                      <button class="btn-icon btn-edit" (click)="startEditRole(collab.user_id, collab.garden_role)" title="{{ 'app.edit' | t }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                      </button>
-                      <button class="btn-icon btn-remove" (click)="removeCollaborator(gardenData()!.id, collab.user_id, collab.user_name || collab.user_email)" title="{{ 'gardens.removeCollaborator' | t }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                      </button>
-                    }
-                  </div>
+                  @if (canManageCollaborators() && collab.garden_role !== 'owner' && !collab.is_pending) {
+                    <div class="collab-actions">
+                      @if (editingRoleFor() === collab.user_id) {
+                        <button class="btn-icon btn-save" (click)="saveRole(gardenData()!.id, collab.user_id)" title="{{ 'app.save' | t }}">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        </button>
+                        <button class="btn-icon btn-cancel" (click)="cancelEditRole()" title="{{ 'app.cancel' | t }}">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                      } @else {
+                        <button class="btn-icon btn-edit" (click)="startEditRole(collab.user_id, collab.garden_role)" title="{{ 'app.edit' | t }}">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button class="btn-icon btn-remove" (click)="removeCollaborator(gardenData()!.id, collab.user_id, collab.user_name || collab.user_email)" title="{{ 'gardens.removeCollaborator' | t }}">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                      }
+                    </div>
+                  }
                 </div>
               }
             </div>
@@ -123,12 +130,14 @@
             <span class="owner-avatar">SS</span>
             <span>{{ 'gardens.owner' | t }}</span>
           </span>
-          <button class="btn-delete" (click)="onDelete()" title="{{ 'gardens.delete' | t }}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="3,6 5,6 21,6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-            </svg>
-          </button>
+          @if (isOwner()) {
+            <button class="btn-delete" (click)="onDelete()" title="{{ 'gardens.delete' | t }}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3,6 5,6 21,6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          }
         </div>
       </aside>
 

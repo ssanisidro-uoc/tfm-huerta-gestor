@@ -29,59 +29,139 @@
 
       <!-- Filters -->
       <div class="filters-bar">
-        <div class="filter-group">
-          <label for="garden-filter">{{ 'calendar.garden' | t }}:</label>
+        <div class="filter-item">
+          <label for="garden-filter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            </svg>
+          </label>
           <select 
             id="garden-filter" 
             [ngModel]="selectedGardenId()" 
             (ngModelChange)="selectedGardenId.set($event); onGardenChange()">
             <option value="">{{ 'calendar.allGardens' | t }}</option>
-            <option *ngFor="let garden of gardens()" [value]="garden.id">
-              {{ garden.name }}
-            </option>
+            @for (garden of gardens(); track garden.id) {
+              <option [value]="garden.id">{{ garden.name }}</option>
+            }
           </select>
         </div>
 
-        <div class="filter-group">
-          <label for="crop-filter">{{ 'calendar.crop' | t }}:</label>
+        <div class="filter-item">
+          <label for="plot-filter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            </svg>
+          </label>
+          <select 
+            id="plot-filter" 
+            [ngModel]="selectedPlotId()" 
+            (ngModelChange)="selectedPlotId.set($event); onPlotChange()">
+            <option value="">{{ 'calendar.allPlots' | t }}</option>
+            @for (plot of plots(); track plot.id) {
+              <option [value]="plot.id">{{ plot.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label for="crop-filter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 10c-2.5 0-4.5 2-4.5 4.5 0 .5.1 1 .2 1.5H9a2 2 0 0 0-2 2c0 1.1.9 2 2 2h10a2 2 0 0 0 2-2 2 2 0 0 0-2-2h-1.3c.1-.5.2-1 .2-1.5 0-2.5-2-4.5-4.5-4.5z"/>
+              <path d="M12 2c3 0 5.5 2.5 5.5 5.5S15 13 12 13"/>
+              <path d="M12 8V2"/>
+            </svg>
+          </label>
           <select 
             id="crop-filter" 
             [ngModel]="selectedCropId()" 
             (ngModelChange)="selectedCropId.set($event); onCropChange()">
             <option value="">{{ 'calendar.allCrops' | t }}</option>
-            <option *ngFor="let crop of crops()" [value]="crop.id">
-              {{ crop.name }}
-            </option>
+            @for (crop of crops(); track crop.id) {
+              <option [value]="crop.id">{{ crop.name }}</option>
+            }
           </select>
         </div>
 
-        <div class="filter-group">
-          <label for="tasktype-filter">{{ 'calendar.type' | t }}:</label>
+        <div class="filter-item">
+          <label for="tasktype-filter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="16"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+          </label>
           <select 
             id="tasktype-filter" 
             [ngModel]="selectedTaskType()" 
             (ngModelChange)="selectedTaskType.set($event); onTaskTypeChange()">
-            <option value="">{{ 'calendar.allTypes' | t }}</option>
-            <option *ngFor="let type of taskTypes()" [value]="type">
-              {{ getTaskTypeLabel(type) }}
-            </option>
+            @for (type of taskTypes; track type.value) {
+              <option [value]="type.value">{{ type.label }}</option>
+            }
           </select>
         </div>
+
+        <button class="clear-filters-btn" (click)="clearFilters()" title="{{ 'calendar.clearFilters' | t }}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="task-legend">
+        <span class="legend-item">
+          <span class="legend-dot type-planting"></span>
+          <span class="legend-label">{{ 'calendar.legend.planting' | t }}</span>
+        </span>
+        <span class="legend-item">
+          <span class="legend-dot type-watering"></span>
+          <span class="legend-label">{{ 'calendar.legend.watering' | t }}</span>
+        </span>
+        <span class="legend-item">
+          <span class="legend-dot type-harvest"></span>
+          <span class="legend-label">{{ 'calendar.legend.harvest' | t }}</span>
+        </span>
+        <span class="legend-item">
+          <span class="legend-dot type-nutrition"></span>
+          <span class="legend-label">{{ 'calendar.legend.nutrition' | t }}</span>
+        </span>
+        <span class="legend-item">
+          <span class="legend-dot type-pest"></span>
+          <span class="legend-label">{{ 'calendar.legend.pest' | t }}</span>
+        </span>
+        <span class="legend-item">
+          <span class="legend-dot type-maintenance"></span>
+          <span class="legend-label">{{ 'calendar.legend.maintenance' | t }}</span>
+        </span>
       </div>
 
       <div class="calendar-nav">
-        <button class="nav-btn" (click)="calendarService.previousMonth()" aria-label="Mes anterior">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15,18 9,12 15,6"/>
-          </svg>
-        </button>
-        <h2 class="current-month">{{ calendarService.monthName() }}</h2>
-        <button class="nav-btn" (click)="calendarService.nextMonth()" aria-label="Mes siguiente">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="9,18 15,12 9,6"/>
-          </svg>
-        </button>
-        <button class="today-btn" (click)="calendarService.goToToday()">{{ 'calendar.today' | t }}</button>
+        @if (viewMode() === 'week') {
+          <button class="nav-btn" (click)="previousWeek()" aria-label="Semana anterior">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15,18 9,12 15,6"/>
+            </svg>
+          </button>
+          <h2 class="current-month">{{ calendarService.weekName() }}</h2>
+          <button class="nav-btn" (click)="nextWeek()" aria-label="Semana siguiente">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9,18 15,12 9,6"/>
+            </svg>
+          </button>
+        } @else {
+          <button class="nav-btn" (click)="previousMonth()" aria-label="Mes anterior">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15,18 9,12 15,6"/>
+            </svg>
+          </button>
+          <h2 class="current-month">{{ calendarService.monthName() }}</h2>
+          <button class="nav-btn" (click)="nextMonth()" aria-label="Mes siguiente">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9,18 15,12 9,6"/>
+            </svg>
+          </button>
+        }
+        <button class="today-btn" (click)="goToToday()">{{ 'calendar.today' | t }}</button>
       </div>
 
       <!-- Month View -->
@@ -117,7 +197,7 @@
       @if (viewMode() === 'week') {
         <div class="week-view">
           <div class="week-grid">
-            @for (day of calendarService.calendarDays().slice(0, 7); track day.date.toISOString()) {
+            @for (day of calendarService.currentWeekDays(); track day.date.toISOString()) {
               <div 
                 class="week-day" 
                 [class.today]="day.isToday"
@@ -125,7 +205,7 @@
                 (click)="selectDate(day.date)"
               >
                 <div class="week-day-header">
-                  <span class="week-day-name">{{ weekDays[day.date.getDay()] }}</span>
+                  <span class="week-day-name">{{ weekDaysFull[day.date.getDay() === 0 ? 6 : day.date.getDay() - 1] }}</span>
                   <span class="week-day-number" [class.today-number]="day.isToday">{{ day.date.getDate() }}</span>
                 </div>
                 <div class="week-day-tasks">
@@ -173,15 +253,23 @@
       <!-- Selected Day Panel -->
       @if (selectedDate()) {
         <div class="selected-day-panel">
-          <h3>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-            {{ 'calendar.tasksFor' | t }} {{ selectedDate() | date:'fullDate':'es-ES' }}
-          </h3>
+          <div class="selected-day-header">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              {{ 'calendar.tasksFor' | t }} {{ selectedDate() | date:'dd MMM':'es-ES' }}
+            </h3>
+            <button class="close-day-btn" (click)="selectDate(null)" title="Cerrar">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
           @if (getTasksForDate(selectedDate()!).length === 0) {
             <div class="no-tasks">
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -217,19 +305,21 @@
                   <span class="task-status" [ngClass]="task.status">
                     {{ getStatusLabel(task.status) }}
                   </span>
-                  @if (task.status === 'pending') {
+                  @if (task.status === 'pending' || task.status === 'postponed') {
                     <div class="task-actions">
                       <button class="btn-action btn-complete" (click)="openCompleteModal(task)" title="Completar">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <polyline points="20,6 9,17 4,12"/>
                         </svg>
                       </button>
-                      <button class="btn-action btn-postpone" (click)="openPostponeModal(task)" title="Aplazar">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <circle cx="12" cy="12" r="10"/>
-                          <polyline points="12,6 12,12 16,14"/>
-                        </svg>
-                      </button>
+                      @if (task.status === 'pending') {
+                        <button class="btn-action btn-postpone" (click)="openPostponeModal(task)" title="Aplazar">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                          </svg>
+                        </button>
+                      }
                       <button class="btn-action btn-cancel" (click)="cancelTask(task)" title="Cancelar">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <line x1="18" y1="6" x2="6" y2="18"/>

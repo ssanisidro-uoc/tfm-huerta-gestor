@@ -35,8 +35,8 @@ export class PostgresAssociationObservationsRepository extends PostgresRepositor
     const query = `
       SELECT 
         ao.*,
-        pc1.crop_name as primary_crop_name,
-        pc2.crop_name as companion_crop_name
+        pc1.common_name as primary_crop_name,
+        pc2.common_name as companion_crop_name
       FROM association_observations ao
       JOIN planting_associations pa ON ao.association_id = pa.id
       JOIN plantings p1 ON pa.primary_planting_id = p1.id
@@ -55,8 +55,8 @@ export class PostgresAssociationObservationsRepository extends PostgresRepositor
     const query = `
       SELECT 
         ao.*,
-        pc1.crop_name as primary_crop_name,
-        pc2.crop_name as companion_crop_name
+        pc1.common_name as primary_crop_name,
+        pc2.common_name as companion_crop_name
       FROM association_observations ao
       JOIN planting_associations pa ON ao.association_id = pa.id
       JOIN plantings p1 ON pa.primary_planting_id = p1.id
@@ -102,8 +102,8 @@ export class PostgresAssociationObservationsRepository extends PostgresRepositor
       SELECT 
         pa.primary_planting_id,
         pa.companion_planting_id,
-        pc1.crop_name as primary_crop_name,
-        pc2.crop_name as companion_crop_name,
+        pc1.common_name as primary_crop_name,
+        pc2.common_name as companion_crop_name,
         COUNT(ao.id) as observation_count,
         AVG(ao.effectiveness_rating) as avg_rating,
         mode() WITHIN GROUP (ORDER BY ao.outcome) as most_common_outcome
@@ -115,7 +115,7 @@ export class PostgresAssociationObservationsRepository extends PostgresRepositor
       LEFT JOIN association_observations ao ON ao.association_id = pa.id
       WHERE (p1.plot_id = $1 OR p2.plot_id = $1)
         AND pa.is_active = true
-      GROUP BY pa.primary_planting_id, pa.companion_planting_id, pc1.crop_name, pc2.crop_name
+      GROUP BY pa.primary_planting_id, pa.companion_planting_id, pc1.common_name, pc2.common_name
       ORDER BY observation_count DESC, avg_rating DESC NULLS LAST
     `;
 

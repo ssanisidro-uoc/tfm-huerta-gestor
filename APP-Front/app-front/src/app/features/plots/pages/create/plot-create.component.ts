@@ -103,6 +103,14 @@ export class PlotCreateComponent {
         if (response) {
           this.router.navigate(['/gardens', this.gardenId]);
         }
+      },
+      error: (err) => {
+        const serverError = err?.error?.message || err?.error?.error || err?.message;
+        if (serverError && serverError.includes('superficie')) {
+          this.plotService.setError(serverError);
+        } else {
+          this.plotService.setError('Error al crear la parcela');
+        }
       }
     });
   }

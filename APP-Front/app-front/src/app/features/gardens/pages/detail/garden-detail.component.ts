@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../../../core/services/i18n/translate.pipe';
 import { TranslationService } from '../../../../core/services/i18n/translation.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import {
   BreadcrumbComponent,
   BreadcrumbItem,
@@ -108,10 +109,29 @@ export class GardenDetailComponent implements OnInit {
     private tasksService: TasksService,
     private plantingService: PlantingService,
     private translationService: TranslationService,
+    private authService: AuthService,
   ) {}
 
   t(key: string): string {
     return this.translationService.t(key);
+  }
+
+  isOwner(): boolean {
+    const garden = this.gardenData();
+    const user = this.authService.currentUser();
+    return garden?.owner_id === user?.id;
+  }
+
+  canManageCollaborators(): boolean {
+    return this.isOwner();
+  }
+
+  canInviteCollaborators(): boolean {
+    return this.isOwner();
+  }
+
+  canEditGarden(): boolean {
+    return this.isOwner();
   }
 
   ngOnInit(): void {

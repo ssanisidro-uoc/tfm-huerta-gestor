@@ -30,7 +30,7 @@ export class ManualTaskCreator {
       planting_id: data.planting_id,
       task_type: data.task_type,
       task_category: data.task_category,
-      generated_by: 'manual',
+      generated_by: 'user',
       template_id: null,
       title: new TaskTitle(data.title),
       description: data.description || undefined,

@@ -4,9 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../../../core/services/i18n/translate.pipe';
 import { CalendarService, Task, CalendarDay } from '../../../../core/services/calendar.service';
 import { GardenService } from '../../../gardens/services/garden.service';
-import { CropService, Crop } from '../../../crops/services/crop.service';
+import { PlotService } from '../../../plots/services/plot.service';
+import { PlantingService } from '../../../plantings/services/planting.service';
 
 export type ViewMode = 'month' | 'week' | 'crop';
+
+interface SimpleCrop {
+  id: string;
+  name: string;
+}
 
 @Component({
   selector: 'app-calendar',
@@ -19,7 +25,8 @@ export type ViewMode = 'month' | 'week' | 'crop';
 export class CalendarComponent implements OnInit {
   calendarService = inject(CalendarService);
   private gardenService = inject(GardenService);
-  private cropService = inject(CropService);
+  private plotService = inject(PlotService);
+  private plantingService = inject(PlantingService);
 
   selectedDate = signal<Date | null>(null);
   viewMode = signal<ViewMode>('month');
@@ -32,57 +39,141 @@ export class CalendarComponent implements OnInit {
   postponeDate = '';
 
   gardens = signal<{id: string, name: string}[]>([]);
+  plots = signal<{id: string, name: string}[]>([]);
+  crops = signal<SimpleCrop[]>([]);
+  
   selectedGardenId = signal<string>('');
-  crops = signal<Crop[]>([]);
+  selectedPlotId = signal<string>('');
   selectedCropId = signal<string>('');
-  taskTypes = signal<string[]>(['watering', 'weeding', 'fertilizing', 'planting', 'harvesting', 'pruning', 'spraying', 'maintenance']);
   selectedTaskType = signal<string>('');
 
-  weekDays = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  taskTypes = [
+    { value: '', label: 'Todos' },
+    { value: 'watering', label: 'Riego' },
+    { value: 'weeding', label: 'Desherbado' },
+    { value: 'fertilizing', label: 'Abonado' },
+    { value: 'planting', label: 'Siembra' },
+    { value: 'harvesting', label: 'Cosecha' },
+    { value: 'pruning', label: 'Poda' },
+    { value: 'treatment', label: 'Fitosanitario' },
+    { value: 'maintenance', label: 'Mantenimiento' },
+    { value: 'other', label: 'Otro' }
+  ];
 
-  private weekTasksCache: Task[] | null = null;
+  weekDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  weekDaysFull = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
   ngOnInit(): void {
     this.loadGardens();
-    this.loadCrops();
+    this.loadCalendarData();
   }
 
   loadGardens(): void {
     this.gardenService.getGardens().subscribe((response: any) => {
       if (response && response.gardens) {
         this.gardens.set(response.gardens.map((g: any) => ({ id: g.id, name: g.name })));
-        if (response.gardens.length > 0) {
-          this.selectedGardenId.set(response.gardens[0].id);
-          this.loadCalendarData();
-        }
       }
     });
   }
 
-  loadCrops(): void {
-    this.cropService.getCrops(1, 100).subscribe((response: any) => {
-      if (response && response.crops) {
-        this.crops.set(response.crops);
-      }
+  onGardenChange(): void {
+    this.selectedPlotId.set('');
+    if (this.selectedGardenId()) {
+      this.plotService.getPlotsByGarden(this.selectedGardenId()).subscribe((response: any) => {
+        if (response && response.plots) {
+          this.plots.set(response.plots.map((p: any) => ({ id: p.id, name: p.name })));
+          this.loadCropsFromPlots(response.plots.map((p: any) => p.id));
+        }
+      });
+    } else {
+      this.plots.set([]);
+      this.crops.set([]);
+    }
+    this.loadCalendarData();
+  }
+
+  loadCropsFromPlots(plotIds: string[]): void {
+    if (plotIds.length === 0) {
+      this.crops.set([]);
+      return;
+    }
+    
+    const cropsMap = new Map<string, SimpleCrop>();
+    let completed = 0;
+    
+    plotIds.forEach(plotId => {
+      this.plantingService.getPlantingsByPlot(plotId).subscribe({
+        next: (response) => {
+          if (response?.data) {
+            response.data.forEach((planting: any) => {
+              if (!cropsMap.has(planting.crop_id)) {
+                cropsMap.set(planting.crop_id, {
+                  id: planting.crop_id,
+                  name: planting.crop_name || 'Cultivo sin nombre'
+                });
+              }
+            });
+          }
+          completed++;
+          if (completed === plotIds.length) {
+            this.crops.set(Array.from(cropsMap.values()));
+          }
+        },
+        error: () => {
+          completed++;
+          if (completed === plotIds.length) {
+            this.crops.set(Array.from(cropsMap.values()));
+          }
+        }
+      });
     });
   }
 
   loadCalendarData(): void {
-    const gardenId = this.selectedGardenId();
-    if (!gardenId) return;
-
     const currentDate = this.calendarService.currentDate();
-    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-
     const filters: any = {};
-    if (this.selectedTaskType()) filters.task_type = this.selectedTaskType();
-    if (this.selectedCropId()) filters.crop_id = this.selectedCropId();
-
-    this.calendarService.loadTasksByDateRange(gardenId, startOfMonth, endOfMonth, filters);
+    
+    if (this.viewMode() === 'week') {
+      const startOfWeek = new Date(currentDate);
+      startOfWeek.setDate(currentDate.getDate() - ((currentDate.getDay() + 6) % 7));
+      startOfWeek.setHours(0, 0, 0, 0);
+      
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setHours(23, 59, 59, 999);
+      
+      if (this.selectedGardenId()) filters.garden_id = this.selectedGardenId();
+      if (this.selectedPlotId()) filters.plot_id = this.selectedPlotId();
+      if (this.selectedCropId()) filters.crop_id = this.selectedCropId();
+      if (this.selectedTaskType()) filters.task_type = this.selectedTaskType();
+      
+      this.calendarService.loadAllCalendarTasks(startOfWeek, endOfWeek, filters);
+    } else {
+      const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      
+      const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      endOfMonth.setHours(23, 59, 59, 999);
+      
+      if (this.selectedGardenId()) filters.garden_id = this.selectedGardenId();
+      if (this.selectedPlotId()) filters.plot_id = this.selectedPlotId();
+      if (this.selectedCropId()) filters.crop_id = this.selectedCropId();
+      if (this.selectedTaskType()) filters.task_type = this.selectedTaskType();
+      
+      this.calendarService.loadAllCalendarTasks(startOfMonth, endOfMonth, filters);
+    }
   }
 
-  onGardenChange(): void {
+  onPlotChange(): void {
+    if (this.selectedPlotId()) {
+      this.loadCropsFromPlots([this.selectedPlotId()]);
+    } else if (this.selectedGardenId()) {
+      this.plotService.getPlotsByGarden(this.selectedGardenId()).subscribe((response: any) => {
+        if (response && response.plots) {
+          this.loadCropsFromPlots(response.plots.map((p: any) => p.id));
+        }
+      });
+    }
     this.loadCalendarData();
   }
 
@@ -96,9 +187,45 @@ export class CalendarComponent implements OnInit {
 
   setViewMode(mode: ViewMode): void {
     this.viewMode.set(mode);
+    this.loadCalendarData();
   }
 
-  selectDate(date: Date): void {
+  clearFilters(): void {
+    this.selectedGardenId.set('');
+    this.selectedPlotId.set('');
+    this.selectedCropId.set('');
+    this.selectedTaskType.set('');
+    this.plots.set([]);
+    this.crops.set([]);
+    this.loadCalendarData();
+  }
+
+  goToToday(): void {
+    this.calendarService.goToDate(new Date());
+    this.loadCalendarData();
+  }
+
+  previousMonth(): void {
+    this.calendarService.previousMonth();
+    this.loadCalendarData();
+  }
+
+  nextMonth(): void {
+    this.calendarService.nextMonth();
+    this.loadCalendarData();
+  }
+
+  previousWeek(): void {
+    this.calendarService.previousWeek();
+    this.loadCalendarData();
+  }
+
+  nextWeek(): void {
+    this.calendarService.nextWeek();
+    this.loadCalendarData();
+  }
+
+  selectDate(date: Date | null): void {
     this.selectedDate.set(date);
   }
 
@@ -112,20 +239,17 @@ export class CalendarComponent implements OnInit {
   }
 
   getWeekTasks(): Task[] {
-    if (this.weekTasksCache) {
-      return this.weekTasksCache;
-    }
     const tasks: Task[] = [];
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
+    const currentDate = this.calendarService.currentDate();
+    const startOfWeek = new Date(currentDate);
+    startOfWeek.setDate(currentDate.getDate() - ((currentDate.getDay() + 6) % 7));
+    startOfWeek.setHours(0, 0, 0, 0);
     
     for (let i = 0; i < 7; i++) {
       const day = new Date(startOfWeek);
       day.setDate(startOfWeek.getDate() + i);
       tasks.push(...this.calendarService.getTasksForDate(day));
     }
-    this.weekTasksCache = tasks;
     return tasks;
   }
 
@@ -203,7 +327,7 @@ export class CalendarComponent implements OnInit {
       this.calendarService.completeTask(task.id, this.completionNotes).subscribe(result => {
         if (result) {
           this.closeCompleteModal();
-          this.weekTasksCache = null;
+          this.loadCalendarData();
         }
       });
     }
@@ -230,7 +354,7 @@ export class CalendarComponent implements OnInit {
       this.calendarService.postponeTask(task.id, this.postponeReason, until).subscribe(result => {
         if (result) {
           this.closePostponeModal();
-          this.weekTasksCache = null;
+          this.loadCalendarData();
         }
       });
     }
@@ -239,7 +363,11 @@ export class CalendarComponent implements OnInit {
   cancelTask(task: Task): void {
     const reason = prompt('Motivo de cancelación:');
     if (reason) {
-      this.calendarService.cancelTask(task.id, reason).subscribe();
+      this.calendarService.cancelTask(task.id, reason).subscribe(result => {
+        if (result) {
+          this.loadCalendarData();
+        }
+      });
     }
   }
 }

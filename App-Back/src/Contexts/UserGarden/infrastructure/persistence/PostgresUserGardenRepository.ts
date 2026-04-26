@@ -193,13 +193,18 @@ export class PostgresUserGardenRepository extends PostgresRepository implements 
       FROM user_gardens ug
       LEFT JOIN users u ON ug.user_id = u.id
       WHERE ug.garden_id = $1
-        AND ug.invitation_accepted_at IS NOT NULL
-      ORDER BY ug.garden_role DESC, u.name ASC
+      ORDER BY 
+        CASE WHEN ug.garden_role = 'owner' THEN 0 ELSE 1 END,
+        ug.garden_role DESC, 
+        u.name ASC
     `;
 
     try {
       const result = await this.query<any>(query, [garden_id]);
-      return result.rows;
+      return result.rows.map(row => ({
+        ...row,
+        is_pending: row.invitation_accepted_at === null
+      }));
     } catch (error) {
       throw new Error(`Error finding collaborators: ${error}`);
     }

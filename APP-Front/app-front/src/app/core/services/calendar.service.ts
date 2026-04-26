@@ -57,6 +57,57 @@ export class CalendarService {
     return date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
   });
 
+  readonly weekName = computed(() => {
+    const date = this.currentDateSignal();
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - date.getDay() + 1);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    
+    const startDay = startOfWeek.getDate();
+    const endDay = endOfWeek.getDate();
+    const startMonth = startOfWeek.toLocaleDateString('es-ES', { month: 'short' });
+    const endMonth = endOfWeek.toLocaleDateString('es-ES', { month: 'short' });
+    
+    if (startMonth === endMonth) {
+      return `${startDay} - ${endDay} ${startMonth}`;
+    }
+    return `${startDay} ${startMonth} - ${endDay} ${endMonth}`;
+  });
+
+  readonly currentWeekDays = computed((): CalendarDay[] => {
+    const currentDate = this.currentDateSignal();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const startOfWeek = new Date(currentDate);
+    startOfWeek.setDate(currentDate.getDate() - ((currentDate.getDay() + 6) % 7));
+    startOfWeek.setHours(0, 0, 0, 0);
+    
+    const days: CalendarDay[] = [];
+    
+    const allTasks = this.tasksSignal();
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(startOfWeek);
+      date.setDate(startOfWeek.getDate() + i);
+      
+      const dayTasks = allTasks.filter(task => {
+        const taskDate = new Date(task.date);
+        return taskDate.toDateString() === date.toDateString();
+      });
+      
+      days.push({
+        date,
+        isCurrentMonth: date.getMonth() === currentDate.getMonth(),
+        isToday: date.toDateString() === today.toDateString(),
+        tasks: dayTasks
+      });
+    }
+    
+    return days;
+  });
+
   readonly calendarDays = computed((): CalendarDay[] => {
     const currentDate = this.currentDateSignal();
     const year = currentDate.getFullYear();
@@ -65,7 +116,8 @@ export class CalendarService {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay());
+    const offset = (firstDay.getDay() + 6) % 7;
+    startDate.setDate(firstDay.getDate() - offset);
 
     const days: CalendarDay[] = [];
     const today = new Date();
@@ -166,6 +218,54 @@ export class CalendarService {
     ).subscribe();
   }
 
+  loadAllCalendarTasks(
+    startDate: Date,
+    endDate: Date,
+    filters?: { garden_id?: string; plot_id?: string; planting_id?: string; task_type?: string; status?: string; crop_id?: string }
+  ): void {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    const params: Record<string, string> = {
+      start_date: startDate.toISOString().split('T')[0],
+      end_date: endDate.toISOString().split('T')[0]
+    };
+
+    if (filters?.garden_id) params['garden_id'] = filters.garden_id;
+    if (filters?.plot_id) params['plot_id'] = filters.plot_id;
+    if (filters?.planting_id) params['planting_id'] = filters.planting_id;
+    if (filters?.task_type) params['task_type'] = filters.task_type;
+    if (filters?.status) params['status'] = filters.status;
+    if (filters?.crop_id) params['crop_id'] = filters.crop_id;
+
+    this.http.get<any>(`${this.API_URL}/api/tasks/calendar`, { params }).pipe(
+      tap(response => {
+        if (response.success) {
+          const tasks: Task[] = response.tasks.map((task: any) => ({
+            id: task.id,
+            title: task.title,
+            description: task.description,
+            date: new Date(task.scheduled_date),
+            type: task.task_type as any,
+            status: task.status,
+            garden_id: task.garden_id,
+            garden_name: task.garden_name,
+            plot_id: task.plot_id,
+            plot_name: task.plot_name,
+            planting_id: task.planting_id
+          }));
+          this.tasksSignal.set(tasks);
+        }
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error loading calendar tasks');
+        return of(null);
+      })
+    ).subscribe();
+  }
+
   loadTasksForGardens(gardenIds: string[], gardenNames: Record<string, string>): void {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
@@ -215,8 +315,22 @@ export class CalendarService {
     this.currentDateSignal.set(new Date(current.getFullYear(), current.getMonth() + 1, 1));
   }
 
+  previousWeek(): void {
+    const current = this.currentDateSignal();
+    this.currentDateSignal.set(new Date(current.getFullYear(), current.getMonth(), current.getDate() - 7));
+  }
+
+  nextWeek(): void {
+    const current = this.currentDateSignal();
+    this.currentDateSignal.set(new Date(current.getFullYear(), current.getMonth(), current.getDate() + 7));
+  }
+
   goToToday(): void {
     this.currentDateSignal.set(new Date());
+  }
+
+  goToDate(date: Date): void {
+    this.currentDateSignal.set(date);
   }
 
   addTask(task: Omit<Task, 'id'>): void {

@@ -42,3 +42,7 @@ services:
   Backend.Task.controllers.GetTaskStatsController:
     class: ../../../controllers/task/GetTaskStatsController
     arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Task.controllers.GetAllCalendarTasksController:
+    class: ../../../controllers/task/GetAllCalendarTasksController
+    arguments: ['@Backend.Shared.domain.QueryBus']

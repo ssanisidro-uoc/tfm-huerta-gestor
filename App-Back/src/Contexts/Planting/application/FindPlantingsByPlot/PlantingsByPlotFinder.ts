@@ -9,6 +9,7 @@ export interface PlantingsByPlotFinderResponse {
     crop_name?: string;
     garden_id: string;
     plot_id: string;
+    plot_name: string;
     planted_at: Date;
     expected_harvest_at: Date;
     harvested_at: Date | null;
@@ -57,6 +58,7 @@ export class PlantingsByPlotFinder {
         crop_name: cropName,
         garden_id: p.garden_id.get_value(),
         plot_id: p.plot_id,
+        plot_name: plot.name.get_value(),
         planted_at: p.planted_at,
         expected_harvest_at: p.expected_harvest_at,
         harvested_at: p.harvested_at,

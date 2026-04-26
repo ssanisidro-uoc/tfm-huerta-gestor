@@ -53,6 +53,7 @@ export interface CreateTaskRequest {
   description?: string;
   garden_id: string;
   plot_id?: string;
+  planting_id?: string;
   task_type?: string;
   task_category?: string;
   scheduled_date?: Date;
@@ -183,7 +184,7 @@ export class TasksService {
     this.errorSignal.set(null);
 
     return this.http
-      .post<{ success: boolean; message?: string }>(`${this.API_URL}/api/tasks`, data)
+      .post<{ success: boolean; message?: string }>(`${this.API_URL}/api/gardens/${data.garden_id}/tasks`, data)
       .pipe(
         tap(() => {
           this.loadingSignal.set(false);

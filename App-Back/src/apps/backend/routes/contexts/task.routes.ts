@@ -11,6 +11,7 @@ import { DeleteManualTaskController } from '../../controllers/task/DeleteManualT
 import { GetCalendarTasksController } from '../../controllers/task/GetCalendarTasksController';
 import { GetUnifiedIntelligenceController } from '../../controllers/task/GetUnifiedIntelligenceController';
 import { GetTaskStatsController } from '../../controllers/task/GetTaskStatsController';
+import { GetAllCalendarTasksController } from '../../controllers/task/GetAllCalendarTasksController';
 
 export async function register_task_routes(router: Router): Promise<void> {
   const postponeTaskController = await container.get('Backend.Task.controllers.PostponeTaskController') as PostponeTaskController;
@@ -23,6 +24,7 @@ export async function register_task_routes(router: Router): Promise<void> {
   const calendarTasksController = await container.get('Backend.Task.controllers.GetCalendarTasksController') as GetCalendarTasksController;
   const intelligenceController = await container.get('Backend.Task.controllers.GetUnifiedIntelligenceController') as GetUnifiedIntelligenceController;
   const taskStatsController = await container.get('Backend.Task.controllers.GetTaskStatsController') as GetTaskStatsController;
+  const allCalendarTasksController = await container.get('Backend.Task.controllers.GetAllCalendarTasksController') as GetAllCalendarTasksController;
 
   router.get('/api/tasks', require_auth, (req, res, next) => {
     findTasksController.run(req, res, next);
@@ -30,6 +32,10 @@ export async function register_task_routes(router: Router): Promise<void> {
 
   router.get('/api/tasks/stats', require_auth, (req, res, next) => {
     taskStatsController.run(req, res, next);
+  });
+
+  router.get('/api/tasks/calendar', require_auth, (req, res, next) => {
+    allCalendarTasksController.run(req, res, next);
   });
 
   router.get('/api/gardens/:garden_id/tasks', require_auth, (req, res, next) => {

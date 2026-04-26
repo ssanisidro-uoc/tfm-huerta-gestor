@@ -56,11 +56,11 @@ export class RotationObservationsRepository extends PostgresRepository {
   async findByPlotId(plotId: string): Promise<RotationObservation[]> {
     const query = `
       SELECT ro.*, 
-             pc.crop_name as previous_crop_name,
-             cc.crop_name as current_crop_name
+             pc.common_name as previous_crop_name,
+             cc.common_name as current_crop_name
       FROM rotation_observations ro
       JOIN plantings p ON ro.current_planting_id = p.id
-      LEFT JOIN crop_catalog pc ON pc.id = (SELECT crop_id FROM plantings WHERE id = ro.previous_planting_id)
+      LEFT JOIN crop_catalog pc ON pc.id = (SELECT crop_catalog_id FROM plantings WHERE id = ro.previous_planting_id)
       LEFT JOIN crop_catalog cc ON cc.id = p.crop_catalog_id
       WHERE p.plot_id = $1
       ORDER BY ro.observation_date DESC

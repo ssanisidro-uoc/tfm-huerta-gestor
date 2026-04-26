@@ -134,6 +134,13 @@ h2 {
   padding: 0.75rem;
   background: var(--color-primary-light);
   border-radius: var(--radius-md);
+  border-left: 4px solid var(--color-success);
+
+  [data-theme="dark"] & {
+    background: rgba(74, 222, 128, 0.15);
+    color: #86efac;
+    border-left-color: #4ade80;
+  }
 }
 
 .planting-info {
@@ -177,6 +184,12 @@ h2 {
   
   p {
     margin: 0;
+  }
+  
+  [data-theme="dark"] & {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fef3c7;
+    border-color: #f59e0b;
   }
 }
 
