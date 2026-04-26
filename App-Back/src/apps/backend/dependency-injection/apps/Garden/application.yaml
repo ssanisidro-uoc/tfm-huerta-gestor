@@ -35,9 +35,21 @@ services:
     class: ../../../controllers/garden/ListSharedGardensController
     arguments: ['@Backend.Shared.domain.QueryBus']
 
+  Backend.Garden.controllers.GetMyGardensController:
+    class: ../../../controllers/garden/GetMyGardensController
+    arguments: ['@Backend.Shared.domain.QueryBus']
+
   Backend.Garden.controllers.FindGardenCollaboratorsController:
     class: ../../../controllers/garden/FindGardenCollaboratorsController
     arguments: ['@Backend.Shared.domain.QueryBus']
+
+  Backend.Garden.controllers.UpdateCollaboratorRoleController:
+    class: ../../../controllers/garden/UpdateCollaboratorRoleController
+    arguments: ['@Backend.Shared.domain.CommandBus']
+
+  Backend.Garden.controllers.RemoveCollaboratorController:
+    class: ../../../controllers/garden/RemoveCollaboratorController
+    arguments: ['@Backend.Shared.domain.CommandBus']
 
   Backend.Garden.controllers.ValidateLocationController:
     class: ../../../controllers/garden/ValidateLocationController

@@ -84,6 +84,17 @@ services:
     tags:
       - { name: 'queryHandler' }
 
+  Backend.Task.application.GetAllCalendarTasksFinder:
+    class: ../../../../Contexts/Task/application/GetAllCalendarTasks/GetAllCalendarTasksFinder
+    arguments:
+      ['@Backend.Task.domain.TaskRepository', '@Backend.Garden.domain.UserGardenRepository']
+
+  Backend.Task.application.GetAllCalendarTasksQueryHandler:
+    class: ../../../../Contexts/Task/application/GetAllCalendarTasks/GetAllCalendarTasksQueryHandler
+    arguments: ['@Backend.Task.application.GetAllCalendarTasksFinder']
+    tags:
+      - { name: 'queryHandler' }
+
   Backend.Task.application.AllTasksFinder:
     class: ../../../../Contexts/Task/application/FindAllTasks/AllTasksFinder
     arguments: ['@Backend.Task.domain.TaskRepository']
@@ -113,13 +124,21 @@ services:
   Backend.Task.application.TaskStatsFinder:
     class: ../../../../Contexts/Task/application/TaskStats/TaskStatsFinder
     arguments:
-      [
-        '@Backend.Garden.domain.UserGardenRepository',
-        '@Backend.Task.domain.TaskRepository'
-      ]
+      ['@Backend.Garden.domain.UserGardenRepository', '@Backend.Task.domain.TaskRepository']
 
   Backend.Task.application.TaskStatsQueryHandler:
     class: ../../../../Contexts/Task/application/TaskStats/TaskStatsQueryHandler
     arguments: ['@Backend.Task.application.TaskStatsFinder']
+    tags:
+      - { name: 'queryHandler' }
+
+  Backend.Task.application.TasksByPlantingQueryHandler:
+    class: ../../../../Contexts/Task/application/TasksByPlanting/TasksByPlantingQueryHandler
+    arguments:
+      [
+        '@Backend.Task.domain.TaskRepository',
+        '@Backend.Plot.domain.PlotRepository',
+        '@Backend.User.domain.UserRepository'
+      ]
     tags:
       - { name: 'queryHandler' }

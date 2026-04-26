@@ -8,7 +8,7 @@
 
     .btn-back {
       display: inline-block;
-      color: #3498db;
+      color: var(--color-primary);
       text-decoration: none;
       margin-bottom: 0.5rem;
       font-size: 0.9rem;
@@ -20,7 +20,7 @@
 
     h1 {
       font-size: 1.5rem;
-      color: #2c3e50;
+      color: var(--text-primary);
       margin-bottom: 0.5rem;
     }
 
@@ -29,11 +29,11 @@
       gap: 1rem;
       flex-wrap: wrap;
       font-size: 0.95rem;
-      color: #7f8c8d;
+      color: var(--text-secondary);
 
       .crop-name {
         font-weight: 600;
-        color: #27ae60;
+        color: var(--color-success);
       }
     }
   }
@@ -45,8 +45,8 @@
     .spinner {
       width: 40px;
       height: 40px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #3498db;
+      border: 3px solid var(--border-color);
+      border-top: 3px solid var(--color-primary);
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin: 0 auto 1rem;
@@ -56,24 +56,24 @@
   .error {
     text-align: center;
     padding: 2rem;
-    background: #fee;
+    background: var(--color-error-light);
     border-radius: 8px;
 
     .error-message {
-      color: #c0392b;
+      color: var(--color-error);
       margin-bottom: 1rem;
     }
 
     .btn-retry {
       padding: 0.5rem 1.5rem;
-      background: #3498db;
-      color: white;
+      background: var(--color-primary);
+      color: var(--text-on-primary);
       border: none;
       border-radius: 4px;
       cursor: pointer;
 
       &:hover {
-        background: #2980b9;
+        background: var(--color-primary-light);
       }
     }
   }
@@ -88,37 +88,39 @@
       text-align: center;
       padding: 1rem;
       border-radius: 8px;
-      background: #f8f9fa;
+      background: var(--bg-secondary);
 
       .count {
         display: block;
         font-size: 1.5rem;
         font-weight: 600;
+        color: var(--text-primary);
       }
 
       .label {
         font-size: 0.8rem;
-        color: #7f8c8d;
+        color: var(--text-primary);
+        opacity: 0.7;
       }
 
       &.completed {
-        background: #d4edda;
-        .count { color: #28a745; }
+        background: var(--color-success-light);
+        .count { color: var(--color-success); }
       }
 
       &.pending {
-        background: #fff3cd;
-        .count { color: #ffc107; }
+        background: var(--color-warning-light);
+        .count { color: var(--color-warning); }
       }
 
       &.postponed {
-        background: #d1ecf1;
-        .count { color: #17a2b8; }
+        background: var(--color-info-light);
+        .count { color: var(--color-info); }
       }
 
       &.cancelled {
-        background: #f8d7da;
-        .count { color: #dc3545; }
+        background: var(--color-error-light);
+        .count { color: var(--color-error); }
       }
     }
   }
@@ -130,25 +132,25 @@
   }
 
   .task-item {
-    background: white;
-    border: 1px solid #e0e0e0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1rem;
 
     &.completed {
-      border-left: 4px solid #28a745;
+      border-left: 4px solid var(--color-success);
     }
 
     &.pending {
-      border-left: 4px solid #ffc107;
+      border-left: 4px solid var(--color-warning);
     }
 
     &.postponed {
-      border-left: 4px solid #17a2b8;
+      border-left: 4px solid var(--color-info);
     }
 
     &.cancelled {
-      border-left: 4px solid #dc3545;
+      border-left: 4px solid var(--color-error);
       opacity: 0.7;
     }
 
@@ -160,7 +162,7 @@
 
       .task-type {
         font-size: 0.8rem;
-        color: #7f8c8d;
+        color: var(--text-secondary);
         text-transform: uppercase;
       }
 
@@ -170,16 +172,16 @@
         border-radius: 4px;
         font-weight: 500;
 
-        &.completed { background: #d4edda; color: #28a745; }
-        &.pending { background: #fff3cd; color: #856404; }
-        &.postponed { background: #d1ecf1; color: #0c5460; }
-        &.cancelled { background: #f8d7da; color: #721c24; }
+        &.completed { background: var(--color-success-light); color: var(--color-success); }
+        &.pending { background: var(--color-warning-light); color: var(--color-warning); }
+        &.postponed { background: var(--color-info-light); color: var(--color-info); }
+        &.cancelled { background: var(--color-error-light); color: var(--color-error); }
       }
     }
 
     .task-title {
       font-size: 1rem;
-      color: #2c3e50;
+      color: var(--text-primary);
       margin: 0 0 0.5rem;
     }
 
@@ -187,7 +189,7 @@
       display: flex;
       gap: 1rem;
       font-size: 0.85rem;
-      color: #7f8c8d;
+      color: var(--text-secondary);
       margin-bottom: 0.5rem;
     }
 
@@ -197,26 +199,26 @@
       font-size: 0.85rem;
       margin-top: 0.5rem;
       padding-top: 0.5rem;
-      border-top: 1px solid #f0f0f0;
+      border-top: 1px solid var(--border-color);
     }
 
     .task-completion {
-      color: #28a745;
+      color: var(--color-success);
     }
 
     .task-postponed {
-      color: #17a2b8;
+      color: var(--color-info);
     }
 
     .task-cancelled {
-      color: #dc3545;
+      color: var(--color-error);
     }
   }
 
   .empty-tasks {
     text-align: center;
     padding: 3rem;
-    color: #7f8c8d;
+    color: var(--text-secondary);
   }
 }
 

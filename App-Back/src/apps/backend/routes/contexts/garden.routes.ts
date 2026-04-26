@@ -10,8 +10,12 @@ import { InviteCollaboratorController } from '../../controllers/garden/InviteCol
 import { AcceptInvitationController } from '../../controllers/garden/AcceptInvitationController';
 import { RejectInvitationController } from '../../controllers/garden/RejectInvitationController';
 import { ListSharedGardensController } from '../../controllers/garden/ListSharedGardensController';
+import { GetMyGardensController } from '../../controllers/garden/GetMyGardensController';
 import { FindGardenCollaboratorsController } from '../../controllers/garden/FindGardenCollaboratorsController';
+import { UpdateCollaboratorRoleController } from '../../controllers/garden/UpdateCollaboratorRoleController';
+import { RemoveCollaboratorController } from '../../controllers/garden/RemoveCollaboratorController';
 import { ValidateLocationController } from '../../controllers/garden/ValidateLocationController';
+import { async_handler } from '../../middleware';
 
 export async function register_garden_routes(router: Router): Promise<void> {
   const createGardenController = await container.get('Backend.Garden.controllers.CreateGardenController') as CreateGardenController;
@@ -23,13 +27,17 @@ export async function register_garden_routes(router: Router): Promise<void> {
   const acceptInvitationController = await container.get('Backend.Garden.controllers.AcceptInvitationController') as AcceptInvitationController;
   const rejectInvitationController = await container.get('Backend.Garden.controllers.RejectInvitationController') as RejectInvitationController;
   const listSharedGardensController = await container.get('Backend.Garden.controllers.ListSharedGardensController') as ListSharedGardensController;
+  const getMyGardensController = await container.get('Backend.Garden.controllers.GetMyGardensController') as GetMyGardensController;
   const findGardenCollaboratorsController = await container.get('Backend.Garden.controllers.FindGardenCollaboratorsController') as FindGardenCollaboratorsController;
+  const updateCollaboratorRoleController = await container.get('Backend.Garden.controllers.UpdateCollaboratorRoleController') as UpdateCollaboratorRoleController;
+  const removeCollaboratorController = await container.get('Backend.Garden.controllers.RemoveCollaboratorController') as RemoveCollaboratorController;
   const validateLocationController = await container.get('Backend.Garden.controllers.ValidateLocationController') as ValidateLocationController;
 
   router.post('/api/gardens', require_auth, (req, res, next) => createGardenController.run(req, res, next));
   
   // Importante: rutas específicas ANTES de /:id
   router.get('/api/gardens/shared', require_auth, (req, res, next) => listSharedGardensController.run(req, res, next));
+  router.get('/api/gardens/my-gardens', require_auth, (req, res, next) => getMyGardensController.run(req, res, next));
   router.get('/api/gardens/validate-location', (req, res, next) => validateLocationController.validateCity(req, res, next));
   router.get('/api/gardens/search-cities', (req, res, next) => validateLocationController.searchCities(req, res, next));
   
@@ -40,6 +48,8 @@ export async function register_garden_routes(router: Router): Promise<void> {
 
   router.post('/api/gardens/:gardenId/collaborators', require_auth, (req, res, next) => inviteCollaboratorController.run(req, res, next));
   router.get('/api/gardens/:gardenId/collaborators', require_auth, (req, res, next) => findGardenCollaboratorsController.run(req, res, next));
+  router.patch('/api/gardens/:gardenId/collaborators/:collaboratorId', require_auth, async_handler((req, res, next) => updateCollaboratorRoleController.run(req, res, next)));
+  router.delete('/api/gardens/:gardenId/collaborators/:collaboratorId', require_auth, async_handler((req, res, next) => removeCollaboratorController.run(req, res, next)));
   router.post('/api/gardens/:gardenId/accept', require_auth, (req, res, next) => acceptInvitationController.run(req, res, next));
   router.post('/api/gardens/:gardenId/reject', require_auth, (req, res, next) => rejectInvitationController.run(req, res, next));
 };

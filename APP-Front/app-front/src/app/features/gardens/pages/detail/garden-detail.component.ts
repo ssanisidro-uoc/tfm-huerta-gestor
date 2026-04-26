@@ -67,7 +67,7 @@ interface HarvestHistoryItem {
   styleUrl: './garden-detail.component.scss'
 })
 export class GardenDetailComponent implements OnInit {
-  garden = signal<GardenDetail | null>(null);
+  gardenData = signal<GardenDetail | null>(null);
   plots = signal<PlotWithCrops[]>([]);
   tasks = signal<GardenTask[]>([]);
   harvestHistory = signal<HarvestHistoryItem[]>([]);
@@ -77,6 +77,8 @@ export class GardenDetailComponent implements OnInit {
 
   isEditing = signal(false);
   isInviting = signal(false);
+  editingRoleFor = signal<string | null>(null);
+  editRoleValue = '';
   editForm: Partial<CreateGardenRequest> = {};
   inviteEmail = '';
   inviteRole = 'collaborator';
@@ -140,7 +142,7 @@ export class GardenDetailComponent implements OnInit {
     this.gardenService.getGardenById(id).subscribe({
       next: (garden) => {
         if (garden) {
-          this.garden.set(garden);
+          this.gardenData.set(garden);
           this.breadcrumbs.set([
             { label: 'Huertas', routerLink: '/gardens' },
             { label: garden.name },
@@ -324,7 +326,7 @@ export class GardenDetailComponent implements OnInit {
   }
 
   startEdit(): void {
-    const g = this.garden();
+    const g = this.gardenData();
     if (g) {
       this.router.navigate(['/gardens', g.id, 'edit']);
       this.editMessage.set('');
@@ -370,6 +372,45 @@ export class GardenDetailComponent implements OnInit {
             this.inviteMessage.set('Invitación enviada correctamente');
             this.inviteEmail = '';
             setTimeout(() => this.isInviting.set(false), 2000);
+          }
+        },
+      });
+    }
+  }
+
+  startEditRole(collaboratorId: string, currentRole: string): void {
+    this.editingRoleFor.set(collaboratorId);
+    this.editRoleValue = currentRole;
+  }
+
+  cancelEditRole(): void {
+    this.editingRoleFor.set(null);
+    this.editRoleValue = '';
+  }
+
+  saveRole(gardenId: string, collaboratorId: string): void {
+    if (this.editRoleValue) {
+      this.gardenService.updateCollaboratorRole(gardenId, collaboratorId, this.editRoleValue).subscribe({
+        next: (response) => {
+          if (response && response.success) {
+            this.loadCollaborators(gardenId);
+            this.editingRoleFor.set(null);
+            this.editMessage.set('Rol actualizado correctamente');
+            setTimeout(() => this.editMessage.set(''), 2000);
+          }
+        },
+      });
+    }
+  }
+
+  removeCollaborator(gardenId: string, collaboratorId: string, collaboratorName: string): void {
+    if (confirm(`¿Estás seguro de que quieres eliminar a ${collaboratorName} de esta huerta?`)) {
+      this.gardenService.removeCollaborator(gardenId, collaboratorId).subscribe({
+        next: (response) => {
+          if (response && response.success) {
+            this.loadCollaborators(gardenId);
+            this.editMessage.set('Colaborador eliminado correctamente');
+            setTimeout(() => this.editMessage.set(''), 2000);
           }
         },
       });

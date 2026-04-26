@@ -4,6 +4,12 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TasksService } from '../../services/tasks.service';
 import { TranslatePipe } from '../../../../core/services/i18n/translate.pipe';
 
+interface TaskUserInfo {
+  id: string;
+  name: string;
+  email?: string;
+}
+
 interface TaskHistoryItem {
   task_id: string;
   title: string;
@@ -14,8 +20,11 @@ interface TaskHistoryItem {
   scheduled_date: string;
   due_date: string | null;
   completed_at: string | null;
-  completed_by: string | null;
+  completed_by: TaskUserInfo | null;
+  cancelled_at: string | null;
+  cancelled_by: TaskUserInfo | null;
   postponed_at: string | null;
+  postponed_by: TaskUserInfo | null;
   postponed_until: string | null;
   postponed_reason: string | null;
   cancellation_reason: string | null;
@@ -60,8 +69,14 @@ export class TaskHistoryComponent implements OnInit {
 
     this.tasksService.getTasksByPlanting(this.plantingId).subscribe((response: any) => {
       this.loading.set(false);
-      if (response && response.success) {
-        this.history.set(response.data);
+      if (response && response.success && response.tasks) {
+        this.history.set({
+          planting_id: this.plantingId,
+          crop_name: '',
+          plot_name: '',
+          garden_name: '',
+          tasks: response.tasks
+        });
       } else {
         this.error.set('Error al cargar el historial');
       }
@@ -69,19 +84,25 @@ export class TaskHistoryComponent implements OnInit {
   }
 
   getCompletedCount(): number {
-    return this.history()?.tasks.filter(t => t.status === 'completed').length || 0;
+    return this.getSortedTasks().filter(t => t.status === 'completed').length || 0;
   }
 
   getPendingCount(): number {
-    return this.history()?.tasks.filter(t => t.status === 'pending').length || 0;
+    return this.getSortedTasks().filter(t => t.status === 'pending').length || 0;
   }
 
   getPostponedCount(): number {
-    return this.history()?.tasks.filter(t => t.status === 'postponed').length || 0;
+    return this.getSortedTasks().filter(t => t.status === 'postponed').length || 0;
   }
 
   getCancelledCount(): number {
-    return this.history()?.tasks.filter(t => t.status === 'cancelled').length || 0;
+    return this.getSortedTasks().filter(t => t.status === 'cancelled').length || 0;
+  }
+
+  getSortedTasks(): TaskHistoryItem[] {
+    return this.history()?.tasks.slice().sort((a, b) => 
+      new Date(a.scheduled_date).getTime() - new Date(b.scheduled_date).getTime()
+    ) || [];
   }
 
   formatDate(dateStr: string): string {

@@ -42,7 +42,7 @@
     <div class="task-items">
       <div 
         class="task-item" 
-        *ngFor="let task of history()?.tasks"
+        *ngFor="let task of getSortedTasks()"
         [ngClass]="task.status">
         <div class="task-header">
           <span class="task-type">{{ getTaskTypeLabel(task.task_type) }}</span>
@@ -54,15 +54,18 @@
           <span class="date due" *ngIf="task.due_date">{{ 'tasks.dueDatePrefix' | t }}: {{ formatDate(task.due_date!) }}</span>
         </div>
         <div class="task-completion" *ngIf="task.completed_at">
-          <span class="completed-date">{{ 'tasks.completedCount' | t }}: {{ formatDate(task.completed_at) }}</span>
-          <span class="completed-by" *ngIf="task.completed_by">{{ 'tasks.completedBy' | t:{user: task.completed_by} }}</span>
+          <span class="completed-date">{{ 'tasks.completedOn' | t }}: {{ formatDate(task.completed_at) }}</span>
+          <span class="completed-by" *ngIf="task.completed_by">{{ 'tasks.completedBy' | t:{user: task.completed_by.name} }}</span>
         </div>
         <div class="task-postponed" *ngIf="task.postponed_at">
-          <span class="postponed-info">{{ 'tasks.postponedCount' | t }}: {{ task.postponed_until ? formatDate(task.postponed_until) : '' }}</span>
+          <span class="postponed-info">{{ 'tasks.postponedUntil' | t }}: {{ task.postponed_until ? formatDate(task.postponed_until) : '' }}</span>
+          <span class="postponed-by" *ngIf="task.postponed_by">{{ 'tasks.postponedBy' | t:{user: task.postponed_by.name} }}</span>
           <span class="postponed-reason" *ngIf="task.postponed_reason">{{ 'tasks.postponedReason' | t:{reason: task.postponed_reason} }}</span>
         </div>
         <div class="task-cancelled" *ngIf="task.cancellation_reason">
-          <span class="cancelled-reason">{{ 'tasks.cancelledCount' | t }}: {{ task.cancellation_reason }}</span>
+          <span class="cancelled-reason">{{ 'tasks.cancelledOn' | t }}: {{ formatDate(task.cancelled_at || '') }}</span>
+          <span class="cancelled-by" *ngIf="task.cancelled_by">{{ 'tasks.cancelledBy' | t:{user: task.cancelled_by.name} }}</span>
+          <span class="cancelled-reason-text">{{ task.cancellation_reason }}</span>
         </div>
       </div>
     </div>

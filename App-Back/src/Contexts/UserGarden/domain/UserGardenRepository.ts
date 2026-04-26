@@ -19,4 +19,5 @@ export interface UserGardenRepository {
   delete(id: string): Promise<void>;
   delete_by_user_and_garden(user_id: string, garden_id: string): Promise<void>;
   has_permission(userId: string, gardenId: string, requiredRole: string): Promise<boolean>;
+  updateRole(userId: string, gardenId: string, role: string): Promise<void>;
 }

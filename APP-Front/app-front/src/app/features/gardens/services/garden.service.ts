@@ -116,6 +116,32 @@ export interface SharedGarden {
   } | null;
 }
 
+export interface PendingInvitation {
+  id: string;
+  garden_id: string;
+  garden: {
+    id: string;
+    name: string;
+    climate_zone: string;
+    location: GardenLocation;
+  };
+  invited_by: string;
+  invited_by_name: string;
+  invited_by_email: string;
+  invited_at: Date;
+}
+
+export interface MyGardensResponse {
+  own: SharedGarden[];
+  shared: SharedGarden[];
+  pendingInvitations: PendingInvitation[];
+}
+
+export interface MyGardensApiResponse {
+  success: boolean;
+  data: MyGardensResponse;
+}
+
 export interface InviteResponse {
   success: boolean;
   message: string;
@@ -287,6 +313,22 @@ export class GardenService {
     );
   }
 
+  getMyGardens(): Observable<MyGardensApiResponse | null> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    return this.http.get<MyGardensApiResponse>(`${this.API_URL}/api/gardens/my-gardens`).pipe(
+      tap(response => {
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error loading gardens');
+        return of(null);
+      })
+    );
+  }
+
   acceptInvitation(gardenId: string): Observable<{ success: boolean; message: string } | null> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
@@ -323,6 +365,43 @@ export class GardenService {
     return this.http.get<{ collaborators: any[] }>(`${this.API_URL}/api/gardens/${gardenId}/collaborators`).pipe(
       catchError((err: HttpErrorResponse) => {
         this.errorSignal.set(err.error?.message || 'Error loading collaborators');
+        return of(null);
+      })
+    );
+  }
+
+  updateCollaboratorRole(gardenId: string, collaboratorId: string, role: string): Observable<{ success: boolean; message: string } | null> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    return this.http.patch<{ success: boolean; message: string }>(
+      `${this.API_URL}/api/gardens/${gardenId}/collaborators/${collaboratorId}`,
+      { role }
+    ).pipe(
+      tap(() => {
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error updating collaborator role');
+        return of(null);
+      })
+    );
+  }
+
+  removeCollaborator(gardenId: string, collaboratorId: string): Observable<{ success: boolean; message: string } | null> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    return this.http.delete<{ success: boolean; message: string }>(
+      `${this.API_URL}/api/gardens/${gardenId}/collaborators/${collaboratorId}`
+    ).pipe(
+      tap(() => {
+        this.loadingSignal.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set(err.error?.message || 'Error removing collaborator');
         return of(null);
       })
     );

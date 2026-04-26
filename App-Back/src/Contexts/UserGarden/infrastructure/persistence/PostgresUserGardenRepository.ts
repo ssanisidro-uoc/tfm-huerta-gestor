@@ -165,6 +165,21 @@ export class PostgresUserGardenRepository extends PostgresRepository implements 
     }
   }
 
+  async updateRole(userId: string, gardenId: string, role: string): Promise<void> {
+    const now = new Date();
+    const query = `
+      UPDATE user_gardens SET
+        garden_role = $3,
+        updated_at = $4
+      WHERE user_id = $1 AND garden_id = $2
+    `;
+
+    const result = await this.query<any>(query, [userId, gardenId, role, now]);
+    if (result.rowCount === 0) {
+      throw new Error('Collaborator not found');
+    }
+  }
+
   async find_collaborators_by_garden(garden_id: string): Promise<any[]> {
     const query = `
       SELECT 
