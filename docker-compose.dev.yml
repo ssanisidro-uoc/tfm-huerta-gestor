@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: huerta
+      POSTGRES_PASSWORD: huerta
+      POSTGRES_DB: huerta
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U huerta"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./App-Back
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://huerta:huerta@db:5432/huerta
+      NODE_ENV: development
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./App-Back:/app
+      - /app/node_modules
+
+  frontend:
+    build:
+      context: ./APP-Front/app-front
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    ports:
+      - "4200:4200"
+    environment:
+      API_URL: http://localhost:3000
+    volumes:
+      - ./APP-Front/app-front:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
