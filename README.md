@@ -1,4 +1,4 @@
-# Huerta Gestor - TFM
+# Huertis - TFM
 
 Aplicación full-stack para la gestión de huertas y cultivos, desarrollada con Angular 19 (frontend) y Node.js/Express (backend) con PostgreSQL.
 
@@ -7,14 +7,25 @@ Aplicación full-stack para la gestión de huertas y cultivos, desarrollada con 
 - **Node.js** 18+ 
 - **PostgreSQL** 16+
 - **npm** 9+
+- **Docker** (opcional, para despliegue con contenedores)
+- **Docker Compose** (opcional, para despliegue con contenedores)
 
 ## Estructura del proyecto
 
 ```
 TFM/
-├── App-Back/           # Backend (Node.js + Express + PostgreSQL)
-├── APP-Front/         # Frontend (Angular 19)
-└── wireframes/        # Wireframes de la aplicación
+├── App-Back/              # Backend (Node.js + Express + PostgreSQL)
+├── APP-Front/             # Frontend (Angular 19)
+│   └── app-front/
+├── wireframes/            # Wireframes de la aplicación
+├── postman/               # Colección y entorno de Postman para API
+├── Dockerfile             # Dockerfile para producción
+├── docker-compose.yml     # Docker Compose para producción
+├── docker-compose.dev.yml # Docker Compose para desarrollo
+├── nginx.conf             # Configuración de Nginx
+├── deploy-huertis.sh      # Script de despliegue remoto
+├── start.sh               # Script de inicio local
+└── .dockerignore
 ```
 
 ## Configuración de la base de datos
@@ -143,18 +154,21 @@ npm run prettier    # Formatear código
 ```bash
 # Backend
 cd App-Back
-npm run test           # Todas las pruebas
+npm run test           # Todas las pruebas (unitarias + features)
 npm run test:unit      # Pruebas unitarias
 npm run test:features  # Pruebas de características
+npm run test:e2e       # Pruebas end-to-end
 
 # Frontend
 cd APP-Front/app-front
 npm test
 ```
 
-### Thunder Client (API)
+### Postman (API)
 
-Importar colección desde `.vscode/tfm-huerta-gestor-api.json` para probar los endpoints.
+Importar colección y entorno desde `postman/`:
+- **Colección:** `postman/Huertis_API.postman_collection.json`
+- **Entorno:** `postman/Huertis_Dev.postman_environment.json`
 
 ---
 
@@ -165,9 +179,68 @@ Importar colección desde `.vscode/tfm-huerta-gestor-api.json` para probar los e
 | Frontend | Angular 19, TypeScript, RxJS |
 | Backend | Node.js, Express, TypeScript |
 | Base de datos | PostgreSQL 16 |
-| Autenticación | JWT (jsonwebtoken) |
+| Autenticación | JWT (jsonwebtoken), bcrypt |
+| Contenedores | Docker, Docker Compose |
+| Reverse Proxy | Nginx |
+| Process Manager | PM2 |
 | Testing | Jest (backend), Karma/Jasmine (frontend) |
 | Formato | ESLint, Prettier |
+
+---
+
+## Despliegue con Docker
+
+### Desarrollo
+
+```bash
+docker compose -f docker-compose.dev.yml up -d
+```
+
+Levantará 3 servicios:
+- **PostgreSQL** en `localhost:5432`
+- **Backend** en `http://localhost:3000`
+- **Frontend** en `http://localhost:4200`
+
+Con hot-reload para ambos servicios. Para parar:
+
+```bash
+docker compose -f docker-compose.dev.yml down
+```
+
+### Producción
+
+```bash
+docker compose up -d --build
+```
+
+Levantará:
+- **PostgreSQL** en `localhost:5432`
+- **Aplicación completa** (frontend + backend) en `http://localhost:8080`
+
+Para parar y limpiar:
+
+```bash
+docker compose down
+docker compose down -v  # Incluye volúmenes (borra datos de PostgreSQL)
+```
+
+---
+
+## Despliegue en servidor remoto
+
+El script `deploy-huertis.sh` automatiza el despliegue en un servidor remoto (AWS) con:
+
+1. Preparación del servidor (Node.js, PostgreSQL, Nginx, PM2)
+2. Subida del código
+3. Compilación de frontend y backend
+4. Configuración de la base de datos
+5. Configuración de Nginx como reverse proxy
+6. Inicio del backend con PM2
+
+```bash
+./deploy-huertis.sh          # Menú interactivo
+./deploy-huertis.sh full     # Despliegue completo automático
+```
 
 ---
 
