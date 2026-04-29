@@ -17,7 +17,6 @@ TFM/
 ├── App-Back/              # Backend (Node.js + Express + PostgreSQL)
 ├── APP-Front/             # Frontend (Angular 19)
 │   └── app-front/
-├── wireframes/            # Wireframes de la aplicación
 ├── postman/               # Colección y entorno de Postman para API
 ├── Dockerfile             # Dockerfile para producción
 ├── docker-compose.yml     # Docker Compose para producción
